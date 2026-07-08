@@ -233,7 +233,12 @@ if (modal) {
     const name = form.querySelector('input[type="text"]').value;
     const phone = form.querySelector('input[type="tel"]').value;
     const dob = form.querySelector('input[type="date"]').value;
-    rrkCustomers.register({ name, phone, dob: dob || null }).then(() => {}).catch(() => {});
+    // Save customer to localStorage
+    try {
+      const customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
+      customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
+      localStorage.setItem('rrk_customers', JSON.stringify(customers));
+    } catch(e) {}
     localStorage.setItem('rrk_member', '1');
     closeModal();
     window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
@@ -296,7 +301,11 @@ function checkout() {
   msg += `%0A*Total: \u20B9${cartTotal()}*`;
 
   // Track order for admin dashboard
-  rrkOrders.save({ items: cart.map(i => `${i.qty}x ${i.name}`).join(', '), total: cartTotal(), mode: type }).catch(() => {});
+  try {
+    const orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
+    orders.push({ items: cart.map(i => i.qty+'x '+i.name).join(', '), total: cartTotal(), mode: type, created_at: new Date().toISOString() });
+    localStorage.setItem('rrk_orders', JSON.stringify(orders));
+  } catch(e) {}
   saveCart([]);
 
   window.open(`https://wa.me/919999999999?text=${msg}`, '_blank');

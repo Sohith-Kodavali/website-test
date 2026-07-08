@@ -11,44 +11,23 @@
 <div class="loader" aria-hidden="true"><div class="loader__inner"><div class="loader__logo"><span>RRK</span> Chicken</div><div class="loader__spinner"></div></div></div>
 
 <header class="nav" id="nav" role="banner">
-  <div class="container nav__inner">
-    <a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
-    <nav class="nav__links" id="navLinks" aria-label="Main navigation">
-      <a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html" class="active" aria-current="page">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
-    </nav>
-    <div class="nav__right">
-      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
-      <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
-    </div>
+  <div class="container nav__inner"><a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+    <nav class="nav__links" id="navLinks" aria-label="Main navigation"><a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html" class="active" aria-current="page">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a></nav>
+    <div class="nav__right"><a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a><button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button></div>
   </div>
 </header>
 
 <main id="main-content"><div id="render-craft"></div></main>
 
 <footer class="footer" role="contentinfo">
-  <div class="container footer__inner">
-    <div><a href="index.html" class="logo logo--light" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a><p class="muted">Premium chicken restaurant in Eluru.</p></div>
-    <div class="footer__links"><h5>Quick Links</h5><a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a></div>
-    <div class="footer__links"><h5>Follow</h5><div class="socials"><a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a></div></div>
-  </div>
-  <div class="footer__bar">© 2026 RRK Chicken. All rights reserved.</div>
-  <div class="footer__admin"><a href="admin.html">Admin</a></div>
+  <div class="container footer__inner"><div><a href="index.html" class="logo logo--light" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a><p class="muted">Premium chicken restaurant in Eluru.</p></div><div class="footer__links"><h5>Quick Links</h5><a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a></div><div class="footer__links"><h5>Follow</h5><div class="socials"><a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a></div></div></div><div class="footer__bar">© 2026 RRK Chicken. All rights reserved.</div><div class="footer__admin"><a href="admin.html">Admin</a></div>
 </footer>
 
-<nav class="bottom-nav" aria-label="Quick navigation">
-  <a href="index.html"><span class="bn-icon">🏠</span>Home</a>
-  <a href="menu.html"><span class="bn-icon">📋</span>Menu</a>
-  <a href="craft-my-plate.html" class="active"><span class="bn-icon">🍽️</span>Craft</a>
-  <a href="raw-chicken.html"><span class="bn-icon">🥩</span>Raw</a>
-</nav>
+<nav class="bottom-nav" aria-label="Quick navigation"><a href="index.html"><span class="bn-icon">🏠</span>Home</a><a href="menu.html"><span class="bn-icon">📋</span>Menu</a><a href="craft-my-plate.html" class="active"><span class="bn-icon">🍽️</span>Craft</a><a href="raw-chicken.html"><span class="bn-icon">🥩</span>Raw</a></nav>
 
 <a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/firebase.js"></script>
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('craft');let chosen={name:'',price:0};function pickCombo(name,price){chosen={name,price};document.getElementById('comboName').textContent=name;document.getElementById('comboPrice').textContent='\u20B9'+price;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;const ppl=document.getElementById('people').value;const occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();const msg=`*Craft My Plate Order*%0A${chosen.name} - \u20B9${chosen.price}%0APeople: ${ppl}%0AOccasion: ${occ}`;window.open('https://wa.me/919999999999?text='+msg,'_blank');}</script>
+<script>renderForPage('craft');var chosen={name:'',price:0};function pickCombo(n,p){chosen={name:n,price:p};document.getElementById('comboName').textContent=n;document.getElementById('comboPrice').textContent='\u20B9'+p;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;var ppl=document.getElementById('people').value;var occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();window.open('https://wa.me/919999999999?text=*Craft+My+Plate+Order*%0A'+chosen.name+'+-+\u20B9'+chosen.price+'%0APeople:+'+ppl+'%0AOccasion:+'+occ,'_blank');}</script>
 </body></html>
