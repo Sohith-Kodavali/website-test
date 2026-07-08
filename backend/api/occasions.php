@@ -1,29 +1,24 @@
 <?php
 require_once __DIR__ . '/../config.php';
-
 $action = $_GET['action'] ?? 'list';
 
-if ($action === 'list') {
-    $stmt = $pdo->query('SELECT * FROM occasions ORDER BY id');
-    jsonResponse($stmt->fetchAll());
-}
+if ($action === 'list') { jsonResponse(csvRead('occasions')); }
 
 if ($action === 'save') {
     $data = getJsonBody();
+    $occasions = csvRead('occasions');
     if (empty($data['id'])) {
-        $stmt = $pdo->prepare('INSERT INTO occasions (emoji, label) VALUES (?,?)');
-        $stmt->execute([$data['emoji'], $data['label']]);
-        jsonResponse(['id' => $pdo->lastInsertId()], 201);
+        $occasions[] = ['id'=>time(),'emoji'=>$data['emoji'],'label'=>$data['label']];
     } else {
-        $stmt = $pdo->prepare('UPDATE occasions SET emoji=?, label=? WHERE id=?');
-        $stmt->execute([$data['emoji'], $data['label'], $data['id']]);
-        jsonResponse(['message' => 'Updated']);
+        foreach ($occasions as &$o) { if ($o['id'] == $data['id']) { $o['emoji']=$data['emoji'];$o['label']=$data['label'];break; } }
     }
+    csvWrite('occasions', $occasions);
+    jsonResponse(['message' => 'Saved']);
 }
 
 if ($action === 'delete') {
-    $stmt = $pdo->prepare('DELETE FROM occasions WHERE id=?');
-    $stmt->execute([$_GET['id']]);
+    $occasions = array_values(array_filter(csvRead('occasions'), fn($o) => $o['id'] != ($_GET['id'] ?? 0)));
+    csvWrite('occasions', $occasions);
     jsonResponse(['message' => 'Deleted']);
 }
 

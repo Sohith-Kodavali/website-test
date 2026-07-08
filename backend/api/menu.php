@@ -1,35 +1,39 @@
 <?php
 require_once __DIR__ . '/../config.php';
-
 $action = $_GET['action'] ?? 'list';
 
 if ($action === 'list') {
-    $stmt = $pdo->query('SELECT * FROM menu ORDER BY id');
-    jsonResponse($stmt->fetchAll());
-}
-
-if ($action === 'get') {
-    $stmt = $pdo->prepare('SELECT * FROM menu WHERE id = ?');
-    $stmt->execute([$_GET['id']]);
-    jsonResponse($stmt->fetch());
+    jsonResponse(csvRead('menu'));
 }
 
 if ($action === 'save') {
     $data = getJsonBody();
+    $menu = csvRead('menu');
     if (empty($data['id'])) {
-        $stmt = $pdo->prepare('INSERT INTO menu (name, category, diet, description, price, image, special, special_tag) VALUES (?,?,?,?,?,?,?,?)');
-        $stmt->execute([$data['name'], $data['category'], $data['diet'], $data['desc'], $data['price'], $data['image'], $data['special'] ? 1 : 0, $data['specialTag'] ?? null]);
-        jsonResponse(['id' => $pdo->lastInsertId()], 201);
+        $data['id'] = time();
+        $menu[] = [
+            'id' => $data['id'], 'name' => $data['name'], 'category' => $data['category'],
+            'diet' => $data['diet'], 'description' => $data['desc'], 'price' => $data['price'],
+            'image' => $data['image'], 'special' => !empty($data['special']) ? '1' : '0', 'special_tag' => $data['specialTag'] ?? ''
+        ];
     } else {
-        $stmt = $pdo->prepare('UPDATE menu SET name=?, category=?, diet=?, description=?, price=?, image=?, special=?, special_tag=? WHERE id=?');
-        $stmt->execute([$data['name'], $data['category'], $data['diet'], $data['desc'], $data['price'], $data['image'], $data['special'] ? 1 : 0, $data['specialTag'] ?? null, $data['id']]);
-        jsonResponse(['message' => 'Updated']);
+        foreach ($menu as &$m) {
+            if ($m['id'] == $data['id']) {
+                $m['name'] = $data['name']; $m['category'] = $data['category']; $m['diet'] = $data['diet'];
+                $m['description'] = $data['desc']; $m['price'] = $data['price']; $m['image'] = $data['image'];
+                $m['special'] = !empty($data['special']) ? '1' : '0'; $m['special_tag'] = $data['specialTag'] ?? '';
+                break;
+            }
+        }
     }
+    csvWrite('menu', $menu);
+    jsonResponse(['message' => 'Saved']);
 }
 
 if ($action === 'delete') {
-    $stmt = $pdo->prepare('DELETE FROM menu WHERE id=?');
-    $stmt->execute([$_GET['id']]);
+    $menu = csvRead('menu');
+    $menu = array_values(array_filter($menu, fn($m) => $m['id'] != ($_GET['id'] ?? 0)));
+    csvWrite('menu', $menu);
     jsonResponse(['message' => 'Deleted']);
 }
 

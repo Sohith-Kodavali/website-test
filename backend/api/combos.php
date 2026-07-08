@@ -1,29 +1,24 @@
 <?php
 require_once __DIR__ . '/../config.php';
-
 $action = $_GET['action'] ?? 'list';
 
-if ($action === 'list') {
-    $stmt = $pdo->query('SELECT * FROM combos ORDER BY id');
-    jsonResponse($stmt->fetchAll());
-}
+if ($action === 'list') { jsonResponse(csvRead('combos')); }
 
 if ($action === 'save') {
     $data = getJsonBody();
+    $combos = csvRead('combos');
     if (empty($data['id'])) {
-        $stmt = $pdo->prepare('INSERT INTO combos (name, save_badge, description, price) VALUES (?,?,?,?)');
-        $stmt->execute([$data['name'], $data['saveBadge'], $data['desc'], $data['price']]);
-        jsonResponse(['id' => $pdo->lastInsertId()], 201);
+        $combos[] = ['id'=>time(),'name'=>$data['name'],'save_badge'=>$data['saveBadge'],'description'=>$data['desc'],'price'=>$data['price']];
     } else {
-        $stmt = $pdo->prepare('UPDATE combos SET name=?, save_badge=?, description=?, price=? WHERE id=?');
-        $stmt->execute([$data['name'], $data['saveBadge'], $data['desc'], $data['price'], $data['id']]);
-        jsonResponse(['message' => 'Updated']);
+        foreach ($combos as &$c) { if ($c['id'] == $data['id']) { $c['name']=$data['name'];$c['save_badge']=$data['saveBadge'];$c['description']=$data['desc'];$c['price']=$data['price'];break; } }
     }
+    csvWrite('combos', $combos);
+    jsonResponse(['message' => 'Saved']);
 }
 
 if ($action === 'delete') {
-    $stmt = $pdo->prepare('DELETE FROM combos WHERE id=?');
-    $stmt->execute([$_GET['id']]);
+    $combos = array_values(array_filter(csvRead('combos'), fn($c) => $c['id'] != ($_GET['id'] ?? 0)));
+    csvWrite('combos', $combos);
     jsonResponse(['message' => 'Deleted']);
 }
 
