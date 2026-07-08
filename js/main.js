@@ -31,9 +31,13 @@ const revealObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(el => {
-  revealObserver.observe(el);
-});
+function observeRevealElements() {
+  document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(el => {
+    revealObserver.observe(el);
+  });
+}
+// Run immediately for any elements already in DOM
+observeRevealElements();
 
 // ============================================
 // COUNTER ANIMATION
@@ -65,7 +69,9 @@ const counterObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.5 });
 
-document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+function initCounterObserver() {
+  document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+}
 
 // ============================================
 // MOBILE NAV
@@ -330,13 +336,9 @@ function pickChip(el, group) {
   el.classList.add('active');
 }
 
-// ============================================
-// INIT EVERYTHING
-// ============================================
+// Init non-render-dependent things on ready
 document.addEventListener('DOMContentLoaded', () => {
   renderCart();
-  initTestimonials();
   initElegantCursor();
-  initLoader();
-  initMagneticTilt();
+  observeRevealElements();
 });

@@ -9,10 +9,6 @@
 </head>
 <body>
 
-<div class="loader" aria-hidden="true">
-  <div class="loader__inner"><div class="loader__logo"><span>RRK</span> Chicken</div><div class="loader__spinner"></div></div>
-</div>
-
 <header class="nav" id="nav" role="banner">
   <div class="container nav__inner">
     <a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
@@ -61,5 +57,5 @@
 
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('index');</script>
+<script>renderForPage('index');observeRevealElements();initCounterObserver();setTimeout(function(){initTestimonials();initMagneticTilt();}, 200);</script>
 </body></html>
