@@ -233,19 +233,10 @@ if (modal) {
     const name = form.querySelector('input[type="text"]').value;
     const phone = form.querySelector('input[type="tel"]').value;
     const dob = form.querySelector('input[type="date"]').value;
-    fetch('backend/api/customers.php?action=register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, dob })
-    }).then(() => {
-      localStorage.setItem('rrk_member', '1');
-      closeModal();
-      window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
-    }).catch(() => {
-      localStorage.setItem('rrk_member', '1');
-      closeModal();
-      window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
-    });
+    rrkCustomers.register({ name, phone, dob: dob || null }).then(() => {}).catch(() => {});
+    localStorage.setItem('rrk_member', '1');
+    closeModal();
+    window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
   });
 }
 
@@ -305,11 +296,7 @@ function checkout() {
   msg += `%0A*Total: \u20B9${cartTotal()}*`;
 
   // Track order for admin dashboard
-  fetch('backend/api/orders.php?action=save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items: cart.map(i => `${i.qty}x ${i.name}`).join(', '), total: cartTotal(), mode: type })
-  }).catch(() => {});
+  rrkOrders.save({ items: cart.map(i => `${i.qty}x ${i.name}`).join(', '), total: cartTotal(), mode: type }).catch(() => {});
   saveCart([]);
 
   window.open(`https://wa.me/919999999999?text=${msg}`, '_blank');

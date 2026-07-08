@@ -44,6 +44,10 @@
 
 <a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
 <script>renderForPage('craft');let chosen={name:'',price:0};function pickCombo(name,price){chosen={name,price};document.getElementById('comboName').textContent=name;document.getElementById('comboPrice').textContent='\u20B9'+price;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;const ppl=document.getElementById('people').value;const occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();const msg=`*Craft My Plate Order*%0A${chosen.name} - \u20B9${chosen.price}%0APeople: ${ppl}%0AOccasion: ${occ}`;window.open('https://wa.me/919999999999?text='+msg,'_blank');}</script>
