@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin · RRK Chicken</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="admin-page">
+
+<main id="main-content">
+
+<!-- LOGIN FORM -->
+<div class="admin-login" id="adminLogin">
+  <h2>RRK Admin</h2>
+  <p class="muted" style="margin-bottom:24px">Restaurant Dashboard</p>
+  <form id="loginForm" class="form" onsubmit="handleLogin(event)">
+    <input type="text" id="username" placeholder="Username" required autocomplete="username" />
+    <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
+    <button type="submit" class="btn btn--primary btn--block btn--lg">Login</button>
+  </form>
+  <p id="loginError" style="color:var(--red);font-size:13px;margin-top:12px;display:none">Invalid credentials</p>
+</div>
+
+<!-- DASHBOARD -->
+<div class="admin-dashboard" id="adminDashboard" style="display:none">
+  <div class="admin-dashboard__head">
+    <h2>RRK Dashboard</h2>
+    <p style="font-size:14px;opacity:.85">Restaurant Overview</p>
+  </div>
+  <div class="admin-dashboard__body">
+    <div class="admin-stat">
+      <div class="big" id="totalOrders">—</div>
+      <label>Orders Today</label>
+      <p class="muted" style="font-size:11px;margin-top:6px" id="totalRevenue">—</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="admin-stat">
+        <div class="big" id="cartItems" style="color:var(--gold)">—</div>
+        <label>Pending Carts</label>
+      </div>
+      <div class="admin-stat">
+        <div class="big" id="memberCount" style="color:var(--success)">—</div>
+        <label>Members</label>
+      </div>
+    </div>
+    <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Recent Orders</label>
+    <table class="admin-table">
+      <thead><tr><th>Time</th><th>Items</th><th>Total</th></tr></thead>
+      <tbody id="orderLog"><tr><td colspan="3" style="text-align:center;color:var(--muted)">No orders yet</td></tr></tbody>
+    </table>
+    <button class="btn btn--primary btn--block btn--lg" style="margin-top:20px" onclick="logoutAdmin()">Logout</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const ADMIN_KEY = 'rrk_admin';
+const ADMIN_CREDS = { user: 'rrk', pass: 'admin1234' };
+
+function handleLogin(e) {
+  e.preventDefault();
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value.trim();
+  if (u === ADMIN_CREDS.user && p === ADMIN_CREDS.pass) {
+    sessionStorage.setItem(ADMIN_KEY, '1');
+    showDashboard();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function showDashboard() {
+  document.getElementById('adminLogin').style.display = 'none';
+  document.getElementById('adminDashboard').style.display = 'block';
+  loadStats();
+}
+
+function loadStats() {
+  const cart = JSON.parse(localStorage.getItem('rrk_cart') || '[]');
+  const orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
+  const members = localStorage.getItem('rrk_member') ? 1 : 0;
+  const today = new Date().toDateString();
+  const todayOrders = orders.filter(o => new Date(o.time).toDateString() === today);
+
+  document.getElementById('totalOrders').textContent = todayOrders.length || '0';
+  document.getElementById('totalRevenue').textContent = 'Revenue: \u20B9' + todayOrders.reduce((s, o) => s + o.total, 0);
+  document.getElementById('cartItems').textContent = cart.length || '0';
+  document.getElementById('memberCount').textContent = members;
+  document.getElementById('cartItems').dataset.value = 'Cart count: ' + cart.length;
+
+  const log = document.getElementById('orderLog');
+  if (todayOrders.length === 0) {
+    log.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">No orders today</td></tr>';
+  } else {
+    log.innerHTML = todayOrders.slice(-10).reverse().map(o =>
+      `<tr><td>${new Date(o.time).toLocaleTimeString()}</td><td>${o.items}</td><td>\u20B9${o.total}</td></tr>`
+    ).join('');
+  }
+}
+
+function logoutAdmin() {
+  sessionStorage.removeItem(ADMIN_KEY);
+  location.reload();
+}
+
+// Auto-show if already logged in
+if (sessionStorage.getItem(ADMIN_KEY)) {
+  showDashboard();
+}
+</script>
+
+</body></html>

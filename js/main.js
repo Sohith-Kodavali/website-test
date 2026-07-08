@@ -152,6 +152,20 @@ function initTestimonials() {
   track.addEventListener('mouseenter', stopAuto);
   track.addEventListener('mouseleave', startAuto);
 
+  // Swipe support
+  let touchStartX = 0;
+  let touchEndX = 0;
+  track.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; stopAuto(); }, { passive: true });
+  track.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) next();
+      else prev();
+    }
+    startAuto();
+  });
+
   goTo(0);
   startAuto();
 }
@@ -276,6 +290,18 @@ function checkout() {
   let msg = `*New RRK Chicken Order*%0A(${type})%0A%0A`;
   cart.forEach(i => { msg += `${i.qty} x ${i.name} - \u20B9${i.price * i.qty}%0A`; });
   msg += `%0A*Total: \u20B9${cartTotal()}*`;
+
+  // Track order for admin dashboard
+  const orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
+  orders.push({
+    time: new Date().toISOString(),
+    items: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+    total: cartTotal(),
+    mode: type
+  });
+  localStorage.setItem('rrk_orders', JSON.stringify(orders));
+  saveCart([]);
+
   window.open(`https://wa.me/919999999999?text=${msg}`, '_blank');
 }
 
