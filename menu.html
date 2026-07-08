@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Menu · RRK Chicken</title>
+<meta name="theme-color" content="#C1121F" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -23,7 +26,9 @@
   </div>
 </header>
 
-<main id="main-content"><div id="render-menu"></div></main>
+<main id="main-content">
+  <div id="socialProof" class="social-proof reveal" style="margin:16px auto"></div>
+  <div id="render-menu"></div></main>
 
 <footer class="footer" role="contentinfo">
   <div class="container footer__inner">
@@ -63,5 +68,5 @@
 
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('menu');</script>
+<script>renderForPage('menu');initSocialProof();</script>
 </body></html>

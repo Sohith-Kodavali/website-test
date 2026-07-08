@@ -1,0 +1,10 @@
+{
+  "name": "RRK Chicken",
+  "short_name": "RRK Chicken",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#C1121F",
+  "description": "Premium Chicken Restaurant in Eluru",
+  "icons": [{"src": "favicon.svg","sizes": "any","type": "image/svg+xml"}]
+}

@@ -4,6 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>RRK Chicken · Premium Chicken Restaurant · Eluru</title>
+<meta name="description" content="RRK Chicken Eluru - Premium chicken restaurant. Order grilled chicken, biryani, raw chicken & craft your own combo. Fresh daily, 30 min delivery. Call +919999999999" />
+<meta name="keywords" content="chicken restaurant eluru, biryani eluru, raw chicken eluru, grilled chicken, craft my plate" />
+<meta name="author" content="RRK Chicken" />
+<meta name="theme-color" content="#C1121F" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<meta property="og:title" content="RRK Chicken · Premium Chicken Restaurant · Eluru" />
+<meta property="og:description" content="Fresh, hygienic, irresistibly delicious. Order your favourites or build your own combo." />
+<meta property="og:image" content="1.jpeg" />
+<meta property="og:url" content="https://rrk-chicken.vercel.app" />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"RRK Chicken","image":"1.jpeg","address":{"@type":"PostalAddress","streetAddress":"Main Road","addressLocality":"Eluru","addressRegion":"Andhra Pradesh"},"telephone":"+919999999999","servesCuisine":"Indian","priceRange":"₹50 - ₹700","openingHours":"Mo-Su 11:00-23:00"}</script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -25,6 +37,8 @@
 </header>
 
 <main id="main-content">
+  <div id="socialProof" class="social-proof reveal"></div>
+  <div class="delivery-check reveal" id="deliveryCheck" style="margin:0 auto 16px"></div>
   <div id="render-hero"></div>
   <div id="render-specials"></div>
   <div id="render-about"></div>
@@ -59,5 +73,5 @@
 
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('index');</script>
+<script>renderForPage('index');initDeliveryCheck();initSocialProof();requestPushPermission();</script>
 </body></html>

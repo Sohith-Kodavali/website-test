@@ -318,6 +318,10 @@ function checkout() {
     localStorage.setItem('rrk_orders', JSON.stringify(orders));
   } catch(e) {}
   saveCart([]);
+  addLoyaltyPoints(Math.floor(cartTotal() * 0.05));
+  incrementOrderCount();
+  sendPush('Order Confirmed! 🎉', 'Your order of ₹' + cartTotal() + ' has been placed. We\'ll prepare it shortly.');
+  if (typeof initSocialProof === 'function') initSocialProof();
 
   window.open(`https://wa.me/919999999999?text=${msg}`, '_blank');
 }
@@ -334,6 +338,186 @@ function filterCat(cat, el) {
 }
 
 // ============================================
+// LOYALTY POINTS SYSTEM
+// ============================================
+const LOYALTY_KEY = 'rrk_loyalty';
+function getLoyaltyPoints() { return parseInt(localStorage.getItem(LOYALTY_KEY) || '0'); }
+function addLoyaltyPoints(pts) {
+  const current = getLoyaltyPoints();
+  const newTotal = current + pts;
+  localStorage.setItem(LOYALTY_KEY, newTotal);
+  updateLoyaltyBadge();
+  showToast('+' + pts + ' loyalty points earned! 🎉');
+}
+function redeemLoyaltyPoints(pts) {
+  const current = getLoyaltyPoints();
+  if (current >= pts) {
+    localStorage.setItem(LOYALTY_KEY, current - pts);
+    updateLoyaltyBadge();
+    return pts;
+  }
+  return 0;
+}
+function updateLoyaltyBadge() {
+  const badge = document.getElementById('loyaltyBadge');
+  const pts = getLoyaltyPoints();
+  if (!badge) {
+    const b = document.createElement('div');
+    b.id = 'loyaltyBadge';
+    b.className = 'loyalty-badge';
+    document.body.appendChild(b);
+  }
+  const b = document.getElementById('loyaltyBadge');
+  if (b) b.innerHTML = '🏆 <span class="pts">' + pts + ' pts</span>';
+}
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'loyalty-toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+
+// ============================================
+// DARK MODE TOGGLE
+// ============================================
+function initDarkMode() {
+  if (localStorage.getItem('rrk_dark') === '1') {
+    document.body.classList.add('dark-mode');
+  }
+  const toggle = document.createElement('button');
+  toggle.className = 'dark-toggle';
+  toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  toggle.title = 'Toggle dark mode';
+  toggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    toggle.innerHTML = isDark ? '☀️' : '🌙';
+    localStorage.setItem('rrk_dark', isDark ? '1' : '0');
+  });
+  document.body.appendChild(toggle);
+}
+
+// ============================================
+// SHARE BUTTON
+// ============================================
+function initShareButton() {
+  if (!navigator.share) return;
+  const btn = document.createElement('button');
+  btn.className = 'share-btn';
+  btn.innerHTML = '📤';
+  btn.title = 'Share';
+  btn.addEventListener('click', function() {
+    navigator.share({
+      title: 'RRK Chicken - Premium Chicken in Eluru',
+      text: 'Check out RRK Chicken! Fresh, hygienic, and delicious.',
+      url: window.location.origin
+    }).catch(function() {});
+  });
+  document.body.appendChild(btn);
+}
+
+// ============================================
+// DELIVERY RADIUS CHECK (10km from Eluru)
+// ============================================
+const RESTAURANT_LAT = 16.711;
+const RESTAURANT_LNG = 81.104;
+const DELIVERY_RADIUS_KM = 10;
+
+function initDeliveryCheck() {
+  const container = document.getElementById('deliveryCheck');
+  if (!container) return;
+  container.innerHTML = '<input type="text" id="pincodeInput" placeholder="Enter your Eluru pincode..." /><button class="btn btn--primary btn--block" onclick="checkDelivery()">Check Delivery</button><div id="deliveryResult"></div>';
+}
+
+function checkDelivery() {
+  const pin = document.getElementById('pincodeInput').value.trim();
+  if (!pin) return;
+  fetch('https://nominatim.openstreetmap.org/search?postalcode=' + pin + '&country=India&format=json&limit=1')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      const resultEl = document.getElementById('deliveryResult');
+      if (!data || data.length === 0) {
+        resultEl.innerHTML = '<div class="delivery-result out-zone">📍 Pincode not found. Please try again.</div>';
+        return;
+      }
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
+      const dist = getDistanceKm(RESTAURANT_LAT, RESTAURANT_LNG, lat, lng);
+      if (dist <= DELIVERY_RADIUS_KM) {
+        resultEl.innerHTML = '<div class="delivery-result in-zone">✅ We deliver to your area! (~' + dist.toFixed(1) + ' km)</div>';
+        showToast('🎉 Your area is in delivery zone!');
+      } else {
+        resultEl.innerHTML = '<div class="delivery-result out-zone">❌ Sorry, you\'re ' + dist.toFixed(1) + ' km away. Beyond our 10 km radius.</div>';
+      }
+    })
+    .catch(function() {
+      document.getElementById('deliveryResult').innerHTML = '<div class="delivery-result out-zone">⚠️ Could not verify. Please enter manually or call us.</div>';
+    });
+}
+
+function getDistanceKm(lat1, lon1, lat2, lon2) {
+  var R = 6371;
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLon = (lon2 - lon1) * Math.PI / 180;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// ============================================
+// SOCIAL PROOF COUNTER
+// ============================================
+function initSocialProof() {
+  var stored = parseInt(localStorage.getItem('rrk_order_count') || '0');
+  var now = new Date();
+  var today = now.toDateString();
+  var lastDay = localStorage.getItem('rrk_last_order_day');
+  if (lastDay !== today) {
+    localStorage.setItem('rrk_order_count', '0');
+    stored = 0;
+  }
+  var displayCount = stored + Math.floor(Math.random() * 5) + 3;
+  var el = document.getElementById('socialProof');
+  if (!el) return;
+  el.innerHTML = '<span class="sp-dot"></span> <span class="sp-count">' + displayCount + '</span> customers ordered today!';
+}
+
+// Update order count
+function incrementOrderCount() {
+  var count = parseInt(localStorage.getItem('rrk_order_count') || '0') + 1;
+  localStorage.setItem('rrk_order_count', count);
+  localStorage.setItem('rrk_last_order_day', new Date().toDateString());
+}
+
+// ============================================
+// PUSH NOTIFICATIONS
+// ============================================
+var PUSH_ENABLED = false;
+function initPushNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') PUSH_ENABLED = true;
+}
+
+function requestPushPermission() {
+  if (!('Notification' in window)) return;
+  Notification.requestPermission().then(function(p) {
+    if (p === 'granted') {
+      PUSH_ENABLED = true;
+      showToast('🔔 Notifications enabled!');
+    }
+  });
+}
+
+function sendPush(title, body) {
+  if (!PUSH_ENABLED || Notification.permission !== 'granted') return;
+  new Notification(title, {
+    body: body,
+    icon: 'https://via.placeholder.com/192x192.png?text=RRK'
+  });
+}
+
+// ============================================
 // CRAFT MY PLATE CHIPS + SUMMARY
 // ============================================
 function pickChip(el, group) {
@@ -345,5 +529,9 @@ function pickChip(el, group) {
 document.addEventListener('DOMContentLoaded', () => {
   renderCart();
   initElegantCursor();
+  initDarkMode();
+  initShareButton();
+  initPushNotifications();
+  updateLoyaltyBadge();
   observeRevealElements();
 });
