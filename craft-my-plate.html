@@ -7,26 +7,129 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<header class="nav" id="nav"><div class="container nav__inner"><a href="index.html" class="logo"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a><nav class="nav__links" id="navLinks"><a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html" class="active">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a></nav><div class="nav__right"><a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener">WhatsApp</a><button class="nav__burger" id="burger"><span></span><span></span><span></span></button></div></div></header>
-<section class="section"><div class="container"><div class="section__head"><span class="eyebrow">AI-Powered</span><h2>Craft My Plate</h2><p class="muted">Tell us the vibe. We build the perfect combo &amp; unlock savings.</p></div>
-<div class="steps">
-<div class="step"><div class="step__num">1</div><h4>Number of People</h4><input type="range" min="1" max="20" value="6" class="range" id="people" oninput="document.getElementById('peopleVal').textContent=this.value" /><p class="muted">Serving <b id="peopleVal">6</b> people</p></div>
-<div class="step"><div class="step__num">2</div><h4>Your Budget</h4><input type="range" min="300" max="5000" step="100" value="1500" class="range" id="budget" oninput="document.getElementById('budgetVal').textContent=this.value" /><p class="muted">Budget ₹<b id="budgetVal">1500</b></p></div>
-<div class="step"><div class="step__num">3</div><h4>Occasion</h4><div class="chips"><span class="chip active" data-group="occ" onclick="pickChip(this,'occ')">🎂 Birthday</span><span class="chip" data-group="occ" onclick="pickChip(this,'occ')">💼 Office</span><span class="chip" data-group="occ" onclick="pickChip(this,'occ')">💍 Wedding</span><span class="chip" data-group="occ" onclick="pickChip(this,'occ')">👪 Family</span><span class="chip" data-group="occ" onclick="pickChip(this,'occ')">🎊 Festival</span></div></div>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader__inner">
+    <div class="loader__logo"><span>RRK</span> Chicken</div>
+    <div class="loader__spinner"></div>
+  </div>
 </div>
-<div class="section__head" style="margin-top:56px"><span class="eyebrow">Recommended for you</span><h2 style="font-size:30px">Suggested Combos</h2></div>
-<div class="suggest">
-<div class="suggest-card"><span class="save-badge">Save ₹180</span><h3>Party Starter Combo</h3><p class="muted">Biryani x2 + Chicken 65 + Lollipop + 4 drinks.</p><div class="price">₹1299</div><button class="btn btn--primary btn--block" onclick="pickCombo('Party Starter Combo',1299)">Select</button></div>
-<div class="suggest-card"><span class="save-badge">Save ₹250</span><h3>Family Feast</h3><p class="muted">Family pack + grilled chicken + desserts + drinks.</p><div class="price">₹1599</div><button class="btn btn--primary btn--block" onclick="pickCombo('Family Feast',1599)">Select</button></div>
-<div class="suggest-card"><span class="save-badge">Save ₹320</span><h3>Grand Celebration</h3><p class="muted">Serves 10 · biryani, starters, mains &amp; sweets.</p><div class="price">₹2499</div><button class="btn btn--primary btn--block" onclick="pickCombo('Grand Celebration',2499)">Select</button></div>
-</div>
-<div class="summary-card" id="summary" style="display:none"><span class="eyebrow" style="color:#ffe9b0">Your Plate</span><h3 id="comboName">—</h3><div class="big" id="comboPrice">₹0</div><button class="btn btn--wa btn--block btn--lg" onclick="confirmCraft()">Confirm on WhatsApp</button></div>
-</div></section>
-<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener">💬</a>
+
+<header class="nav" id="nav" role="banner">
+  <div class="container nav__inner">
+    <a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+    <nav class="nav__links" id="navLinks" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html" class="active" aria-current="page">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="nav__right">
+      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+      <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content">
+
+<section class="section">
+  <div class="container">
+    <div class="section__head reveal"><span class="eyebrow">AI-Powered</span><h2>Craft My Plate</h2><p class="muted">Tell us the vibe. We build the perfect combo &amp; unlock savings.</p></div>
+
+    <div class="steps">
+
+      <div class="step cascade-left reveal">
+        <div class="step__num">1</div>
+        <h4>Number of People</h4>
+        <input type="range" min="1" max="20" value="6" class="range" id="people" oninput="document.getElementById('peopleVal').textContent=this.value" aria-label="Number of people" />
+        <p class="muted">Serving <b id="peopleVal">6</b> people</p>
+      </div>
+
+      <div class="step cascade-right reveal">
+        <div class="step__num">2</div>
+        <h4>Your Budget</h4>
+        <input type="range" min="300" max="5000" step="100" value="1500" class="range" id="budget" oninput="document.getElementById('budgetVal').textContent=this.value" aria-label="Budget amount" />
+        <p class="muted">Budget ₹<b id="budgetVal">1500</b></p>
+      </div>
+
+      <div class="step cascade-left reveal">
+        <div class="step__num">3</div>
+        <h4>Occasion</h4>
+        <div class="chips">
+          <span class="chip active" data-group="occ" onclick="pickChip(this,'occ')">🎂 Birthday</span>
+          <span class="chip" data-group="occ" onclick="pickChip(this,'occ')">💼 Office</span>
+          <span class="chip" data-group="occ" onclick="pickChip(this,'occ')">💍 Wedding</span>
+          <span class="chip" data-group="occ" onclick="pickChip(this,'occ')">👪 Family</span>
+          <span class="chip" data-group="occ" onclick="pickChip(this,'occ')">🎊 Festival</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section-foil-divider" aria-hidden="true"></div>
+
+    <div class="section__head reveal" style="margin-top:56px"><span class="eyebrow">Recommended for you</span><h2 style="font-size:30px">Suggested Combos</h2></div>
+
+    <div class="suggest">
+      <div class="suggest-card reveal delay-1">
+        <span class="save-badge">Save ₹180</span>
+        <h3>Party Starter Combo</h3>
+        <p class="muted">Biryani x2 + Chicken 65 + Lollipop + 4 drinks.</p>
+        <div class="price">₹1299</div>
+        <button class="btn btn--primary btn--block" onclick="pickCombo('Party Starter Combo',1299)">Select</button>
+      </div>
+      <div class="suggest-card reveal delay-2">
+        <span class="save-badge">Save ₹250</span>
+        <h3>Family Feast</h3>
+        <p class="muted">Family pack + grilled chicken + desserts + drinks.</p>
+        <div class="price">₹1599</div>
+        <button class="btn btn--primary btn--block" onclick="pickCombo('Family Feast',1599)">Select</button>
+      </div>
+      <div class="suggest-card reveal delay-3">
+        <span class="save-badge">Save ₹320</span>
+        <h3>Grand Celebration</h3>
+        <p class="muted">Serves 10 · biryani, starters, mains &amp; sweets.</p>
+        <div class="price">₹2499</div>
+        <button class="btn btn--primary btn--block" onclick="pickCombo('Grand Celebration',2499)">Select</button>
+      </div>
+    </div>
+
+    <div class="summary-card reveal-scale" id="summary" style="display:none">
+      <span class="eyebrow" style="color:#ffe9b0">Your Plate</span>
+      <h3 id="comboName">—</h3>
+      <div class="big" id="comboPrice">₹0</div>
+      <button class="btn btn--wa btn--block btn--lg" onclick="confirmCraft()">Confirm on WhatsApp</button>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container footer__inner">
+    <div>
+      <a href="index.html" class="logo logo--light" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+      <p class="muted">Premium chicken restaurant in Eluru.</p>
+    </div>
+    <div class="footer__links">
+      <h5>Quick Links</h5>
+      <a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a>
+    </div>
+    <div class="footer__links">
+      <h5>Follow</h5>
+      <div class="socials">
+        <a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bar">© 2026 RRK Chicken. All rights reserved.</div>
+</footer>
+
+<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+
 <script src="js/main.js"></script>
 <script>
 let chosen={name:'',price:0};
-function pickCombo(name,price){chosen={name,price};document.getElementById('comboName').textContent=name;document.getElementById('comboPrice').textContent='₹'+price;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}
-function confirmCraft(){if(!chosen.name)return;const ppl=document.getElementById('people').value;const occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();const msg=`*Craft My Plate Order*%0A${chosen.name} - ₹${chosen.price}%0APeople: ${ppl}%0AOccasion: ${occ}`;window.open('https://wa.me/919999999999?text='+msg,'_blank');}
+function pickCombo(name,price){chosen={name,price};document.getElementById('comboName').textContent=name;document.getElementById('comboPrice').textContent='\u20B9'+price;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}
+function confirmCraft(){if(!chosen.name)return;const ppl=document.getElementById('people').value;const occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();const msg=`*Craft My Plate Order*%0A${chosen.name} - \u20B9${chosen.price}%0APeople: ${ppl}%0AOccasion: ${occ}`;window.open('https://wa.me/919999999999?text='+msg,'_blank');}
 </script>
 </body></html>

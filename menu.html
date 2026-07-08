@@ -7,24 +7,202 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<header class="nav" id="nav"><div class="container nav__inner"><a href="index.html" class="logo"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a><nav class="nav__links" id="navLinks"><a href="index.html">Home</a><a href="menu.html" class="active">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a></nav><div class="nav__right"><a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener">WhatsApp</a><button class="nav__burger" id="burger"><span></span><span></span><span></span></button></div></div></header>
-<section class="section"><div class="container"><div class="section__head"><span class="eyebrow">Explore</span><h2>Our Menu</h2></div>
-<div class="cats"><button class="cat active" onclick="filterCat('all',this)">All</button><button class="cat" onclick="filterCat('chicken',this)">Chicken</button><button class="cat" onclick="filterCat('biryani',this)">Biryani</button><button class="cat" onclick="filterCat('starters',this)">Starters</button><button class="cat" onclick="filterCat('meals',this)">Meals</button><button class="cat" onclick="filterCat('family',this)">Family Packs</button><button class="cat" onclick="filterCat('beverages',this)">Beverages</button><button class="cat" onclick="filterCat('desserts',this)">Desserts</button></div>
-<div class="grid grid--4">
-<article class="food-card" data-cat="chicken"><div class="img-ph">Grilled Chicken</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Signature Grilled Chicken</h3><p class="muted" style="font-size:14px">Flame-grilled with house spices.</p><div class="price">₹249</div><button class="btn btn--primary btn--block" onclick="addToCart('Signature Grilled Chicken',249)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="biryani"><div class="img-ph">Hyderabadi Biryani</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Hyderabadi Biryani</h3><p class="muted" style="font-size:14px">Slow-dum with basmati &amp; saffron.</p><div class="price">₹199</div><button class="btn btn--primary btn--block" onclick="addToCart('Hyderabadi Biryani',199)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="starters"><div class="img-ph">Chicken 65</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Crispy Chicken 65</h3><p class="muted" style="font-size:14px">Spicy, crunchy, addictive.</p><div class="price">₹179</div><button class="btn btn--primary btn--block" onclick="addToCart('Crispy Chicken 65',179)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="starters"><div class="img-ph">Chicken Lollipop</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Chicken Lollipop</h3><p class="muted" style="font-size:14px">6 pcs, tangy glaze.</p><div class="price">₹189</div><button class="btn btn--primary btn--block" onclick="addToCart('Chicken Lollipop',189)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="meals"><div class="img-ph">Chicken Meal</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Chicken Combo Meal</h3><p class="muted" style="font-size:14px">Rice, curry, starter &amp; drink.</p><div class="price">₹279</div><button class="btn btn--primary btn--block" onclick="addToCart('Chicken Combo Meal',279)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="family"><div class="img-ph">Family Feast</div><div class="food-card__body"><span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span><h3>Family Feast Pack</h3><p class="muted" style="font-size:14px">Serves 4 · biryani + starters.</p><div class="price">₹699</div><button class="btn btn--primary btn--block" onclick="addToCart('Family Feast Pack',699)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="beverages"><div class="img-ph">Fresh Lime</div><div class="food-card__body"><span class="tag--veg"><span class="veg-ic"></span>Veg</span><h3>Fresh Lime Soda</h3><p class="muted" style="font-size:14px">Chilled &amp; refreshing.</p><div class="price">₹59</div><button class="btn btn--primary btn--block" onclick="addToCart('Fresh Lime Soda',59)">Add to Cart</button></div></article>
-<article class="food-card" data-cat="desserts"><div class="img-ph">Gulab Jamun</div><div class="food-card__body"><span class="tag--veg"><span class="veg-ic"></span>Veg</span><h3>Gulab Jamun (2 pcs)</h3><p class="muted" style="font-size:14px">Warm, syrup-soaked.</p><div class="price">₹69</div><button class="btn btn--primary btn--block" onclick="addToCart('Gulab Jamun',69)">Add to Cart</button></div></article>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader__inner">
+    <div class="loader__logo"><span>RRK</span> Chicken</div>
+    <div class="loader__spinner"></div>
+  </div>
 </div>
-<div class="qr-card" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div>
-</div></section>
+
+<header class="nav" id="nav" role="banner">
+  <div class="container nav__inner">
+    <a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+    <nav class="nav__links" id="navLinks" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="menu.html" class="active" aria-current="page">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="nav__right">
+      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+      <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content">
+
+<section class="section">
+  <div class="container">
+    <div class="section__head reveal"><span class="eyebrow">Explore</span><h2>Our Menu</h2></div>
+
+    <div class="cats reveal">
+      <button class="cat active" onclick="filterCat('all',this)">All</button>
+      <button class="cat" onclick="filterCat('chicken',this)">Chicken</button>
+      <button class="cat" onclick="filterCat('biryani',this)">Biryani</button>
+      <button class="cat" onclick="filterCat('starters',this)">Starters</button>
+      <button class="cat" onclick="filterCat('meals',this)">Meals</button>
+      <button class="cat" onclick="filterCat('family',this)">Family Packs</button>
+      <button class="cat" onclick="filterCat('beverages',this)">Beverages</button>
+      <button class="cat" onclick="filterCat('desserts',this)">Desserts</button>
+    </div>
+
+    <div class="grid grid--4">
+
+      <article class="food-card cascade-left reveal" data-cat="chicken">
+        <div class="img-ph"><img src="2.jpeg" alt="Signature Grilled Chicken" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Signature Grilled Chicken</h3>
+          <p class="muted" style="font-size:14px">Flame-grilled with house spices.</p>
+          <div class="price">₹249</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Signature Grilled Chicken',249)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal" data-cat="biryani">
+        <div class="img-ph"><img src="3.jpeg" alt="Hyderabadi Biryani" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Hyderabadi Biryani</h3>
+          <p class="muted" style="font-size:14px">Slow-dum with basmati &amp; saffron.</p>
+          <div class="price">₹199</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Hyderabadi Biryani',199)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal" data-cat="starters">
+        <div class="img-ph"><img src="4.jpeg" alt="Crispy Chicken 65" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Crispy Chicken 65</h3>
+          <p class="muted" style="font-size:14px">Spicy, crunchy, addictive.</p>
+          <div class="price">₹179</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Crispy Chicken 65',179)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal" data-cat="starters">
+        <div class="img-ph"><img src="16.jpeg" alt="Chicken Lollipop" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Chicken Lollipop</h3>
+          <p class="muted" style="font-size:14px">6 pcs, tangy glaze.</p>
+          <div class="price">₹189</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Chicken Lollipop',189)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal" data-cat="meals">
+        <div class="img-ph"><img src="17.jpeg" alt="Chicken Combo Meal" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Chicken Combo Meal</h3>
+          <p class="muted" style="font-size:14px">Rice, curry, starter &amp; drink.</p>
+          <div class="price">₹279</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Chicken Combo Meal',279)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal" data-cat="family">
+        <div class="img-ph"><img src="5.jpeg" alt="Family Feast Pack" loading="lazy" /></div>
+        <div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>
+        <div class="food-card__body">
+          <span class="tag--nonveg"><span class="veg-ic veg-ic--non"></span>Non-Veg</span>
+          <h3>Family Feast Pack</h3>
+          <p class="muted" style="font-size:14px">Serves 4 · biryani + starters.</p>
+          <div class="price">₹699</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Family Feast Pack',699)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal" data-cat="beverages">
+        <div class="img-ph"><img src="18.jpeg" alt="Fresh Lime Soda" loading="lazy" /></div>
+        <div class="food-card__body">
+          <span class="tag--veg"><span class="veg-ic"></span>Veg</span>
+          <h3>Fresh Lime Soda</h3>
+          <p class="muted" style="font-size:14px">Chilled &amp; refreshing.</p>
+          <div class="price">₹59</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Fresh Lime Soda',59)">Add to Cart</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal" data-cat="desserts">
+        <div class="img-ph"><img src="19.jpeg" alt="Gulab Jamun" loading="lazy" /></div>
+        <div class="food-card__body">
+          <span class="tag--veg"><span class="veg-ic"></span>Veg</span>
+          <h3>Gulab Jamun (2 pcs)</h3>
+          <p class="muted" style="font-size:14px">Warm, syrup-soaked.</p>
+          <div class="price">₹69</div>
+          <button class="btn btn--primary btn--block" onclick="addToCart('Gulab Jamun',69)">Add to Cart</button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="section-foil-divider" aria-hidden="true"></div>
+
+    <div class="qr-card reveal-scale" style="margin-top:60px">
+      <span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3>
+      <div class="qr-box"></div>
+      <p class="muted">Scan to open this menu on your phone.</p>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container footer__inner">
+    <div>
+      <a href="index.html" class="logo logo--light" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+      <p class="muted">Premium chicken restaurant in Eluru.</p>
+    </div>
+    <div class="footer__links">
+      <h5>Quick Links</h5>
+      <a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a>
+    </div>
+    <div class="footer__links">
+      <h5>Follow</h5>
+      <div class="socials">
+        <a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bar">© 2026 RRK Chicken. All rights reserved.</div>
+</footer>
+
 <button class="cart-fab" onclick="openCart()">🛒 Cart <span id="cartCount">0</span></button>
-<aside class="cart-drawer" id="cartDrawer"><div class="cart-drawer__head"><h3>Your Cart</h3><button class="cart-close" onclick="closeCart()">&times;</button></div><div class="cart-body" id="cartItems"></div><div class="cart-foot"><div class="mode-toggle"><label><input type="radio" name="mode" value="Takeaway" checked /><span>Takeaway</span></label><label><input type="radio" name="mode" value="Delivery" /><span>Delivery</span></label></div><div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div><button class="btn btn--wa btn--block btn--lg" onclick="checkout()">Checkout on WhatsApp</button></div></aside>
-<div class="modal" id="upsell"><div class="modal__backdrop" onclick="closeUpsell()"></div><div class="modal__card glass"><button class="modal__x" onclick="closeUpsell()">&times;</button><span class="eyebrow">Smart Tip</span><h3>Save More with Craft My Plate</h3><p class="muted">Your order is over ₹1000. Build a combo and unlock extra savings &amp; offers!</p><a href="craft-my-plate.html" class="btn btn--primary btn--block btn--lg" style="margin-top:16px">Go to Craft My Plate</a></div></div>
-<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener">💬</a>
+
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer__head"><h3>Your Cart</h3><button class="cart-close" onclick="closeCart()" aria-label="Close cart">&times;</button></div>
+  <div class="cart-body" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="mode-toggle">
+      <label><input type="radio" name="mode" value="Takeaway" checked /><span>Takeaway</span></label>
+      <label><input type="radio" name="mode" value="Delivery" /><span>Delivery</span></label>
+    </div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div>
+    <button class="btn btn--wa btn--block btn--lg" onclick="checkout()">Checkout on WhatsApp</button>
+  </div>
+</aside>
+
+<div class="modal" id="upsell" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal__backdrop" onclick="closeUpsell()"></div>
+  <div class="modal__card glass">
+    <button class="modal__x" onclick="closeUpsell()" aria-label="Close dialog">&times;</button>
+    <span class="eyebrow">Smart Tip</span>
+    <h3>Save More with Craft My Plate</h3>
+    <p class="muted">Your order is over ₹1000. Build a combo and unlock extra savings &amp; offers!</p>
+    <a href="craft-my-plate.html" class="btn btn--primary btn--block btn--lg" style="margin-top:16px">Go to Craft My Plate</a>
+  </div>
+</div>
+
+<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+
 <script src="js/main.js"></script>
 </body></html>

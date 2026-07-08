@@ -7,20 +7,151 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<header class="nav" id="nav"><div class="container nav__inner"><a href="index.html" class="logo"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a><nav class="nav__links" id="navLinks"><a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html" class="active">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a></nav><div class="nav__right"><a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener">WhatsApp</a><button class="nav__burger" id="burger"><span></span><span></span><span></span></button></div></div></header>
-<section class="section"><div class="container"><div class="section__head"><span class="eyebrow">Farm Fresh</span><h2>Raw Chicken</h2><p class="muted">Cut fresh every morning · hygienically packed.</p></div>
-<div class="grid grid--4">
-<article class="food-card"><div class="img-ph">Boneless</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Boneless</h3><div class="price">₹320 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Boneless')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Curry Cut</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Curry Cut</h3><div class="price">₹240 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Curry Cut')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Whole Chicken</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Whole Chicken</h3><div class="price">₹210 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Whole Chicken')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Lollipop</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Lollipop</h3><div class="price">₹280 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Lollipop')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Wings</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Wings</h3><div class="price">₹260 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Wings')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Leg Piece</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Leg Piece</h3><div class="price">₹290 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Leg Piece')">WhatsApp Order</button></div></article>
-<article class="food-card"><div class="img-ph">Breast</div><span class="tag tag--fresh">Fresh Today</span><div class="food-card__body"><h3>Breast</h3><div class="price">₹330 <small>/kg</small></div><button class="btn btn--wa btn--block" onclick="orderRaw('Breast')">WhatsApp Order</button></div></article>
+
+<div class="loader" aria-hidden="true">
+  <div class="loader__inner">
+    <div class="loader__logo"><span>RRK</span> Chicken</div>
+    <div class="loader__spinner"></div>
+  </div>
 </div>
-<div style="margin-top:56px;overflow-x:auto"><table class="pricing-table"><thead><tr><th>Item</th><th>Live Weight</th><th>Price</th><th>Availability</th></tr></thead><tbody><tr><td>Boneless</td><td>1 kg</td><td>₹320</td><td>✅ Fresh Today</td></tr><tr><td>Curry Cut</td><td>1 kg</td><td>₹240</td><td>✅ Fresh Today</td></tr><tr><td>Whole Chicken</td><td>1.2 – 1.5 kg</td><td>₹210/kg</td><td>✅ Fresh Today</td></tr><tr><td>Lollipop</td><td>500 g</td><td>₹280</td><td>✅ Fresh Today</td></tr><tr><td>Wings</td><td>500 g</td><td>₹260</td><td>✅ Fresh Today</td></tr><tr><td>Leg Piece</td><td>1 kg</td><td>₹290</td><td>✅ Fresh Today</td></tr><tr><td>Breast</td><td>1 kg</td><td>₹330</td><td>✅ Fresh Today</td></tr></tbody></table></div>
-</div></section>
-<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener">💬</a>
+
+<header class="nav" id="nav" role="banner">
+  <div class="container nav__inner">
+    <a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+    <nav class="nav__links" id="navLinks" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html" class="active" aria-current="page">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="nav__right">
+      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+      <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content">
+
+<section class="section">
+  <div class="container">
+    <div class="section__head reveal"><span class="eyebrow">Farm Fresh</span><h2>Raw Chicken</h2><p class="muted">Cut fresh every morning · hygienically packed.</p></div>
+
+    <div class="grid grid--4">
+
+      <article class="food-card cascade-left reveal">
+        <div class="img-ph"><img src="7.jpeg" alt="Fresh boneless chicken" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Boneless</h3>
+          <div class="price">₹320 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Boneless')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal">
+        <div class="img-ph"><img src="8.jpeg" alt="Fresh curry cut chicken" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Curry Cut</h3>
+          <div class="price">₹240 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Curry Cut')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal">
+        <div class="img-ph"><img src="9.jpeg" alt="Fresh whole chicken" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Whole Chicken</h3>
+          <div class="price">₹210 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Whole Chicken')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal">
+        <div class="img-ph"><img src="20.jpeg" alt="Fresh chicken lollipop pieces" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Lollipop</h3>
+          <div class="price">₹280 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Lollipop')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal">
+        <div class="img-ph"><img src="21.jpeg" alt="Fresh chicken wings" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Wings</h3>
+          <div class="price">₹260 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Wings')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-right reveal">
+        <div class="img-ph"><img src="22.jpeg" alt="Fresh chicken leg pieces" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Leg Piece</h3>
+          <div class="price">₹290 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Leg Piece')">WhatsApp Order</button>
+        </div>
+      </article>
+
+      <article class="food-card cascade-left reveal">
+        <div class="img-ph"><img src="23.jpeg" alt="Fresh chicken breast" loading="lazy" /></div>
+        <span class="tag tag--fresh">Fresh Today</span>
+        <div class="food-card__body">
+          <h3>Breast</h3>
+          <div class="price">₹330 <small>/kg</small></div>
+          <button class="btn btn--wa btn--block" onclick="orderRaw('Breast')">WhatsApp Order</button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="section-foil-divider" aria-hidden="true"></div>
+
+    <div class="reveal" style="margin-top:56px;overflow-x:auto">
+      <table class="pricing-table">
+        <thead><tr><th>Item</th><th>Live Weight</th><th>Price</th><th>Availability</th></tr></thead>
+        <tbody>
+          <tr><td>Boneless</td><td>1 kg</td><td>₹320</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Curry Cut</td><td>1 kg</td><td>₹240</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Whole Chicken</td><td>1.2 – 1.5 kg</td><td>₹210/kg</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Lollipop</td><td>500 g</td><td>₹280</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Wings</td><td>500 g</td><td>₹260</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Leg Piece</td><td>1 kg</td><td>₹290</td><td>✅ Fresh Today</td></tr>
+          <tr><td>Breast</td><td>1 kg</td><td>₹330</td><td>✅ Fresh Today</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="container footer__inner">
+    <div>
+      <a href="index.html" class="logo logo--light" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
+      <p class="muted">Premium chicken restaurant in Eluru.</p>
+    </div>
+    <div class="footer__links">
+      <h5>Quick Links</h5>
+      <a href="menu.html">Menu</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a>
+    </div>
+    <div class="footer__links">
+      <h5>Follow</h5>
+      <div class="socials">
+        <a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bar">© 2026 RRK Chicken. All rights reserved.</div>
+</footer>
+
+<a href="https://wa.me/919999999999" class="wa-fab" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+
 <script src="js/main.js"></script>
 <script>function orderRaw(item){window.open('https://wa.me/919999999999?text=*Raw Chicken Order*%0A'+item,'_blank');}</script>
 </body></html>
