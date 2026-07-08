@@ -80,8 +80,18 @@ function renderForPage(page) {
   else if (page === 'craft') renderCraftPage(D);
   else if (page === 'raw') renderRawPage(D);
 
-  const loader = document.querySelector('.loader');
-  if (loader) setTimeout(() => loader.classList.add('hidden'), 100);
+  // After injecting HTML, mark everything as revealed and dismiss loader
+  setTimeout(function() {
+    document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(function(el) {
+      el.classList.add('revealed');
+    });
+    if (typeof observeRevealElements === 'function') observeRevealElements();
+    if (typeof initTestimonials === 'function') initTestimonials();
+    if (typeof initMagneticTilt === 'function') initMagneticTilt();
+    if (typeof initCounterObserver === 'function') initCounterObserver();
+    var loader = document.querySelector('.loader');
+    if (loader) loader.classList.add('hidden');
+  }, 50);
 }
 
 function renderIndex(D) {

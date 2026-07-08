@@ -11,3 +11,6 @@
 # admin
 - Admin dashboard CMS should show only four tabs: Menu, Raw Chicken, Combos, and Occasions. Exclude everything else (hero, badge, stats, testimonials, instagram, about, why cards, contact, social, settings). Confidence: 0.90
 
+# frontend
+- Preserve scroll-reveal animations and loader — fix observer timing/initialization issues rather than removing them to make content visible. Confidence: 0.75
+

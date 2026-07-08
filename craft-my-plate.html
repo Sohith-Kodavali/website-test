@@ -8,6 +8,8 @@
 </head>
 <body>
 
+<div class="loader" aria-hidden="true"><div class="loader__inner"><div class="loader__logo"><span>RRK</span> Chicken</div><div class="loader__spinner"></div></div></div>
+
 <header class="nav" id="nav" role="banner">
   <div class="container nav__inner"><a href="index.html" class="logo" aria-label="RRK Chicken Home"><span class="logo__mark">RRK</span><span class="logo__word">Chicken</span></a>
     <nav class="nav__links" id="navLinks" aria-label="Main navigation"><a href="index.html">Home</a><a href="menu.html">Menu</a><a href="craft-my-plate.html" class="active" aria-current="page">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a></nav>
@@ -27,5 +29,5 @@
 
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('craft');observeRevealElements();var chosen={name:'',price:0};function pickCombo(n,p){chosen={name:n,price:p};document.getElementById('comboName').textContent=n;document.getElementById('comboPrice').textContent='\u20B9'+p;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;var ppl=document.getElementById('people').value;var occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();window.open('https://wa.me/919999999999?text=*Craft+My+Plate+Order*%0A'+chosen.name+'+-+\u20B9'+chosen.price+'%0APeople:+'+ppl+'%0AOccasion:+'+occ,'_blank');}</script>
+<script>renderForPage('craft');var chosen={name:'',price:0};function pickCombo(n,p){chosen={name:n,price:p};document.getElementById('comboName').textContent=n;document.getElementById('comboPrice').textContent='\u20B9'+p;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;var ppl=document.getElementById('people').value;var occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();window.open('https://wa.me/919999999999?text=*Craft+My+Plate+Order*%0A'+chosen.name+'+-+\u20B9'+chosen.price+'%0APeople:+'+ppl+'%0AOccasion:+'+occ,'_blank');}</script>
 </body></html>
