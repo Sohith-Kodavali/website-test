@@ -1,4 +1,26 @@
 // ============================================
+// MAGNETIC TILT ON FOOD CARDS + WHY CARDS
+// ============================================
+function initMagneticTilt() {
+  const cards = document.querySelectorAll('.food-card, .why-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -8;
+      const rotateY = ((x - centerX) / centerX) * 8;
+      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+    });
+  });
+}
+
+// ============================================
 // SCROLL ANIMATIONS (Intersection Observer)
 // ============================================
 const revealObserver = new IntersectionObserver((entries) => {
@@ -9,7 +31,7 @@ const revealObserver = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale').forEach(el => {
+document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(el => {
   revealObserver.observe(el);
 });
 
@@ -284,4 +306,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initTestimonials();
   initElegantCursor();
   initLoader();
+  initMagneticTilt();
 });
