@@ -15,11 +15,6 @@ function loadAdminApp() {
   renderRawEditor(D);
   renderComboEditor(D);
   renderOccasionEditor(D);
-  renderHeroEditor(D);
-  renderTestimonialEditor(D);
-  renderInstagramEditor(D);
-  renderAboutEditor(D);
-  renderWhyCardsEditor(D);
   renderContactEditor(D);
   renderSocialEditor(D);
   renderSettingsEditor(D);
