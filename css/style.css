@@ -280,13 +280,6 @@ img{max-width:100%;display:block}
 .ig-card:hover .ig-overlay{opacity:1}
 .ig-card .ig-overlay span{color:#fff;font-weight:700;font-size:14px;font-family:'Sora'}
 
-/* ============ GOLDEN THREAD (Curved SVG Path) ============ */
-.golden-thread{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.golden-thread svg{width:100%;height:100%}
-.golden-thread .thread-base{fill:none;stroke:rgba(212,175,55,.30);stroke-width:3;filter:drop-shadow(0 0 8px rgba(212,175,55,.4)) drop-shadow(0 0 20px rgba(212,175,55,.15))}
-.golden-thread .thread-glow{fill:none;stroke:rgba(212,175,55,.08);stroke-width:14;filter:blur(8px)}
-.golden-thread .thread-sparks{fill:var(--gold)}
-@keyframes sparkle-fade{0%,100%{opacity:0}50%{opacity:1}}
 .elegant-cursor{position:fixed;pointer-events:none;z-index:9999;transition:transform .08s ease-out}
 .elegant-cursor .cursor-inner{width:8px;height:8px;background:var(--gold);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(212,175,55,.6)}
 .elegant-cursor .cursor-ring{width:36px;height:36px;border:1.5px solid rgba(212,175,55,.5);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
