@@ -1,13 +1,11 @@
 // ============================================
 // RRK CHICKEN · Firebase Configuration
-// Replace these values with your Firebase project config.
-// Get them from: Firebase Console → Project Settings → Your Apps → Web App
 // ============================================
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDvvHqBMLFLwv-W1CH2vNA54fNs9ij51As",
+  authDomain: "rrk-test.firebaseapp.com",
+  projectId: "rrk-test",
+  storageBucket: "rrk-test.firebasestorage.app",
+  messagingSenderId: "563046052496",
+  appId: "1:563046052496:web:276e798c10b0a723f0de15"
 };
