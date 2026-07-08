@@ -15,6 +15,9 @@ function loadAdminApp() {
   renderRawEditor(D);
   renderComboEditor(D);
   renderOccasionEditor(D);
+  renderContactEditor(D);
+  renderSocialEditor(D);
+  renderSettingsEditor(D);
 }
 
 // ============================================
