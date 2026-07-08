@@ -281,10 +281,12 @@ img{max-width:100%;display:block}
 .ig-card .ig-overlay span{color:#fff;font-weight:700;font-size:14px;font-family:'Sora'}
 
 /* ============ GOLDEN THREAD (Spine Line) ============ */
-.golden-thread{position:fixed;top:0;left:50%;transform:translateX(-50%);width:2px;height:100vh;z-index:0;pointer-events:none;overflow:hidden}
-.golden-thread::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,transparent 0%,rgba(212,175,55,.08) 15%,rgba(212,175,55,.2) 30%,rgba(212,175,55,.35) 50%,rgba(212,175,55,.2) 70%,rgba(212,175,55,.08) 85%,transparent 100%)}
-.golden-thread::after{content:'';position:absolute;top:-40%;left:0;width:100%;height:40%;background:linear-gradient(180deg,transparent,rgba(255,255,255,.6),rgba(212,175,55,.8),rgba(255,255,255,.6),transparent);animation:thread-glow 3.5s ease-in-out infinite;filter:blur(1px)}
-@keyframes thread-glow{0%{top:-40%}100%{top:100%}}
+.golden-thread{position:fixed;top:0;left:50%;transform:translateX(-50%);width:2px;height:100%;z-index:0;pointer-events:none;overflow:hidden}
+.golden-thread__base{position:absolute;top:0;left:0;width:100%;height:var(--scroll-progress,0%);background:linear-gradient(180deg,transparent,rgba(212,175,55,.15) 20%,rgba(212,175,55,.35) 60%,rgba(212,175,55,.15) 80%,transparent);transition:height .3s ease-out}
+.golden-thread__shimmer{position:absolute;top:0;left:0;width:100%;height:60px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.7),rgba(212,175,55,.9),rgba(255,255,255,.7),transparent);transform:translateY(calc(var(--scroll-percent,0) - 30px));will-change:transform;filter:blur(2px);transition:transform .15s linear}
+.golden-thread__spark{position:absolute;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px 2px rgba(212,175,55,.6),0 0 14px 4px rgba(212,175,55,.25);animation:spark-fade 1.8s ease-out infinite;opacity:0}
+.golden-thread__spark:nth-child(2){animation-delay:.6s}.golden-thread__spark:nth-child(3){animation-delay:1.2s}
+@keyframes spark-fade{0%{top:0;opacity:0}15%{opacity:1}30%{opacity:0}100%{top:100%;opacity:0}}
 .elegant-cursor{position:fixed;pointer-events:none;z-index:9999;transition:transform .08s ease-out}
 .elegant-cursor .cursor-inner{width:8px;height:8px;background:var(--gold);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(212,175,55,.6)}
 .elegant-cursor .cursor-ring{width:36px;height:36px;border:1.5px solid rgba(212,175,55,.5);border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}

@@ -1,4 +1,27 @@
 // ============================================
+// GOLDEN THREAD (scroll reveals it)
+// ============================================
+function initGoldenThread() {
+  const threadBase = document.querySelector('.golden-thread__base');
+  const threadShimmer = document.querySelector('.golden-thread__shimmer');
+  if (!threadBase || !threadShimmer) return;
+
+  function updateThread() {
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrolled = window.scrollY;
+    const percent = docHeight > 0 ? (scrolled / docHeight) * 100 : 0;
+    const pixelPos = docHeight > 0 ? (scrolled / docHeight) * window.innerHeight : 0;
+
+    threadBase.style.setProperty('--scroll-progress', `${percent}%`);
+    threadShimmer.style.setProperty('--scroll-percent', `${pixelPos}px`);
+  }
+
+  window.addEventListener('scroll', updateThread, { passive: true });
+  window.addEventListener('resize', updateThread);
+  updateThread();
+}
+
+// ============================================
 // SCROLL ANIMATIONS (Intersection Observer)
 // ============================================
 const revealObserver = new IntersectionObserver((entries) => {
@@ -284,4 +307,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initTestimonials();
   initElegantCursor();
   initLoader();
+  initGoldenThread();
 });
