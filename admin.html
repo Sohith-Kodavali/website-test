@@ -32,10 +32,10 @@
   .admin-login-card h2{font-size:28px;margin-bottom:6px}
   .admin-login-card input{margin-bottom:12px}
   @media(max-width:600px){.cms-nav{gap:4px;padding:10px 16px}.cms-tab{padding:6px 12px;font-size:11px}.cms-main{padding:16px}.cms-panel{padding:16px}}
-  @media(min-width:1024px){body.admin-body{cursor:auto !important}a,button,.cms-tab{cursor:pointer !important}}
+  @media(min-width:1024px){body.admin-body,body.admin-body *{cursor:auto !important}body.admin-body a,body.admin-body button,body.admin-body .cms-tab,body.admin-body input,body.admin-body textarea,body.admin-body select{cursor:pointer !important}}
 </style>
 </head>
-<body>
+<body class="admin-body">
 
 <!-- LOGIN SCREEN -->
 <div class="admin-login-page" id="adminLoginPage">
