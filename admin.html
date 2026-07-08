@@ -2,102 +2,116 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Admin · RRK Chicken</title>
+<title>Admin CMS · RRK Chicken</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
+<style>
+  .cms-body{min-height:100vh;background:var(--bg)}
+  .cms-header{background:var(--grad-red);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+  .cms-header h2{font-size:20px}.cms-header h2 span{opacity:.7}
+  .cms-nav{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cms-tab{white-space:nowrap;border:1px solid var(--border);background:none;border-radius:8px;padding:8px 16px;font-family:'Sora';font-size:13px;font-weight:600;cursor:pointer;transition:.2s;color:var(--muted)}
+  .cms-tab:hover,.cms-tab.active{background:var(--grad-red);color:#fff;border-color:transparent}
+  .cms-main{padding:24px}
+  .cms-panel{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:24px;box-shadow:var(--sh-card);max-width:900px;margin:0 auto}
+  .cms-list{display:flex;flex-direction:column;gap:10px}
+  .cms-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:#fafaf7;flex-wrap:wrap;gap:10px}
+  .cms-item-info{display:flex;align-items:center;gap:12px}
+  .cms-item-info span{display:block;font-size:12px;color:var(--muted)}
+  .cms-item-img{width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid var(--border)}
+  .admin-field{margin-bottom:14px}
+  .admin-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .admin-field input,.admin-field textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;background:#fff}
+  .admin-field textarea{resize:vertical}
+  .admin-field input:focus,.admin-field textarea:focus{outline:none;border-color:var(--gold)}
+  .admin-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px}
+  .admin-modal__card{background:#fff;border-radius:var(--r-card);padding:28px;width:min(100%,480px);max-height:90vh;overflow-y:auto;box-shadow:var(--sh-float)}
+  .admin-modal__card h3{margin-bottom:16px}
+  .admin-login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+  .admin-login-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:36px 28px;box-shadow:var(--sh-card);text-align:center}
+  .admin-login-card h2{font-size:28px;margin-bottom:6px}
+  .admin-login-card input{margin-bottom:12px}
+  @media(max-width:600px){.cms-nav{gap:4px;padding:10px 16px}.cms-tab{padding:6px 12px;font-size:11px}.cms-main{padding:16px}.cms-panel{padding:16px}}
+</style>
 </head>
-<body class="admin-page">
+<body>
 
-<main id="main-content">
-
-<!-- LOGIN FORM -->
-<div class="admin-login" id="adminLogin">
-  <h2>RRK Admin</h2>
-  <p class="muted" style="margin-bottom:24px">Restaurant Dashboard</p>
-  <form id="loginForm" class="form" onsubmit="handleLogin(event)">
-    <input type="text" id="username" placeholder="Username" required autocomplete="username" />
-    <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
-    <button type="submit" class="btn btn--primary btn--block btn--lg">Login</button>
-  </form>
-  <p id="loginError" style="color:var(--red);font-size:13px;margin-top:12px;display:none">Invalid credentials</p>
-</div>
-
-<!-- DASHBOARD -->
-<div class="admin-dashboard" id="adminDashboard" style="display:none">
-  <div class="admin-dashboard__head">
-    <h2>RRK Dashboard</h2>
-    <p style="font-size:14px;opacity:.85">Restaurant Overview</p>
-  </div>
-  <div class="admin-dashboard__body">
-    <div class="admin-stat">
-      <div class="big" id="totalOrders">—</div>
-      <label>Orders Today</label>
-      <p class="muted" style="font-size:11px;margin-top:6px" id="totalRevenue">—</p>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-      <div class="admin-stat">
-        <div class="big" id="cartItems" style="color:var(--gold)">—</div>
-        <label>Pending Carts</label>
-      </div>
-      <div class="admin-stat">
-        <div class="big" id="memberCount" style="color:var(--success)">—</div>
-        <label>Members</label>
-      </div>
-    </div>
-    <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Recent Orders</label>
-    <table class="admin-table">
-      <thead><tr><th>Time</th><th>Items</th><th>Total</th></tr></thead>
-      <tbody id="orderLog"><tr><td colspan="3" style="text-align:center;color:var(--muted)">No orders yet</td></tr></tbody>
-    </table>
-    <button class="btn btn--primary btn--block btn--lg" style="margin-top:20px" onclick="logoutAdmin()">Logout</button>
+<!-- LOGIN SCREEN -->
+<div class="admin-login-page" id="adminLoginPage">
+  <div class="admin-login-card">
+    <h2>RRK Admin</h2>
+    <p class="muted" style="margin-bottom:24px">Content Management System</p>
+    <form onsubmit="handleAdminLogin(event)">
+      <input type="text" id="adminUser" placeholder="Username" required class="admin-field-input" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:12px" autocomplete="username" />
+      <input type="password" id="adminPass" placeholder="Password" required class="admin-field-input" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:16px" autocomplete="current-password" />
+      <button type="submit" class="btn btn--primary btn--block btn--lg">Login</button>
+    </form>
+    <p id="adminLoginError" style="color:var(--red);font-size:13px;margin-top:12px;display:none">Invalid credentials</p>
   </div>
 </div>
 
-</main>
+<!-- CMS DASHBOARD -->
+<div class="cms-body" id="adminDashboard" style="display:none">
+  <header class="cms-header">
+    <h2>RRK <span>Admin CMS</span></h2>
+    <button class="btn btn--gold-outline" style="padding:8px 16px;font-size:12px;color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1)" onclick="logoutAdmin()">Logout</button>
+  </header>
+  <nav class="cms-nav">
+    <button class="cms-tab active" data-tab="menu" onclick="showTab('menu')">Menu</button>
+    <button class="cms-tab" data-tab="raw" onclick="showTab('raw')">Raw Chicken</button>
+    <button class="cms-tab" data-tab="combos" onclick="showTab('combos')">Combos</button>
+    <button class="cms-tab" data-tab="occasions" onclick="showTab('occasions')">Occasions</button>
+    <button class="cms-tab" data-tab="hero" onclick="showTab('hero')">Hero</button>
+    <button class="cms-tab" data-tab="hero-badge" onclick="showTab('hero-badge')">Badge</button>
+    <button class="cms-tab" data-tab="hero-stats" onclick="showTab('hero-stats')">Stats</button>
+    <button class="cms-tab" data-tab="testimonials" onclick="showTab('testimonials')">Testimonials</button>
+    <button class="cms-tab" data-tab="instagram" onclick="showTab('instagram')">Instagram</button>
+    <button class="cms-tab" data-tab="about" onclick="showTab('about')">About</button>
+    <button class="cms-tab" data-tab="why" onclick="showTab('why')">Why Cards</button>
+    <button class="cms-tab" data-tab="contact" onclick="showTab('contact')">Contact</button>
+    <button class="cms-tab" data-tab="social" onclick="showTab('social')">Social</button>
+    <button class="cms-tab" data-tab="settings" onclick="showTab('settings')">Settings</button>
+  </nav>
+  <main class="cms-main">
+    <div class="cms-panel" id="cms-menu"></div>
+    <div class="cms-panel" id="cms-raw" style="display:none"></div>
+    <div class="cms-panel" id="cms-combos" style="display:none"></div>
+    <div class="cms-panel" id="cms-occasions" style="display:none"></div>
+    <div class="cms-panel" id="cms-hero" style="display:none"></div>
+    <div class="cms-panel" id="cms-hero-badge" style="display:none"></div>
+    <div class="cms-panel" id="cms-hero-stats" style="display:none"></div>
+    <div class="cms-panel" id="cms-testimonials" style="display:none"></div>
+    <div class="cms-panel" id="cms-instagram" style="display:none"></div>
+    <div class="cms-panel" id="cms-about" style="display:none"></div>
+    <div class="cms-panel" id="cms-why" style="display:none"></div>
+    <div class="cms-panel" id="cms-contact" style="display:none"></div>
+    <div class="cms-panel" id="cms-social" style="display:none"></div>
+    <div class="cms-panel" id="cms-settings" style="display:none"></div>
+  </main>
+</div>
 
+<script src="js/site-renderer.js"></script>
+<script src="js/admin.js"></script>
 <script>
-const ADMIN_KEY = 'rrk_admin';
-const ADMIN_CREDS = { user: 'rrk', pass: 'admin1234' };
-
-function handleLogin(e) {
+function handleAdminLogin(e) {
   e.preventDefault();
-  const u = document.getElementById('username').value.trim();
-  const p = document.getElementById('password').value.trim();
-  if (u === ADMIN_CREDS.user && p === ADMIN_CREDS.pass) {
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value.trim();
+  initSiteData();
+  const D = getSiteData() || RRK_DEFAULTS;
+  const creds = D.adminCreds || { user: 'rrk', pass: 'admin1234' };
+  if (u === creds.user && p === creds.pass) {
     sessionStorage.setItem(ADMIN_KEY, '1');
-    showDashboard();
+    showAdminDashboard();
   } else {
-    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('adminLoginError').style.display = 'block';
   }
 }
 
-function showDashboard() {
-  document.getElementById('adminLogin').style.display = 'none';
+function showAdminDashboard() {
+  document.getElementById('adminLoginPage').style.display = 'none';
   document.getElementById('adminDashboard').style.display = 'block';
-  loadStats();
-}
-
-function loadStats() {
-  const cart = JSON.parse(localStorage.getItem('rrk_cart') || '[]');
-  const orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
-  const members = localStorage.getItem('rrk_member') ? 1 : 0;
-  const today = new Date().toDateString();
-  const todayOrders = orders.filter(o => new Date(o.time).toDateString() === today);
-
-  document.getElementById('totalOrders').textContent = todayOrders.length || '0';
-  document.getElementById('totalRevenue').textContent = 'Revenue: \u20B9' + todayOrders.reduce((s, o) => s + o.total, 0);
-  document.getElementById('cartItems').textContent = cart.length || '0';
-  document.getElementById('memberCount').textContent = members;
-  document.getElementById('cartItems').dataset.value = 'Cart count: ' + cart.length;
-
-  const log = document.getElementById('orderLog');
-  if (todayOrders.length === 0) {
-    log.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">No orders today</td></tr>';
-  } else {
-    log.innerHTML = todayOrders.slice(-10).reverse().map(o =>
-      `<tr><td>${new Date(o.time).toLocaleTimeString()}</td><td>${o.items}</td><td>\u20B9${o.total}</td></tr>`
-    ).join('');
-  }
+  loadAdminApp();
 }
 
 function logoutAdmin() {
@@ -105,10 +119,8 @@ function logoutAdmin() {
   location.reload();
 }
 
-// Auto-show if already logged in
 if (sessionStorage.getItem(ADMIN_KEY)) {
-  showDashboard();
+  showAdminDashboard();
 }
 </script>
-
 </body></html>
