@@ -15,6 +15,7 @@ function loadAdminApp() {
   renderRawEditor(D);
   renderComboEditor(D);
   renderOccasionEditor(D);
+  renderCustomersEditor(D);
   renderContactEditor(D);
   renderSocialEditor(D);
   renderSettingsEditor(D);
@@ -383,6 +384,49 @@ function addWhyCard() {
 }
 
 function deleteWhyCard(idx) {if(!confirm('Delete?'))return;const D=getSiteData();D.whyCards.splice(idx,1);setSiteData(D);renderWhyCardsEditor(D);}
+
+// ============================================
+// CUSTOMERS EDITOR
+// ============================================
+function renderCustomersEditor(D) {
+  const el = document.getElementById('cms-customers');
+  if (!el) return;
+  el.innerHTML = `<h3 style="margin-bottom:16px">Registered Customers</h3>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <a href="backend/api/customers.php?action=export-csv" class="btn btn--primary">⬇ Export CSV</a>
+      <a href="backend/api/customers.php?action=export-pdf" class="btn btn--gold-outline">⬇ Export PDF</a>
+    </div>
+    <div id="customers-list"><p class="muted">Loading...</p></div>`;
+
+  fetch('backend/api/customers.php?action=list')
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById('customers-list');
+      if (!data || data.length === 0) {
+        list.innerHTML = '<p class="muted">No customers registered yet.</p>';
+        return;
+      }
+      list.innerHTML = `<div style="overflow-x:auto"><table class="admin-table">
+        <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>DOB</th><th>Registered</th><th>Action</th></tr></thead>
+        <tbody>${data.map(c =>
+          `<tr><td>${c.id}</td><td>${c.name}</td><td>${c.phone}</td><td>${c.dob || '—'}</td><td>${c.created_at}</td>
+          <td><button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteCustomer(${c.id})">Delete</button></td></tr>`
+        ).join('')}</tbody></table></div>`;
+    })
+    .catch(() => {
+      document.getElementById('customers-list').innerHTML = '<p style="color:var(--red)">Failed to load customers. Is the backend running?</p>';
+    });
+}
+
+function deleteCustomer(id) {
+  if (!confirm('Delete this customer?')) return;
+  fetch('backend/api/customers.php?action=delete&id=' + id, { method: 'POST' })
+    .then(r => r.json())
+    .then(() => {
+      const D = getSiteData();
+      renderCustomersEditor(D);
+    });
+}
 
 // ============================================
 // CONTACT EDITOR
