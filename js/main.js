@@ -232,22 +232,27 @@ function openModal() { if (modal) modal.classList.add('open'); }
 function closeModal() { if (modal) modal.classList.remove('open'); }
 if (modal) {
   if (!localStorage.getItem('rrk_member')) setTimeout(openModal, 5000);
-  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
-  const form = document.getElementById('loginForm');
-  if (form) form.addEventListener('submit', e => {
-    e.preventDefault();
-    const name = form.querySelector('input[type="text"]').value;
-    const phone = form.querySelector('input[type="tel"]').value;
-    const dob = form.querySelector('input[type="date"]').value;
-    // Save customer to localStorage
-    try {
-      const customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
-      customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
-      localStorage.setItem('rrk_customers', JSON.stringify(customers));
-    } catch(e) {}
-    localStorage.setItem('rrk_member', '1');
-    closeModal();
-    window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
+  // Use event delegation so close buttons work even after dynamic render
+  modal.addEventListener('click', function(e) {
+    if (e.target.closest('[data-close]')) closeModal();
+  });
+  modal.addEventListener('submit', function(e) {
+    if (e.target.id === 'loginForm') {
+      e.preventDefault();
+      const form = document.getElementById('loginForm');
+      if (!form) return;
+      const name = form.querySelector('input[type="text"]').value;
+      const phone = form.querySelector('input[type="tel"]').value;
+      const dob = form.querySelector('input[type="date"]').value;
+      try {
+        const customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
+        customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
+        localStorage.setItem('rrk_customers', JSON.stringify(customers));
+      } catch(e) {}
+      localStorage.setItem('rrk_member', '1');
+      closeModal();
+      window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
+    }
   });
 }
 
