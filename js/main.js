@@ -135,12 +135,14 @@ function initTestimonials() {
 }
 
 // ============================================
-// CUSTOM CURSOR
+// ELEGANT CURSOR
 // ============================================
-function initCustomCursor() {
+function initElegantCursor() {
   if (window.innerWidth <= 1199) return;
+  
   const cursor = document.createElement('div');
-  cursor.classList.add('custom-cursor');
+  cursor.classList.add('elegant-cursor');
+  cursor.innerHTML = '<div class="cursor-inner"></div><div class="cursor-ring"></div>';
   document.body.appendChild(cursor);
 
   let mouseX = 0, mouseY = 0;
@@ -151,15 +153,15 @@ function initCustomCursor() {
     mouseY = e.clientY;
   });
 
-  const hoverTargets = document.querySelectorAll('a, button, .food-card, .why-card, .chip, .cat, .ig-card, .btn, .wa-fab, .cart-fab, .modal__x');
+  const hoverTargets = document.querySelectorAll('a, button, .food-card, .why-card, .chip, .cat, .ig-card, .btn, .wa-fab, .cart-fab, .modal__x, .mini-chip');
   hoverTargets.forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
   });
 
   function animate() {
-    cursorX += (mouseX - cursorX) * 0.15;
-    cursorY += (mouseY - cursorY) * 0.15;
+    cursorX += (mouseX - cursorX) * 0.12;
+    cursorY += (mouseY - cursorY) * 0.12;
     cursor.style.left = cursorX + 'px';
     cursor.style.top = cursorY + 'px';
     requestAnimationFrame(animate);
@@ -280,6 +282,6 @@ function pickChip(el, group) {
 document.addEventListener('DOMContentLoaded', () => {
   renderCart();
   initTestimonials();
-  initCustomCursor();
+  initElegantCursor();
   initLoader();
 });
