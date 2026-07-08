@@ -420,8 +420,8 @@ function initShareButton() {
 // ============================================
 // DELIVERY RADIUS CHECK (10km from Eluru)
 // ============================================
-const RESTAURANT_LAT = 16.711;
-const RESTAURANT_LNG = 81.104;
+const RESTAURANT_LAT = 16.7106762;
+const RESTAURANT_LNG = 81.1007719;
 const DELIVERY_RADIUS_KM = 10;
 
 function initDeliveryCheck() {
