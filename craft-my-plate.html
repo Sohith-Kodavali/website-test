@@ -29,5 +29,6 @@
 
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
-<script>renderForPage('craft');var chosen={name:'',price:0};function pickCombo(n,p){chosen={name:n,price:p};document.getElementById('comboName').textContent=n;document.getElementById('comboPrice').textContent='\u20B9'+p;document.getElementById('summary').style.display='block';document.getElementById('summary').scrollIntoView({behavior:'smooth'});}function confirmCraft(){if(!chosen.name)return;var ppl=document.getElementById('people').value;var occ=document.querySelector('.chip.active[data-group="occ"]').textContent.trim();window.open('https://wa.me/919999999999?text=*Craft+My+Plate+Order*%0A'+chosen.name+'+-+\u20B9'+chosen.price+'%0APeople:+'+ppl+'%0AOccasion:+'+occ,'_blank');}</script>
+<script src="js/craft-app.js"></script>
+<script>renderForPage('craft');setTimeout(function(){CpApp.init();},200);</script>
 </body></html>
