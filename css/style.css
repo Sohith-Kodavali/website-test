@@ -37,9 +37,9 @@
 .dark-mode .btn--gold-outline{color:var(--ink)}
 
 /* Dark mode toggle */
-.dark-toggle{position:fixed;top:14px;right:60px;z-index:60;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--gold);background:var(--card-bg);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-card);transition:transform .3s}
-.dark-toggle:hover{transform:scale(1.1)}
-@media(min-width:768px){.dark-toggle{top:20px;right:24px;width:40px;height:40px;font-size:18px}}
+.dark-toggle{display:flex;align-items:center;justify-content:center;gap:4px;background:var(--card-bg);border:1.5px solid var(--border);border-radius:999px;padding:6px 14px;font-family:'Sora';font-weight:600;font-size:11px;cursor:pointer;box-shadow:var(--sh-card);margin:8px auto 0;transition:transform .3s}
+.dark-toggle:hover{transform:scale(1.02)}
+@media(min-width:768px){.dark-toggle{display:none}}
 
 /* ============ RESET & BASE (Mobile Default) ============ */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -106,11 +106,13 @@ img{max-width:100%;display:block}
 .hero{position:relative;overflow:hidden;padding:48px 0 60px}
 .hero::before{content:'';position:absolute;top:-100px;left:-100px;width:280px;height:280px;background:radial-gradient(circle,rgba(212,175,55,.1),transparent 70%);z-index:0}
 .hero__inner{position:relative;z-index:1;display:flex;flex-direction:column;gap:32px}
-.display{font-size:clamp(34px,10vw,48px);font-weight:800;margin-bottom:14px;letter-spacing:-.03em;line-height:1.02}
+.display{font-size:clamp(34px,10vw,48px);font-weight:800;margin-bottom:14px;letter-spacing:-.03em;line-height:1.02;width:100%}
+.mob-full{font-size:clamp(28px,8vw,40px);line-height:1.08}
 .display .gold{background:var(--grad-gold);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .lead{font-size:16px;color:var(--muted);margin-bottom:24px;line-height:1.65}
 .hero__cta{display:flex;gap:12px;flex-wrap:nowrap}
-.hero__cta .btn{flex:1;justify-content:center}
+.hero__cta .btn{flex:1;justify-content:center;white-space:nowrap;min-width:0}
+.mob-nowrap{white-space:nowrap!important;font-size:12px!important;padding:12px 14px!important}
 .hero__stats{display:flex;gap:16px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap}
 .hero__stats strong{display:inline-block;font-family:'Sora';font-size:20px;font-weight:800}
 .hero__stats span{display:block;font-size:11px;color:var(--muted);margin-top:1px}
@@ -134,7 +136,8 @@ img{max-width:100%;display:block}
 
 /* ============ GRIDS (mobile) ============ */
 .grid{display:grid;gap:16px}
-.grid--3,.grid--4,.grid--5{grid-template-columns:1fr}
+.grid--3,.grid--4{grid-template-columns:1fr}
+.grid--5{grid-template-columns:repeat(2,1fr)}
 .grid--2{grid-template-columns:1fr}
 .split{display:flex;flex-direction:column;gap:32px}
 
@@ -177,12 +180,12 @@ img{max-width:100%;display:block}
 @keyframes steam-rise{0%{transform:translateY(0) scale(1);opacity:.6}100%{transform:translateY(-50px) scale(2.5);opacity:0}}
 
 /* ============ WHY CARDS ============ */
-.why-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:24px 18px;text-align:center;box-shadow:var(--sh-card);transition:all .4s;position:relative;overflow:hidden}
+.why-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:16px 12px;text-align:center;box-shadow:var(--sh-card);transition:all .4s;position:relative;overflow:hidden}
 .why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad-gold);transform:scaleX(0);transition:transform .4s}
 .why-card:active::before{transform:scaleX(1)}
-.why-ic{font-size:32px;margin-bottom:12px}
-.why-card h4{margin-bottom:6px;font-size:15px}
-.why-card p{font-size:13px;color:var(--muted)}
+.why-ic{font-size:24px;margin-bottom:8px}
+.why-card h4{margin-bottom:4px;font-size:13px}
+.why-card p{font-size:11px;color:var(--muted)}
 
 /* ============ CRAFT PREVIEW ============ */
 .glass{background:rgba(255,255,255,.7);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8);box-shadow:var(--sh-float)}
@@ -344,10 +347,8 @@ img{max-width:100%;display:block}
 .delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}.delay-5{transition-delay:.5s}
 
 /* ============ SPECIAL ZOOM ANIMATION (mobile) ============ */
-.special-zoom{opacity:0;transform:scale(.82) translateY(26px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.34,1.56,.64,1)}
+.special-zoom{opacity:0;transform:scale(.7) translateY(40px);transition:opacity .5s cubic-bezier(.16,1,.3,1) .05s,transform .65s cubic-bezier(.26,1.3,.58,1) .05s}
 .special-zoom.revealed{opacity:1;transform:scale(1) translateY(0)}
-@keyframes special-bounce{0%{transform:scale(1)}40%{transform:scale(1.05)}70%{transform:scale(.97)}100%{transform:scale(1)}}
-.special-zoom.revealed{animation:special-bounce .9s cubic-bezier(.34,1.56,.64,1) .4s}
 
 /* ============ ELEGANT CURSOR (hidden on mobile) ============ */
 .elegant-cursor{display:none}
@@ -368,9 +369,9 @@ body{cursor:auto}
 @keyframes toast-out{from{opacity:1}to{opacity:0}}
 
 /* ============ SHARE BUTTON ============ */
-.share-btn{position:fixed;left:16px;bottom:calc(var(--bottom-nav-h) + 76px);z-index:59;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--gold);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-card);transition:transform .3s}
+.share-btn{position:fixed;right:16px;bottom:calc(var(--bottom-nav-h) + 80px);z-index:59;width:44px;height:44px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--gold);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-card);transition:transform .3s}
 .share-btn:hover{transform:scale(1.12)}
-@media(min-width:768px){.share-btn{left:24px;bottom:100px;width:52px;height:52px;font-size:22px}}
+@media(min-width:768px){.share-btn{right:24px;bottom:100px;width:52px;height:52px;font-size:22px}}
 
 /* ============ DELIVERY CHECK ============ */
 .delivery-check{max-width:360px;margin:0 auto 24px;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-card);padding:16px;box-shadow:var(--sh-card)}

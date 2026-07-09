@@ -32,7 +32,7 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
 function observeRevealElements() {
-  document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(el => {
+  document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right, .special-zoom').forEach(el => {
     revealObserver.observe(el);
   });
 }
@@ -391,17 +391,22 @@ function initDarkMode() {
   if (localStorage.getItem('rrk_dark') === '1') {
     document.body.classList.add('dark-mode');
   }
-  const toggle = document.createElement('button');
+  var toggle = document.createElement('button');
   toggle.className = 'dark-toggle';
   toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   toggle.title = 'Toggle dark mode';
   toggle.addEventListener('click', function() {
     document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
+    var isDark = document.body.classList.contains('dark-mode');
     toggle.innerHTML = isDark ? '☀️' : '🌙';
     localStorage.setItem('rrk_dark', isDark ? '1' : '0');
   });
-  document.body.appendChild(toggle);
+  var nav = document.querySelector('.nav');
+  if (nav) {
+    nav.parentNode.insertBefore(toggle, nav.nextSibling);
+  } else {
+    document.body.insertBefore(toggle, document.body.firstChild);
+  }
 }
 
 // ============================================
