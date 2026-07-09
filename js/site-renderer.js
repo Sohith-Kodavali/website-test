@@ -8,7 +8,7 @@ const SITE_DATA = {
   brand: { name: 'RRK Chicken', tagline: 'Premium chicken restaurant in Eluru.' },
   pageMeta: {
     menu: { eyebrow: 'Explore', headline: 'Our Menu' },
-    craft: { eyebrow: 'Catering', headline: 'Craft My Plate', subhead: 'Premium catering for 20+ guests. Choose a combo or build from scratch — pricing updates live.' },
+    craft: { eyebrow: 'Catering', headline: 'Craft My Plate', subhead: 'Bespoke catering experiences designed for gatherings of 20+ guests. Sculpt your ideal menu entirely from scratch with immediate, live pricing updates.' },
     raw: { eyebrow: 'Farm Fresh', headline: 'Raw Chicken', subhead: 'Cut fresh every morning · hygienically packed.' }
   },
   hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Premium Chicken,', headlineGold: 'Perfection', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '1.jpeg' },
@@ -168,7 +168,7 @@ function renderCraftPage(D) {
 
   function sandboxItemHTML(item, cat, idx, checked) {
     return '<label class="cp-item'+(checked?' checked':'')+'">'+
-      '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onchange="CpApp.sandboxToggle()">'+
+      '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onchange="CpApp.sandboxToggle(event)">'+
       '<span class="cp-item-name">'+item.name+'</span>'+
       '<span class="cp-item-price">+₹'+item.price+'/person</span>'+
     '</label>';
@@ -186,7 +186,7 @@ function renderCraftPage(D) {
         '<div class="cp-badge"><span class="cp-badge__ic">👥</span><strong>Minimum Guests:</strong> 20 Persons</div>'+
         '<div class="cp-badge"><span class="cp-badge__ic">🍽️</span><strong>Minimum Items:</strong> 5 Menu Items</div>'+
       '</div>'+
-      '<p class="cp-note muted">Fewer than 20 guests? Please order directly from our standard <a href="menu.html">à la carte delivery menu</a>.</p>'+
+      '<p class="cp-note muted">Fewer than 20 guests? Please order directly from our standard <a href="menu.html">delivery menu</a>.</p>'+
     '</div>'+
   '</section>';
 
