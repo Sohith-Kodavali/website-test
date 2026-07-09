@@ -298,7 +298,7 @@ function renderSettingsEditor() {
   el.innerHTML = '<h3 style="margin-bottom:16px">Global Settings</h3><p class="muted">Loading...</p>';
   rrkSettings.get().then(s => {
     el.innerHTML = `<h3 style="margin-bottom:16px">Global Settings</h3>
-      ${field('brand_name','Brand Name','text',s.brand_name||'RRK Chicken')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919999999999')}
+      ${field('brand_name','Brand Name','text',s.brand_name||'RRK Food Court')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919999999999')}
       ${field('admin_user','Admin Username','text',s.admin_user||'rrk')}${field('admin_pass','Admin Password','text',s.admin_pass||'admin1234')}
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
