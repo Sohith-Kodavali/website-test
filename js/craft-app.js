@@ -69,6 +69,7 @@ var CpApp = (function() {
       if (msgEl) msgEl.style.display = 'none';
       if (okEl) { okEl.style.display = 'block'; if (okCount) okCount.textContent = n; if (okBudget) okBudget.textContent = state.budgetPerPerson; }
       if (step3) step3.classList.add('cp-step-unlocked');
+      if (step4) step4.style.display = 'block';
       highlightByBudget();
       updateCheckoutBar();
     }
@@ -112,25 +113,49 @@ var CpApp = (function() {
     if (panel) panel.classList.add('active');
   }
 
-  function sandboxToggle() {
-    var step3 = document.getElementById('step3');
-    if (!step3) return;
-    state.sandboxChecked = {};
-    var checkboxes = step3.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(function(cb) {
+  function sandboxToggle(e) {
+    // Use the event source directly when possible
+    if (e && e.target && e.target.matches('input[type="checkbox"]')) {
+      var cb = e.target;
       var cat = cb.getAttribute('data-cat');
-      var idx = parseInt(cb.getAttribute('data-idx'));
+      var idx = cb.getAttribute('data-idx');
       var checked = cb.checked;
-      cb.closest('.cp-item').classList.toggle('checked', checked);
+      var parent = cb.parentNode;
+      if (parent) parent.classList.toggle('checked', checked);
+
+      if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
       if (checked) {
         var craftMenu = deriveCraftMenu();
-        var item = craftMenu[cat] && craftMenu[cat][idx];
+        var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
+        if (item) state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet };
+      } else {
+        delete state.sandboxChecked[cat][idx];
+        if (Object.keys(state.sandboxChecked[cat]).length === 0) delete state.sandboxChecked[cat];
+      }
+    } else {
+      // Fallback: full rebuild from all checkboxes
+      rebuildState();
+    }
+    updateSandboxStats();
+    updateCheckoutBar();
+  }
+
+  function rebuildState() {
+    state.sandboxChecked = {};
+    var step3 = document.getElementById('step3');
+    if (!step3) return;
+    step3.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+      var cat = cb.getAttribute('data-cat');
+      var idx = cb.getAttribute('data-idx');
+      var checked = cb.checked;
+      cb.parentNode.classList.toggle('checked', checked);
+      if (checked) {
         if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
+        var craftMenu = deriveCraftMenu();
+        var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
         if (item) state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet };
       }
     });
-    updateSandboxStats();
-    updateCheckoutBar();
   }
 
   function updateSandboxStats() {
@@ -232,10 +257,6 @@ var CpApp = (function() {
       bar.style.display = 'none';
       bar.classList.remove('visible');
     }
-
-    var step4 = document.getElementById('step4');
-    if (state.guestsValid && hasEnough && step4) step4.style.display = 'block';
-    if (!hasEnough && step4) step4.style.display = 'none';
 
     var coGuests = document.getElementById('cpCoGuests');
     var coItems = document.getElementById('cpCoItems');
