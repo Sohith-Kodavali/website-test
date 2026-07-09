@@ -174,7 +174,7 @@ var CpApp = (function() {
       label.className = 'cp-budget-bar__label cp-budget-in';
     } else if (pp <= budget * 1.5) {
       fill.className = 'cp-budget-bar__fill cp-budget-warn';
-      label.textContent = '⚠️ Slightly Over — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.textContent = '⚠️ Slightly Over — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' est. budget';
       label.className = 'cp-budget-bar__label cp-budget-warn';
     } else {
       fill.className = 'cp-budget-bar__fill cp-budget-over';

@@ -294,6 +294,10 @@ function renderCart() {
   var count = cart.reduce(function(s, i) { return s + i.qty; }, 0);
   if (countEl) countEl.textContent = count;
 
+  // Show/hide cart FAB
+  var fab = document.querySelector('.cart-fab');
+  if (fab) fab.style.display = count > 0 ? 'flex' : 'none';
+
   // Update sticky cart bar
   var bar = document.getElementById('cartBar');
   if (bar) {
@@ -394,7 +398,7 @@ function placeOrder(e) {
   var address = document.getElementById('orderAddress').value.trim();
   var mode = currentOrderMode;
 
-  var msg = '*New RRK Chicken Order*\n(' + mode + ')\n\n';
+  var msg = '*New RRK Food Court Order*\n(' + mode + ')\n\n';
   cart.forEach(function(i) { msg += i.qty + ' x ' + i.name + ' - \u20B9' + (i.price * i.qty) + '\n'; });
   msg += '\n*Total: \u20B9' + cartTotal() + '*';
   msg += '\n\n*Phone:* ' + phone;
@@ -532,8 +536,8 @@ function initShareButton() {
   btn.title = 'Share';
   btn.addEventListener('click', function() {
     navigator.share({
-      title: 'RRK Chicken - Premium Chicken in Eluru',
-      text: 'Check out RRK Chicken! Fresh, hygienic, and delicious.',
+      title: 'RRK Food Court - Premium Restaurant in Eluru',
+      text: 'Check out RRK Food Court! Fresh, hygienic, and delicious.',
       url: window.location.origin
     }).catch(function() {});
   });
@@ -545,38 +549,38 @@ function initShareButton() {
 // ============================================
 const RESTAURANT_LAT = 16.7106762;
 const RESTAURANT_LNG = 81.1007719;
-const DELIVERY_RADIUS_KM = 10;
+const DELIVERY_RADIUS_KM = 10.5;
 
 function initDeliveryCheck() {
   const container = document.getElementById('deliveryCheck');
   if (!container) return;
-  container.innerHTML = '<input type="text" id="pincodeInput" placeholder="Enter your Eluru pincode..." /><button class="btn btn--primary btn--block" onclick="checkDelivery()">Check Delivery</button><div id="deliveryResult"></div>';
+  container.innerHTML = '<p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">📍 Delivery within 10 km of Eluru</p><button class="btn btn--primary btn--block" onclick="checkDelivery()">📍 Check My Location</button><div id="deliveryResult" style="margin-top: 12px;"></div>';
 }
 
 function checkDelivery() {
-  const pin = document.getElementById('pincodeInput').value.trim();
-  if (!pin) return;
-  fetch('https://nominatim.openstreetmap.org/search?postalcode=' + pin + '&country=India&format=json&limit=1')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      const resultEl = document.getElementById('deliveryResult');
-      if (!data || data.length === 0) {
-        resultEl.innerHTML = '<div class="delivery-result out-zone">📍 Pincode not found. Please try again.</div>';
-        return;
-      }
-      const lat = parseFloat(data[0].lat);
-      const lng = parseFloat(data[0].lon);
-      const dist = getDistanceKm(RESTAURANT_LAT, RESTAURANT_LNG, lat, lng);
+  const resultDiv = document.getElementById('deliveryResult');
+  if (!navigator.geolocation) {
+    resultDiv.innerHTML = '<div class="delivery-result out-zone">⚠️ Geolocation not supported by your browser.</div>';
+    return;
+  }
+  resultDiv.innerHTML = '<div class="delivery-result">📍 Detecting your location...</div>';
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      const userLat = pos.coords.latitude;
+      const userLng = pos.coords.longitude;
+      const dist = getDistanceKm(RESTAURANT_LAT, RESTAURANT_LNG, userLat, userLng);
       if (dist <= DELIVERY_RADIUS_KM) {
-        resultEl.innerHTML = '<div class="delivery-result in-zone">✅ We deliver to your area! (~' + dist.toFixed(1) + ' km)</div>';
-        showToast('🎉 Your area is in delivery zone!');
+        resultDiv.innerHTML = '<div class="delivery-result in-zone">✅ We deliver to your area! (~' + dist.toFixed(1) + ' km)</div>';
+        showToast('🎉 Great news! We deliver to your location.');
       } else {
-        resultEl.innerHTML = '<div class="delivery-result out-zone">❌ Sorry, you\'re ' + dist.toFixed(1) + ' km away. Beyond our 10 km radius.</div>';
+        resultDiv.innerHTML = '<div class="delivery-result out-zone">❌ Sorry, you\'re ' + dist.toFixed(1) + ' km away. Our delivery radius is ' + DELIVERY_RADIUS_KM + ' km.</div>';
       }
-    })
-    .catch(function() {
-      document.getElementById('deliveryResult').innerHTML = '<div class="delivery-result out-zone">⚠️ Could not verify. Please enter manually or call us.</div>';
-    });
+    },
+    function(err) {
+      resultDiv.innerHTML = '<div class="delivery-result out-zone">⚠️ Could not access your location. Please enable location services.</div>';
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+  );
 }
 
 function getDistanceKm(lat1, lon1, lat2, lon2) {
