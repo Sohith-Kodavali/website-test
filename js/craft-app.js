@@ -423,7 +423,7 @@ var CpApp = (function() {
     showToast('✅ Order sent! Soon our team will contact you.');
 
     setTimeout(function() {
-      var wa = (D.whatsapp || '919999999999');
+      var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919999999999');
       window.open('https://wa.me/' + wa + '?text=' + msg, '_blank');
     }, 1200);
   }

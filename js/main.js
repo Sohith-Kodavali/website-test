@@ -431,7 +431,7 @@ function placeOrder(e) {
   if (typeof initSocialProof === 'function') initSocialProof();
 
   closeOrderModal();
-  window.open('https://wa.me/919999999999?text=' + encodeURIComponent(msg), '_blank');
+  window.open('https://wa.me/' + (window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999') + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function checkout() {
@@ -671,15 +671,31 @@ function searchRawItems(query) {
   });
 }
 function orderRawItem(item) {
-  window.open('https://wa.me/919999999999?text=' + encodeURIComponent('*Raw Chicken Order*\n\n' + item + '\n\nHi, I want to order this. Please share details.'), '_blank');
+  var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919999999999';
+  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('*Raw Chicken Order*\n\n' + item + '\n\nHi, I want to order this. Please share details.'), '_blank');
 }
 
 // Init non-render-dependent things on ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
   renderCart();
   initElegantCursor();
   initDarkMode();
   initShareButton();
   initPushNotifications();
   observeRevealElements();
+  if (typeof initFirebase === 'function') {
+    initFirebase().catch(function() {});
+  }
+  if (typeof loadRRKConfig === 'function') {
+    loadRRKConfig();
+  }
 });
+
+// Update all WA links after config loads
+setTimeout(function() {
+  if (RRK_CONFIG && RRK_CONFIG.whatsapp) {
+    document.querySelectorAll('.wa-link').forEach(function(el) {
+      el.href = 'https://wa.me/' + RRK_CONFIG.whatsapp;
+    });
+  }
+}, 1500);

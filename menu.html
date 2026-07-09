@@ -20,7 +20,7 @@
       <a href="index.html">Home</a><a href="menu.html" class="active" aria-current="page">Order Online</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
     </nav>
     <div class="nav__right">
-      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+      <a href="https://wa.me/919999999999" class="btn btn--wa wa-link" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
       <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -96,6 +96,11 @@
   </div>
 </div>
 
+<script src="js/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
 <script>renderForPage('menu');initSocialProof();</script>

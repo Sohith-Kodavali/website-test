@@ -97,8 +97,59 @@ function deriveCraftMenu(D) {
 }
 
 function renderForPage(page) {
-  const saved = loadSiteData();
-  const D = saved || SITE_DATA;
+  // Try Firestore first, fall back to localStorage, then defaults
+  loadFromFirestore(page);
+}
+
+var FIREBASE_SEEDED = false;
+
+function loadFromFirestore(page) {
+  if (typeof rrkMenu === 'undefined') {
+    renderWithData(page, null);
+    return;
+  }
+  Promise.all([
+    rrkMenu.list().catch(function() { return null; }),
+    rrkRaw.list().catch(function() { return null; }),
+    rrkCombos.list().catch(function() { return null; }),
+    rrkOccasions.list().catch(function() { return null; })
+  ]).then(function(results) {
+    var menu = results[0], raw = results[1], combos = results[2], occasions = results[3];
+    var data = JSON.parse(JSON.stringify(SITE_DATA));
+    if (menu && menu.length > 0) data.menu = mergeFirestoreMenu(menu);
+    if (raw && raw.length > 0) data.raw = mergeFirestoreRaw(raw);
+    if (combos && combos.length > 0) data.combos = combos;
+    if (occasions && occasions.length > 0) data.occasions = occasions.map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
+    try { localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
+    renderWithData(page, data);
+  }).catch(function() {
+    renderWithData(page, null);
+  });
+}
+
+function mergeFirestoreMenu(menu) {
+  return menu.map(function(m) {
+    return {
+      name: m.name || '', category: m.category || 'chicken', diet: m.diet || 'nonveg',
+      description: m.description || '', price: (m.price || 0).toString(),
+      craftPrice: (m.craftPrice || 0).toString(), craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
+      image: m.image || '', special: m.special || '0', special_tag: m.special_tag || ''
+    };
+  });
+}
+
+function mergeFirestoreRaw(raw) {
+  return raw.map(function(r) {
+    return {
+      name: r.name || '', image: r.image || '', price: (r.price || 0).toString(),
+      weight: r.weight || '1 kg', tag: r.tag || 'Fresh Today', show_home: r.show_home || '1'
+    };
+  });
+}
+
+function renderWithData(page, data) {
+  var saved = loadSiteData();
+  var D = data || saved || SITE_DATA;
 
   if (page === 'index') renderIndex(D);
   else if (page === 'menu') renderMenuPage(D);
