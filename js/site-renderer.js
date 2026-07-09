@@ -11,12 +11,12 @@ const SITE_DATA = {
     craft: { eyebrow: 'Catering', headline: 'Craft My Plate', subhead: 'Bespoke catering experiences designed for gatherings of 20+ guests. Sculpt your ideal menu entirely from scratch with immediate, live pricing updates.' },
     raw: { eyebrow: 'Farm Fresh', headline: 'Raw Chicken', subhead: 'Cut fresh every morning · hygienically packed.' }
   },
-  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Where Every Bite', headlineGold: 'Tells a Story.', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '2.jpeg' },
+  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Premium Food,', headlineGold: 'Perfection', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '2.jpeg' },
   heroBadge: { main: '20% OFF', sub: 'Today Only' },
   heroStats: [{count:4.9,suffix:'★',duration:2000,label:'2,400+ reviews'},{count:30,suffix:' min',duration:1500,label:'Fast delivery'},{count:100,suffix:'%',duration:1600,label:'Fresh daily'}],
   menu: [
     {name:'Signature Grilled Chicken',category:'chicken',diet:'nonveg',description:'Flame-grilled with house spices.',price:'249',craftPrice:'60',craftCategory:'starters',craftEnabled:true,image:'2.jpeg',special:'1',special_tag:'15% OFF'},
-    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',craftPrice:'50',craftCategory:'breads',craftEnabled:true,image:'3.jpeg',special:'1',special_tag:'Bestseller'},
+    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',craftPrice:'50',craftCategory:'mains',craftEnabled:true,image:'3.jpeg',special:'1',special_tag:'Bestseller'},
     {name:'Crispy Chicken 65',category:'starters',diet:'nonveg',description:'Spicy, crunchy, addictive.',price:'179',craftPrice:'65',craftCategory:'starters',craftEnabled:true,image:'4.jpeg',special:'1',special_tag:'Hot'},
     {name:'Chicken Lollipop',category:'starters',diet:'nonveg',description:'6 pcs, tangy glaze.',price:'189',craftPrice:'55',craftCategory:'starters',craftEnabled:true,image:'16.jpeg',special:'0'},
     {name:'Chicken Combo Meal',category:'meals',diet:'nonveg',description:'Rice, curry, starter & drink.',price:'279',craftPrice:'80',craftCategory:'mains',craftEnabled:true,image:'17.jpeg',special:'0'},
