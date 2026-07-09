@@ -532,6 +532,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   initShareButton();
   initPushNotifications();
-  updateLoyaltyBadge();
   observeRevealElements();
 });

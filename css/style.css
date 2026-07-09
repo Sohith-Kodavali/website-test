@@ -134,6 +134,7 @@ img{max-width:100%;display:block}
 /* ============ GRIDS (mobile) ============ */
 .grid{display:grid;gap:16px}
 .grid--3,.grid--4,.grid--5{grid-template-columns:1fr}
+.grid--2{grid-template-columns:1fr}
 .split{display:flex;flex-direction:column;gap:32px}
 
 /* ============ FOOD CARDS ============ */
@@ -340,6 +341,12 @@ img{max-width:100%;display:block}
 .cascade-left.revealed,.cascade-right.revealed{opacity:1;transform:translateX(0) translateY(0)}
 .delay-1{transition-delay:.1s}.delay-2{transition-delay:.2s}.delay-3{transition-delay:.3s}.delay-4{transition-delay:.4s}.delay-5{transition-delay:.5s}
 
+/* ============ SPECIAL ZOOM ANIMATION (mobile) ============ */
+.special-zoom{opacity:0;transform:scale(.82) translateY(26px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.34,1.56,.64,1)}
+.special-zoom.revealed{opacity:1;transform:scale(1) translateY(0)}
+@keyframes special-bounce{0%{transform:scale(1)}40%{transform:scale(1.05)}70%{transform:scale(.97)}100%{transform:scale(1)}}
+.special-zoom.revealed{animation:special-bounce .9s cubic-bezier(.34,1.56,.64,1) .4s}
+
 /* ============ ELEGANT CURSOR (hidden on mobile) ============ */
 .elegant-cursor{display:none}
 body{cursor:auto}
@@ -353,14 +360,10 @@ body{cursor:auto}
 .loader__spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;margin:0 auto;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ============ LOYALTY POINTS ============ */
-.loyalty-badge{position:fixed;left:8px;top:68px;z-index:48;background:var(--grad-gold);color:#5a4300;font-family:'Sora';font-weight:800;font-size:11px;padding:6px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(212,175,55,.3);display:flex;align-items:center;gap:4px;animation:slide-in .5s ease-out}
-@keyframes slide-in{from{transform:translateX(-120px);opacity:0}to{transform:translateX(0);opacity:1}}
-.loyalty-badge .pts{background:#5a4300;color:var(--gold);border-radius:999px;padding:1px 6px;font-size:10px}
+/* ============ TOAST ============ */
 .loyalty-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:999;background:#5a4300;color:var(--gold);padding:10px 20px;border-radius:999px;font-family:'Sora';font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:toast-in .4s ease-out,toast-out .4s 2.5s ease-in forwards;white-space:nowrap}
 @keyframes toast-in{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 @keyframes toast-out{from{opacity:1}to{opacity:0}}
-@media(min-width:768px){.loyalty-badge{top:96px;left:24px;font-size:13px;padding:8px 16px}.loyalty-badge .pts{padding:2px 8px;font-size:11px}}
 
 /* ============ SHARE BUTTON ============ */
 .share-btn{position:fixed;right:16px;bottom:calc(var(--bottom-nav-h) + 76px);z-index:59;width:40px;height:40px;border-radius:50%;background:var(--card-bg);border:1.5px solid var(--border);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-card);transition:transform .3s}
@@ -424,7 +427,7 @@ body{cursor:auto}
   .section{padding:80px 0}.section__head{margin-bottom:48px}.section__head h2{font-size:clamp(32px,5vw,44px)}
   .section__head::after{width:50px;height:2px}.section--soft::before{width:70px}
   .section-foil-divider{height:10px}
-  .grid--4{grid-template-columns:repeat(2,1fr)}.grid--5{grid-template-columns:repeat(2,1fr)}
+  .grid--4{grid-template-columns:repeat(2,1fr)}.grid--5{grid-template-columns:repeat(2,1fr)}.grid--2{grid-template-columns:repeat(2,1fr)}
   .split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
   .food-card__body{padding:18px}.food-card h3{font-size:17px}.price{font-size:21px}
   .tag{font-size:11px;padding:5px 12px}
