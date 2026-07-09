@@ -8,6 +8,7 @@ function loadAdminApp() {
   document.querySelectorAll('.cms-panel').forEach(p => p.style.display = 'none');
   document.getElementById('cms-menu').style.display = 'block';
   renderMenuEditor();
+  renderCraftEditor();
   renderRawEditor();
   renderComboEditor();
   renderOccasionEditor();
@@ -71,6 +72,43 @@ function addMenuDoc() {
 function deleteMenuDoc(id) {
   if (!confirm('Delete?')) return;
   rrkMenu.remove(id).then(() => renderMenuEditor());
+}
+
+// ============ CRAFT MY PLATE EDITOR ============
+function renderCraftEditor() {
+  var el = document.getElementById('cms-craft'); if (!el) return;
+  el.innerHTML = '<h3 style="margin-bottom:20px">Craft My Plate — Item Settings</h3><p class="muted">Each menu item can have two prices: online order (per item) and craft catering (per person).</p><p class="muted" style="margin-bottom:20px">Enable items for Craft My Plate and set their per-person price.</p>';
+  rrkMenu.list().then(function(items) {
+    el.innerHTML += '<div class="cms-list">'+items.map(function(m) {
+      return '<div class="cms-item" style="flex-wrap:nowrap">'+
+        '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/'+(m.craftCategory||'—'):'Disabled')+'</span></div></div>'+
+        '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Craft Settings</button>'+
+      '</div>';
+    }).join('')+'</div>';
+  });
+}
+
+function craftFields(item) {
+  var catOptions = ['','starters','mains','breads','desserts','beverages'].map(function(v) {
+    var label = v === '' ? '— None —' : v.charAt(0).toUpperCase()+v.slice(1);
+    var sel = (item.craftCategory||'') === v ? ' selected' : '';
+    return '<option value="'+v+'"'+sel+'>'+label+'</option>';
+  }).join('');
+  return [
+    { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'text', val: item.craftEnabled?'1':'0' },
+    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 },
+    { key: 'craftCategory', label: 'Craft Category', type: 'select', val: item.craftCategory||'', optionsHtml: catOptions }
+  ];
+}
+
+function editCraftItem(id) {
+  rrkMenu.list().then(function(items) {
+    var item = items.find(function(m) { return m.id === id; }); if (!item) return;
+    showItemEditor('Craft Settings: '+item.name, craftFields(item), function(vals) {
+      vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true';
+      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: vals.craftCategory }).then(function() { renderCraftEditor(); });
+    });
+  });
 }
 
 // ============ RAW ============
@@ -274,17 +312,20 @@ function saveSettingsDoc() {
 
 // ============ HELPERS ============
 function g(id) { const el = document.getElementById('field-'+id); return el ? el.value : ''; }
-function field(key, label, type, val) {
-  return `<div class="admin-field"><label>${label}</label><input type="${type}" id="field-${key}" value="${esc(val)}" /></div>`;
+function field(key, label, type, val, opts) {
+  if (type === 'select') {
+    return '<div class="admin-field"><label>'+label+'</label><select id="field-'+key+'" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:Inter,sans-serif;font-size:14px;background:#fff">'+(opts||'')+'</select></div>';
+  }
+  return '<div class="admin-field"><label>'+label+'</label><input type="'+type+'" id="field-'+key+'" value="'+esc(val)+'" /></div>';
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function showItemEditor(title, fields, onSave) {
   const existing = document.querySelector('.admin-modal'); if (existing) existing.remove();
   const modal = document.createElement('div'); modal.className = 'admin-modal';
-  modal.innerHTML = `<div class="admin-modal__card"><h3>${title}</h3>
-    ${fields.map(f => field(f.key, f.label, f.type, f.val)).join('')}
-    <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn--primary btn--block" id="am-save">Save</button><button class="btn btn--gold-outline btn--block" id="am-cancel">Cancel</button></div></div>`;
+  modal.innerHTML = '<div class="admin-modal__card"><h3>'+title+'</h3>'+
+    fields.map(function(f) { return field(f.key, f.label, f.type, f.val, f.optionsHtml||''); }).join('')+
+    '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn--primary btn--block" id="am-save">Save</button><button class="btn btn--gold-outline btn--block" id="am-cancel">Cancel</button></div></div>';
   document.body.appendChild(modal);
   modal.querySelector('#am-save').onclick = () => {
     const vals = {}; fields.forEach(f => { vals[f.key] = document.getElementById('field-'+f.key).value; });
