@@ -269,12 +269,12 @@ const CART_KEY = 'rrk_cart';
 function getCart() { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
 function saveCart(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); renderCart(); }
 function addToCart(name, price) {
-  const cart = getCart();
-  const item = cart.find(i => i.name === name);
+  var cart = getCart();
+  var item = cart.find(function(i) { return i.name === name; });
   if (item) item.qty++;
-  else cart.push({ name, price, qty: 1 });
+  else cart.push({ name: name, price: price, qty: 1 });
   saveCart(cart);
-  openCart();
+  showToast('Added to cart · ' + cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items');
 }
 function changeQty(name, delta) {
   let cart = getCart();
@@ -301,7 +301,7 @@ function renderCart() {
       bar.classList.add('open');
       var barCount = bar.querySelector('.cart-bar__count');
       var barTotal = bar.querySelector('.cart-bar__total');
-      if (barCount) barCount.textContent = count + ' item' + (count > 1 ? 's' : '');
+      if (barCount) barCount.textContent = count;
       if (barTotal) barTotal.textContent = '\u20B9' + cartTotal();
     } else {
       bar.classList.remove('open');

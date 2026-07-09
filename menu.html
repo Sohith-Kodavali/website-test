@@ -65,8 +65,9 @@
 
 
 <div class="cart-bar" id="cartBar">
-  <div class="cart-bar__info" onclick="openCart()" style="cursor:pointer">
-    <span class="cart-bar__count">0 items</span>
+  <div class="cart-bar__info" onclick="openCart()">
+    <span class="cart-bar__count">0</span>
+    <span>View Cart ·</span>
     <span class="cart-bar__total">₹0</span>
   </div>
   <div class="cart-bar__actions">
@@ -74,7 +75,6 @@
       <button class="cart-mode-btn active" data-mode="Takeaway" onclick="setOrderMode('Takeaway',this)">Takeaway</button>
       <button class="cart-mode-btn" data-mode="Delivery" onclick="setOrderMode('Delivery',this)">Delivery</button>
     </div>
-    <span class="cart-bar__cta" onclick="openCheckout()">Place Order →</span>
   </div>
 </div>
 
