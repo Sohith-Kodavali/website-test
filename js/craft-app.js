@@ -252,16 +252,86 @@ var CpApp = (function() {
     if (coBtn) coBtn.disabled = !(state.guestsValid && hasEnough);
   }
 
-  // ========== CHECKOUT ==========
-  function checkout() {
-    if (!state.guestsValid) return;
-    var g = state.guests;
+  // ========== CONFIRM / CANCEL ==========
+  function getSelectedItemNames() {
+    var names = [];
+    Object.keys(state.sandboxChecked).forEach(function(cat) {
+      Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
+        names.push(state.sandboxChecked[cat][idx].name);
+      });
+    });
+    return names;
+  }
+
+  function showConfirm() {
+    var step5 = document.getElementById('step5');
+    var confirmBox = document.getElementById('cpConfirmBox');
+    if (!step5 || !confirmBox) return;
+
     var total = calcGrandTotal();
     var itemCount = sandboxItemCount();
+    var items = getSelectedItemNames();
 
-    var msg = '*Craft My Plate · Catering Order*%0A%0A';
-    msg += '👥 Guests: ' + g + '%0A';
-    msg += '🍽️ Items: ' + itemCount + '%0A';
+    var pp = sandboxPerPlate();
+    var savings = '';
+    var couponText = '';
+    if (state.couponType === 'corp') { couponText = '<br>🏷️ Coupon: CORP10 (10% off)'; savings = '<span class="cp-save-tag">10% Off</span>'; }
+    if (state.couponType === 'bday') couponText = '<br>🎁 Coupon: BDAYFREE (Free Welcome Drinks)';
+    if (state.freeDelivery) couponText += '<br>🚚 Free Delivery Applied';
+
+    confirmBox.innerHTML =
+      '<div class="cp-review-row"><strong>Guests:</strong> <span>'+state.guests+'</span></div>'+
+      '<div class="cp-review-row"><strong>Per Plate:</strong> <span>₹'+pp.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Items:</strong> <span>'+itemCount+' selected</span></div>'+
+      '<div class="cp-review-items">'+items.map(function(n){return'<span class="cp-review-chip">'+n+'</span>';}).join('')+'</div>'+
+      (state.occasion ? '<div class="cp-review-row"><strong>Occasion:</strong> <span>'+state.occasion+'</span></div>' : '')+
+      (couponText ? '<div class="cp-review-coupon">'+couponText+'</div>' : '')+
+      '<div class="cp-review-total"><strong>Grand Total:</strong> <span>₹'+total.toLocaleString('en-IN')+'</span>'+savings+'</div>';
+
+    step5.style.display = 'block';
+    step5.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function cancelOrder() {
+    var step5 = document.getElementById('step5');
+    var step6 = document.getElementById('step6');
+    if (step5) step5.style.display = 'none';
+    if (step6) step6.style.display = 'none';
+    document.getElementById('step2').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function confirmOrder() {
+    var step5 = document.getElementById('step5');
+    var step6 = document.getElementById('step6');
+    var waBox = document.getElementById('cpWaBox');
+    if (!step6 || !waBox) return;
+
+    var total = calcGrandTotal();
+    var itemCount = sandboxItemCount();
+    var items = getSelectedItemNames();
+
+    waBox.innerHTML =
+      '<div class="cp-wa-summary">'+
+        '<div class="cp-wa-stat"><span>👥</span> '+state.guests+' Guests</div>'+
+        '<div class="cp-wa-stat"><span>🍽️</span> '+itemCount+' Items</div>'+
+        '<div class="cp-wa-stat"><span>💰</span> ₹'+total.toLocaleString('en-IN')+'</div>'+
+        (state.occasion ? '<div class="cp-wa-stat"><span>🎉</span> '+state.occasion+'</div>' : '')+
+      '</div>'+
+      '<p class="cp-wa-items">'+items.slice(0,6).join(', ')+(items.length>6?' +'+(items.length-6)+' more':'')+'</p>';
+
+    if (step5) step5.style.display = 'none';
+    step6.style.display = 'block';
+    step6.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function orderWhatsApp() {
+    var total = calcGrandTotal();
+    var itemCount = sandboxItemCount();
+    var items = getSelectedItemNames();
+
+    var msg = '*Craft My Plate · Confirmed Order*%0A%0A';
+    msg += '👥 Guests: ' + state.guests + '%0A';
+    msg += '🍽️ Items (' + itemCount + '): ' + items.join(', ') + '%0A';
     msg += '💰 Grand Total: ₹' + total.toLocaleString('en-IN') + '%0A';
     if (state.occasion) msg += '🎉 Occasion: ' + state.occasion + '%0A';
     if (state.couponType === 'corp') msg += '🏷️ Coupon: CORP10 (10% off) %0A';
@@ -298,7 +368,8 @@ var CpApp = (function() {
     init: init, setGuests: setGuests, onGuestChange: onGuestChange,
     onBudgetChange: onBudgetChange, switchTab: switchTab, sandboxToggle: sandboxToggle,
     onOccasionChange: onOccasionChange, updateCheckoutBar: updateCheckoutBar,
-    calcGrandTotal: calcGrandTotal, checkout: checkout,
+    calcGrandTotal: calcGrandTotal,
+    showConfirm: showConfirm, cancelOrder: cancelOrder, confirmOrder: confirmOrder, orderWhatsApp: orderWhatsApp,
     getD: getD
   };
 })();

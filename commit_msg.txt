@@ -1,8 +1,10 @@
-Lower min guests to 10, fix checkbox count & cost not updating
+Add Confirm/Cancel step and WhatsApp Order step
 
-- Changed minimum guests from 20 to 10 across config, badges, validation text, and preset buttons
-- Rewrote sandboxToggle to always rebuild state from DOM checkboxes, fixing per-plate cost and item count not updating
-- Switched onchange to onclick for more reliable checkbox event handling
-- Fixed SITE_DATA reference (const not on window, use typeof check)
+- Step 5: Review order summary with confirm/cancel buttons
+- Step 6: Order on WhatsApp with full item list and pricing
+- Confirm shows guests, per-plate cost, items list, occasion, coupons, grand total
+- Cancel returns user to Step 2
+- WhatsApp message includes all selected items, coupons, and totals
+- Added CSS for confirm box, review chips, WhatsApp summary
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

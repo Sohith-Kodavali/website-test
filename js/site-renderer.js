@@ -254,9 +254,26 @@ function renderCraftPage(D) {
       '<div class="cp-checkout-stat"><span class="cp-co-label">Guests</span><strong id="cpCoGuests">—</strong></div>'+
       '<div class="cp-checkout-stat"><span class="cp-co-label">Items</span><strong id="cpCoItems">—</strong></div>'+
       '<div class="cp-checkout-stat cp-checkout-total"><span class="cp-co-label">Grand Total</span><strong id="cpCoTotal">₹0</strong></div>'+
-      '<button class="btn btn--primary btn--lg cp-checkout-btn" id="cpCheckoutBtn" disabled onclick="CpApp.checkout()">Book Catering</button>'+
+      '<button class="btn btn--primary btn--lg cp-checkout-btn" id="cpCheckoutBtn" disabled onclick="CpApp.showConfirm()">Confirm &amp; Review</button>'+
     '</div>'+
   '</div>';
+
+  // ===== STEP 5: Confirm / Cancel =====
+  html += '<section class="cp-step-section reveal" id="step5" style="display:none">'+
+    '<div class="cp-step-head"><div class="cp-step-num">5</div><h3>Review Your Order</h3></div>'+
+    '<div class="cp-confirm-box" id="cpConfirmBox"></div>'+
+    '<div class="cp-confirm-actions">'+
+      '<button class="btn btn--gold-outline btn--lg" onclick="CpApp.cancelOrder()">Cancel</button>'+
+      '<button class="btn btn--primary btn--lg" onclick="CpApp.confirmOrder()">✅ Confirm Order</button>'+
+    '</div>'+
+  '</section>';
+
+  // ===== STEP 6: WhatsApp Order =====
+  html += '<section class="cp-step-section reveal" id="step6" style="display:none">'+
+    '<div class="cp-step-head"><div class="cp-step-num">6</div><h3>Order on WhatsApp</h3></div>'+
+    '<div class="cp-wa-box" id="cpWaBox"></div>'+
+    '<button class="btn btn--wa btn--block btn--lg" onclick="CpApp.orderWhatsApp()">💬 Order on WhatsApp</button>'+
+  '</section>';
 
   el.innerHTML = html;
 }
