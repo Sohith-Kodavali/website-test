@@ -48,7 +48,7 @@ const SITE_DATA = {
       {cat:'starters',idx:0},{cat:'starters',idx:1},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'mains',idx:2},{cat:'breads',idx:0},{cat:'desserts',idx:0}
     ]}
   },
-  craftConfig: {peopleMin:20,peopleMax:500,peopleDefault:50,guestMin:20,budgetMin:100,budgetMax:2000,budgetStep:50,budgetDefault:300},
+  craftConfig: {peopleMin:10,peopleMax:500,peopleDefault:50,guestMin:10,budgetMin:100,budgetMax:2000,budgetStep:50,budgetDefault:300},
   craftPreview: {eyebrow:'Signature Feature',headline:'Craft My Plate',desc:'Plan your catering · 20+ guests · custom combos & live pricing.',buttonText:'Start Crafting',chips:[{emoji:'👥',text:'20+ Guests'},{emoji:'📦',text:'2 Combos'},{emoji:'💰',text:'Best Value'}],comboText:'Catering from <b>₹250/person</b>'},
   about: {eyebrow:'Our Story',headlineL1:'Rooted in flavour,',headlineL2:'refined for you',body:'RRK Chicken started in the heart of Eluru with one belief: premium chicken should be fresh, hygienic and honestly priced.',image:'6.jpeg',buttonText:'Visit Us'},
   whyCards: [{icon:'🐔',title:'Fresh Chicken',desc:'Sourced & cut daily.'},{icon:'👑',title:'Premium Quality',desc:'Only grade-A cuts.'},{icon:'✨',title:'Hygienic Kitchen',desc:'Spotless & safe.'},{icon:'⚡',title:'Fast Delivery',desc:'Hot in 30 mins.'},{icon:'💰',title:'Affordable',desc:'Great value always.'}],
@@ -161,7 +161,7 @@ function renderCraftPage(D) {
 
   function sandboxItemHTML(item, cat, idx, checked) {
     return '<label class="cp-item'+(checked?' checked':'')+'">'+
-      '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onchange="CpApp.sandboxToggle(event)">'+
+      '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onclick="CpApp.sandboxToggle(event)">'+
       '<span class="cp-item-name">'+item.name+'</span>'+
       '<span class="cp-item-price">+₹'+item.price+'/person</span>'+
     '</label>';
@@ -176,10 +176,10 @@ function renderCraftPage(D) {
       '<h2>'+D.pageMeta.craft.headline+'</h2>'+
       '<p class="cp-subhead">'+D.pageMeta.craft.subhead+'</p>'+
       '<div class="cp-badges">'+
-        '<div class="cp-badge"><span class="cp-badge__ic">👥</span><strong>Minimum Guests:</strong> 20 Persons</div>'+
+        '<div class="cp-badge"><span class="cp-badge__ic">👥</span><strong>Minimum Guests:</strong> 10 Persons</div>'+
         '<div class="cp-badge"><span class="cp-badge__ic">🍽️</span><strong>Minimum Items:</strong> 5 Menu Items</div>'+
       '</div>'+
-      '<p class="cp-note muted">Fewer than 20 guests? Please order directly from our standard <a href="menu.html">delivery menu</a>.</p>'+
+      '<p class="cp-note muted">Fewer than 10 guests? Please order directly from our standard <a href="menu.html">delivery menu</a>.</p>'+
     '</div>'+
   '</section>';
 
@@ -191,10 +191,10 @@ function renderCraftPage(D) {
         '<label class="cp2-label">Number of Guests</label>'+
         '<input type="number" id="cpGuestCount" min="'+D.craftConfig.guestMin+'" max="'+D.craftConfig.peopleMax+'" value="'+D.craftConfig.peopleDefault+'" placeholder="Enter Number of Guests" class="cp-guest-input" oninput="CpApp.onGuestChange()">'+
         '<div class="cp-guest-btns">'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(20)">20</button>'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(10)">10</button>'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(25)">25</button>'+
           '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(50)">50</button>'+
           '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(100)">100</button>'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(200)">200</button>'+
         '</div>'+
       '</div>'+
       '<div class="cp2-field">'+
@@ -204,7 +204,7 @@ function renderCraftPage(D) {
         '<div class="cp-budget-note">We\'ll highlight items that fit your budget</div>'+
       '</div>'+
     '</div>'+
-    '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 20 guests required for catering services.</div>'+
+    '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 10 guests required for catering services.</div>'+
     '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
   '</section>';
 

@@ -13,7 +13,7 @@ var CpApp = (function() {
     freeDelivery: false
   };
 
-  var D = window.SITE_DATA || (function() {
+  var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
     try { return JSON.parse(localStorage.getItem('rrk_site_data')) || {}; } catch(e) { return {}; }
   })();
 
@@ -47,7 +47,7 @@ var CpApp = (function() {
   }
 
   function updateGuestState(n) {
-    var valid = n >= (D.craftConfig && D.craftConfig.guestMin || 20);
+    var valid = n >= (D.craftConfig && D.craftConfig.guestMin || 10);
     state.guests = n;
     state.guestsValid = valid;
 
@@ -114,28 +114,10 @@ var CpApp = (function() {
   }
 
   function sandboxToggle(e) {
-    // Use the event source directly when possible
     if (e && e.target && e.target.matches('input[type="checkbox"]')) {
-      var cb = e.target;
-      var cat = cb.getAttribute('data-cat');
-      var idx = cb.getAttribute('data-idx');
-      var checked = cb.checked;
-      var parent = cb.parentNode;
-      if (parent) parent.classList.toggle('checked', checked);
-
-      if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
-      if (checked) {
-        var craftMenu = deriveCraftMenu();
-        var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
-        if (item) state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet };
-      } else {
-        delete state.sandboxChecked[cat][idx];
-        if (Object.keys(state.sandboxChecked[cat]).length === 0) delete state.sandboxChecked[cat];
-      }
-    } else {
-      // Fallback: full rebuild from all checkboxes
-      rebuildState();
+      e.target.parentNode.classList.toggle('checked', e.target.checked);
     }
+    rebuildState();
     updateSandboxStats();
     updateCheckoutBar();
   }
