@@ -577,6 +577,12 @@ body{cursor:auto}
 .cp-confirm-actions {display:flex;gap:12px}
 .cp-confirm-actions .btn {flex:1}
 
+/* ---- Location Input ---- */
+.cp-location-input {width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;background:var(--card-bg);color:var(--ink);margin-top:6px}
+.cp-location-input:focus {outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
+.cp-review-location {margin-top:16px;border-bottom:none!important}
+.cp-review-warning {margin:10px 0;padding:10px 14px;background:rgba(245,158,11,.08);color:#D97706;border-radius:10px;font-size:13px;font-weight:600}
+
 /* ---- Step 6: WhatsApp Order ---- */
 .cp-wa-box {background:rgba(37,211,102,.06);border:1.5px solid rgba(37,211,102,.2);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px}
 .cp-wa-summary {display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:12px}

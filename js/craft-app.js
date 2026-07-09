@@ -11,7 +11,8 @@ var CpApp = (function() {
     occasion: '',
     couponType: '',
     freeDelivery: false,
-    deliveryMode: 'delivery'
+    deliveryMode: 'delivery',
+    deliveryLocation: ''
   };
 
   var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
@@ -264,9 +265,9 @@ var CpApp = (function() {
     var bar = document.getElementById('cpCheckoutBar');
     if (!bar) return;
     var itemCount = sandboxItemCount();
-    var hasEnough = itemCount >= 3;
 
-    if (state.guestsValid && hasEnough) {
+    // Show bar as soon as any item is selected (with valid guests)
+    if (state.guestsValid && itemCount >= 1) {
       bar.style.display = 'block';
       bar.classList.add('visible');
     } else {
@@ -283,7 +284,8 @@ var CpApp = (function() {
     if (coItems) coItems.textContent = itemCount || '—';
     var grandTotal = calcGrandTotal();
     if (coTotal) coTotal.textContent = '₹' + grandTotal.toLocaleString('en-IN');
-    if (coBtn) coBtn.disabled = !(state.guestsValid && hasEnough);
+    // Enable button when ≥1 item, but show warning <3 in confirm step
+    if (coBtn) coBtn.disabled = !(state.guestsValid && itemCount >= 1);
   }
 
   // ========== CONFIRM / CANCEL ==========
@@ -309,21 +311,63 @@ var CpApp = (function() {
     var pp = sandboxPerPlate();
     var savings = '';
     var couponText = '';
+    var itemWarning = itemCount < 3 ? '<div class="cp-review-warning">⚠️ Minimum 3 items recommended for catering. You have only '+itemCount+'.</div>' : '';
     if (state.couponType === 'corp') { couponText = '<br>🏷️ Coupon: CORP10 (10% off)'; savings = '<span class="cp-save-tag">10% Off</span>'; }
     if (state.couponType === 'bday') couponText = '<br>🎁 Coupon: BDAYFREE (Free Welcome Drinks)';
     if (state.freeDelivery) couponText += '<br>🚚 Free Delivery Applied';
 
+    var locationHTML = '';
+    if (state.deliveryMode === 'delivery') {
+      locationHTML =
+        '<div class="cp-review-row cp-review-location"><strong>📍 Delivery Location</strong></div>'+
+        '<input type="text" id="cpLocationInput" placeholder="Enter your full address for delivery" class="cp-location-input" oninput="CpApp.onLocationChange()">'+
+        '<button class="btn btn--gold-outline" style="margin-top:8px;font-size:12px;padding:8px 14px" onclick="CpApp.shareLiveLocation()">📍 Share Live Location</button>'+
+        '<p class="muted" style="font-size:11px;margin-top:4px" id="cpLocationStatus"></p>';
+    }
+
     confirmBox.innerHTML =
       '<div class="cp-review-row"><strong>Guests:</strong> <span>'+state.guests+'</span></div>'+
       '<div class="cp-review-row"><strong>Per Plate:</strong> <span>₹'+pp.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Order Type:</strong> <span>'+(state.deliveryMode==='takeaway'?'🥡 Takeaway':'🚚 Delivery')+'</span></div>'+
       '<div class="cp-review-row"><strong>Items:</strong> <span>'+itemCount+' selected</span></div>'+
+      itemWarning+
       '<div class="cp-review-items">'+items.map(function(n){return'<span class="cp-review-chip">'+n+'</span>';}).join('')+'</div>'+
+      locationHTML+
       (state.occasion ? '<div class="cp-review-row"><strong>Occasion:</strong> <span>'+state.occasion+'</span></div>' : '')+
       (couponText ? '<div class="cp-review-coupon">'+couponText+'</div>' : '')+
       '<div class="cp-review-total"><strong>Grand Total:</strong> <span>₹'+total.toLocaleString('en-IN')+'</span>'+savings+'</div>';
 
     step5.style.display = 'block';
     step5.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function onLocationChange() {
+    var inp = document.getElementById('cpLocationInput');
+    state.deliveryLocation = inp ? inp.value : '';
+  }
+
+  function shareLiveLocation() {
+    var statusEl = document.getElementById('cpLocationStatus');
+    if (navigator.geolocation) {
+      if (statusEl) statusEl.textContent = 'Getting location...';
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          state.deliveryLocation = 'https://maps.google.com/?q=' + lat + ',' + lng;
+          var inp = document.getElementById('cpLocationInput');
+          if (inp) inp.value = state.deliveryLocation;
+          if (statusEl) statusEl.textContent = '✅ Location captured!';
+          updateCheckoutBar();
+        },
+        function(err) {
+          if (statusEl) statusEl.textContent = '⚠️ Could not get location. Please type your address instead.';
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      if (statusEl) statusEl.textContent = '⚠️ Geolocation not supported. Please type your address.';
+    }
   }
 
   function cancelOrder() {
@@ -368,6 +412,9 @@ var CpApp = (function() {
     msg += '🍽️ Items (' + itemCount + '): ' + items.join(', ') + '%0A';
     msg += '💰 Grand Total: ₹' + total.toLocaleString('en-IN') + '%0A';
     msg += '📦 Type: ' + (state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery') + '%0A';
+    if (state.deliveryMode === 'delivery' && state.deliveryLocation) {
+      msg += '📍 Location: ' + state.deliveryLocation + '%0A';
+    }
     if (state.occasion) msg += '🎉 Occasion: ' + state.occasion + '%0A';
     if (state.couponType === 'corp') msg += '🏷️ Coupon: CORP10 (10% off) %0A';
     if (state.couponType === 'bday') msg += '🎁 Coupon: BDAYFREE (Free Welcome Drinks) %0A';
@@ -426,6 +473,7 @@ var CpApp = (function() {
     calcGrandTotal: calcGrandTotal,
     showConfirm: showConfirm, cancelOrder: cancelOrder, confirmOrder: confirmOrder, orderWhatsApp: orderWhatsApp,
     setDeliveryMode: setDeliveryMode,
+    onLocationChange: onLocationChange, shareLiveLocation: shareLiveLocation,
     getD: getD
   };
 })();
