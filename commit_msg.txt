@@ -1,10 +1,10 @@
-Add Confirm/Cancel step and WhatsApp Order step
+Lower min items to 3, add budget bar, delivery mode, toast popup
 
-- Step 5: Review order summary with confirm/cancel buttons
-- Step 6: Order on WhatsApp with full item list and pricing
-- Confirm shows guests, per-plate cost, items list, occasion, coupons, grand total
-- Cancel returns user to Step 2
-- WhatsApp message includes all selected items, coupons, and totals
-- Added CSS for confirm box, review chips, WhatsApp summary
+- Changed minimum items from 5 to 3 across badge, validation, and config
+- Added budget status bar below Step 3 showing in-budget/slightly-over/over-budget with color coding
+- Added takeaway/delivery toggle in Step 2 with styled radio buttons
+- Added toast popup "Soon our team will contact you" after WhatsApp order before opening WhatsApp
+- Delivery mode included in WhatsApp message
+- Budget bar fills and changes color based on per-plate vs budget comparison
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

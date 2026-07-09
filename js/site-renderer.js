@@ -184,7 +184,7 @@ function renderCraftPage(D) {
       '<p class="cp-subhead">'+D.pageMeta.craft.subhead+'</p>'+
       '<div class="cp-badges">'+
         '<div class="cp-badge"><span class="cp-badge__ic">👥</span><strong>Minimum Guests:</strong> 10 Persons</div>'+
-        '<div class="cp-badge"><span class="cp-badge__ic">🍽️</span><strong>Minimum Items:</strong> 5 Menu Items</div>'+
+        '<div class="cp-badge"><span class="cp-badge__ic">🍽️</span><strong>Minimum Items:</strong> 3 Menu Items</div>'+
       '</div>'+
       '<p class="cp-note muted">Fewer than 10 guests? Please order directly from our standard <a href="menu.html">delivery menu</a>.</p>'+
     '</div>'+
@@ -211,6 +211,13 @@ function renderCraftPage(D) {
         '<div class="cp-budget-note">We\'ll highlight items that fit your budget</div>'+
       '</div>'+
     '</div>'+
+    '<div class="cp2-delivery">'+
+      '<label class="cp2-label">Order Type</label>'+
+      '<div class="cp-delivery-toggle">'+
+        '<label class="cp-toggle-opt active"><input type="radio" name="cpDeliveryMode" value="delivery" checked onchange="CpApp.setDeliveryMode(\'delivery\')">🚚 Delivery</label>'+
+        '<label class="cp-toggle-opt"><input type="radio" name="cpDeliveryMode" value="takeaway" onchange="CpApp.setDeliveryMode(\'takeaway\')">🥡 Takeaway</label>'+
+      '</div>'+
+    '</div>'+
     '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 10 guests required for catering services.</div>'+
     '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
   '</section>';
@@ -218,7 +225,7 @@ function renderCraftPage(D) {
   // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
   html += '<section class="cp-step-section reveal cp-step-locked" id="step3">'+
     '<div class="cp-step-head"><div class="cp-step-num">3</div><h3>Build Your Menu</h3></div>'+
-    '<p class="muted cp-step-desc">Select items for your catering. Each item is priced per person. Pick at least 5 items.</p>'+
+    '<p class="muted cp-step-desc">Select items for your catering. Each item is priced per person. Pick at least 3 items.</p>'+
     '<div class="cp-tabs" id="cpTabs">'+
       catKeys.map(function(cat, i) {
         return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catEmojis[cat]+' '+catLabels[cat]+'</button>';
@@ -237,7 +244,8 @@ function renderCraftPage(D) {
     '</div>'+
     '<div class="cp-summary">'+
       '<div class="cp-stats"><span>Per Plate: <strong>₹<span id="cpPerPlate">0</span></strong></span><span>Total Selected: <strong id="cpItemCount">0</strong></span></div>'+
-      '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 5 items to build your custom menu.</div>'+
+      '<div class="cp-budget-bar" id="cpBudgetBar"><div class="cp-budget-bar__track"><div class="cp-budget-bar__fill" id="cpBudgetFill"></div></div><span class="cp-budget-bar__label" id="cpBudgetLabel"></span></div>'+
+      '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 3 items to build your custom menu.</div>'+
     '</div>'+
   '</section>';
 

@@ -10,7 +10,8 @@ var CpApp = (function() {
     sandboxTab: 'starters',
     occasion: '',
     couponType: '',
-    freeDelivery: false
+    freeDelivery: false,
+    deliveryMode: 'delivery'
   };
 
   var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
@@ -85,6 +86,7 @@ var CpApp = (function() {
     if (valEl) valEl.textContent = state.budgetPerPerson;
     if (okBudget) okBudget.textContent = state.budgetPerPerson;
     highlightByBudget();
+    updateBudgetBar();
     updateCheckoutBar();
   }
 
@@ -153,7 +155,39 @@ var CpApp = (function() {
     var warningEl = document.getElementById('cpWarning');
     if (perPlateEl) perPlateEl.textContent = perPlate.toLocaleString('en-IN');
     if (itemCountEl) itemCountEl.textContent = totalItems;
-    if (warningEl) warningEl.style.display = (totalItems < 5) ? 'block' : 'none';
+    if (warningEl) warningEl.style.display = (totalItems < 3) ? 'block' : 'none';
+    updateBudgetBar(perPlate);
+  }
+
+  function updateBudgetBar(perPlate) {
+    var pp = (typeof perPlate === 'number') ? perPlate : sandboxPerPlate();
+    var budget = state.budgetPerPerson;
+    var fill = document.getElementById('cpBudgetFill');
+    var label = document.getElementById('cpBudgetLabel');
+    if (!fill || !label) return;
+    var pct = budget > 0 ? Math.min((pp / budget) * 100, 200) : 0;
+    fill.style.width = Math.min(pct, 100) + '%';
+    if (pp <= budget) {
+      fill.className = 'cp-budget-bar__fill cp-budget-in';
+      label.textContent = '✅ In Budget — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.className = 'cp-budget-bar__label cp-budget-in';
+    } else if (pp <= budget * 1.5) {
+      fill.className = 'cp-budget-bar__fill cp-budget-warn';
+      label.textContent = '⚠️ Slightly Over — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.className = 'cp-budget-bar__label cp-budget-warn';
+    } else {
+      fill.className = 'cp-budget-bar__fill cp-budget-over';
+      label.textContent = '🔴 Over Budget — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.className = 'cp-budget-bar__label cp-budget-over';
+    }
+  }
+
+  function setDeliveryMode(mode) {
+    state.deliveryMode = mode;
+    var opts = document.querySelectorAll('.cp-toggle-opt');
+    opts.forEach(function(o) {
+      o.classList.toggle('active', o.querySelector('input').value === mode);
+    });
   }
 
   function sandboxItemCount() {
@@ -230,7 +264,7 @@ var CpApp = (function() {
     var bar = document.getElementById('cpCheckoutBar');
     if (!bar) return;
     var itemCount = sandboxItemCount();
-    var hasEnough = itemCount >= 5;
+    var hasEnough = itemCount >= 3;
 
     if (state.guestsValid && hasEnough) {
       bar.style.display = 'block';
@@ -333,13 +367,34 @@ var CpApp = (function() {
     msg += '👥 Guests: ' + state.guests + '%0A';
     msg += '🍽️ Items (' + itemCount + '): ' + items.join(', ') + '%0A';
     msg += '💰 Grand Total: ₹' + total.toLocaleString('en-IN') + '%0A';
+    msg += '📦 Type: ' + (state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery') + '%0A';
     if (state.occasion) msg += '🎉 Occasion: ' + state.occasion + '%0A';
     if (state.couponType === 'corp') msg += '🏷️ Coupon: CORP10 (10% off) %0A';
     if (state.couponType === 'bday') msg += '🎁 Coupon: BDAYFREE (Free Welcome Drinks) %0A';
     if (state.freeDelivery) msg += '🚚 FREE DELIVERY %0A';
 
-    var wa = (D.whatsapp || '919999999999');
-    window.open('https://wa.me/' + wa + '?text=' + msg, '_blank');
+    showToast('✅ Order sent! Soon our team will contact you.');
+
+    setTimeout(function() {
+      var wa = (D.whatsapp || '919999999999');
+      window.open('https://wa.me/' + wa + '?text=' + msg, '_blank');
+    }, 1200);
+  }
+
+  function showToast(message) {
+    var existing = document.querySelector('.cp-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.className = 'cp-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function() {
+      toast.classList.add('cp-toast-visible');
+    }, 10);
+    setTimeout(function() {
+      toast.classList.remove('cp-toast-visible');
+      setTimeout(function() { toast.remove(); }, 400);
+    }, 3500);
   }
 
   // ========== INIT ==========
@@ -370,6 +425,7 @@ var CpApp = (function() {
     onOccasionChange: onOccasionChange, updateCheckoutBar: updateCheckoutBar,
     calcGrandTotal: calcGrandTotal,
     showConfirm: showConfirm, cancelOrder: cancelOrder, confirmOrder: confirmOrder, orderWhatsApp: orderWhatsApp,
+    setDeliveryMode: setDeliveryMode,
     getD: getD
   };
 })();
