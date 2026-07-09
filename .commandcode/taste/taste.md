@@ -14,3 +14,6 @@
 # frontend
 - Preserve scroll-reveal animations and loader — fix observer timing/initialization issues rather than removing them to make content visible. Confidence: 0.75
 
+# workflow
+- Push changes to the repository after making them, without needing to be asked. Confidence: 0.85
+

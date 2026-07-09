@@ -287,19 +287,35 @@ function changeQty(name, delta) {
 function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); }
 function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
 function renderCart() {
-  const wrap = document.getElementById('cartItems');
-  const totalEl = document.getElementById('cartTotal');
-  const countEl = document.getElementById('cartCount');
+  var wrap = document.getElementById('cartItems');
+  var totalEl = document.getElementById('cartTotal');
+  var countEl = document.getElementById('cartCount');
+  var cart = getCart();
+  var count = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+  if (countEl) countEl.textContent = count;
+
+  // Update sticky cart bar
+  var bar = document.getElementById('cartBar');
+  if (bar) {
+    if (count > 0) {
+      bar.classList.add('open');
+      var barCount = bar.querySelector('.cart-bar__count');
+      var barTotal = bar.querySelector('.cart-bar__total');
+      if (barCount) barCount.textContent = count + ' item' + (count > 1 ? 's' : '');
+      if (barTotal) barTotal.textContent = '\u20B9' + cartTotal();
+    } else {
+      bar.classList.remove('open');
+    }
+  }
+
   if (!wrap) return;
-  const cart = getCart();
-  if (countEl) countEl.textContent = cart.reduce((s, i) => s + i.qty, 0);
   if (cart.length === 0) {
     wrap.innerHTML = '<div class="cart-empty"><div class="cart-empty__ic">&#x1f6cd;&#xfe0f;</div><p>Your plate is empty</p><span>Add something delicious!</span></div>';
   } else {
-    wrap.innerHTML = cart.map(i => `<div class="cart-row"><div><b>${i.name}</b><span>&#8377;${i.price}</span></div><div class="qty"><button onclick="changeQty('${i.name}',-1)" aria-label="Decrease quantity">&#8722;</button><span>${i.qty}</span><button onclick="changeQty('${i.name}',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem('${i.name}')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>`).join('');
+    wrap.innerHTML = cart.map(function(i) { return '<div class="cart-row"><div><b>' + i.name + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + i.name + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + i.name + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + i.name + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
   }
   if (totalEl) totalEl.textContent = '\u20B9' + cartTotal();
-  const upsell = document.getElementById('upsell');
+  var upsell = document.getElementById('upsell');
   if (upsell && cartTotal() > 1000 && !sessionStorage.getItem('upsell_seen')) {
     upsell.classList.add('open');
     sessionStorage.setItem('upsell_seen', '1');
@@ -333,13 +349,33 @@ function checkout() {
 }
 
 // ============================================
+// MENU SEARCH
+// ============================================
+function searchMenu(query) {
+  var q = query.toLowerCase().trim();
+  document.querySelectorAll('.menu-row').forEach(function(row) {
+    if (!q) { row.style.display = ''; return; }
+    var search = row.dataset.search || '';
+    row.style.display = search.indexOf(q) !== -1 ? '' : 'none';
+  });
+  if (q) {
+    document.querySelectorAll('.cat').forEach(function(c) { c.classList.remove('active'); });
+  } else {
+    var allCat = document.querySelector('.cat');
+    if (allCat) allCat.classList.add('active');
+  }
+}
+
+// ============================================
 // MENU CATEGORY FILTER
 // ============================================
 function filterCat(cat, el) {
-  document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.cat').forEach(function(c) { c.classList.remove('active'); });
   if (el) el.classList.add('active');
-  document.querySelectorAll('[data-cat]').forEach(card => {
-    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+  var searchInput = document.querySelector('.menu-search__input');
+  if (searchInput) searchInput.value = '';
+  document.querySelectorAll('.menu-row').forEach(function(row) {
+    row.style.display = (cat === 'all' || row.dataset.cat === cat) ? '' : 'none';
   });
 }
 
