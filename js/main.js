@@ -321,31 +321,110 @@ function renderCart() {
     sessionStorage.setItem('upsell_seen', '1');
   }
 }
-function openCart() { const d = document.getElementById('cartDrawer'); if (d) d.classList.add('open'); }
-function closeCart() { const d = document.getElementById('cartDrawer'); if (d) d.classList.remove('open'); }
-function closeUpsell() { const u = document.getElementById('upsell'); if (u) u.classList.remove('open'); }
-function checkout() {
-  const cart = getCart();
-  if (cart.length === 0) return alert('Your cart is empty');
-  const mode = document.querySelector('input[name="mode"]:checked');
-  const type = mode ? mode.value : 'Takeaway';
-  let msg = `*New RRK Chicken Order*%0A(${type})%0A%0A`;
-  cart.forEach(i => { msg += `${i.qty} x ${i.name} - \u20B9${i.price * i.qty}%0A`; });
-  msg += `%0A*Total: \u20B9${cartTotal()}*`;
+function openCart() { var d = document.getElementById('cartDrawer'); if (d) d.classList.add('open'); }
+function closeCart() { var d = document.getElementById('cartDrawer'); if (d) d.classList.remove('open'); }
+function closeUpsell() { var u = document.getElementById('upsell'); if (u) u.classList.remove('open'); }
 
-  // Track order for admin dashboard
+// ============================================
+// ORDER MODE & CHECKOUT
+// ============================================
+var currentOrderMode = 'Takeaway';
+
+function setOrderMode(mode, el) {
+  currentOrderMode = mode;
+  document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+function openCheckout() {
+  var cart = getCart();
+  if (cart.length === 0) return;
+  var modal = document.getElementById('orderModal');
+  if (!modal) return;
+  document.getElementById('orderModalTitle').textContent = currentOrderMode === 'Delivery' ? 'Delivery Order' : 'Takeaway Order';
+  var sub = document.getElementById('orderModalSub');
+  sub.textContent = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · \u20B9' + cartTotal();
+  var addrGroup = document.getElementById('orderAddressGroup');
+  var addrInput = document.getElementById('orderAddress');
+  if (currentOrderMode === 'Delivery') {
+    addrGroup.style.display = 'block';
+    addrInput.setAttribute('required', '');
+  } else {
+    addrGroup.style.display = 'none';
+    addrInput.removeAttribute('required');
+    addrInput.value = '';
+  }
+  modal.classList.add('open');
+}
+
+function closeOrderModal() {
+  var modal = document.getElementById('orderModal');
+  if (modal) modal.classList.remove('open');
+}
+
+var currentLocation = null;
+
+function useCurrentLocation() {
+  if (!navigator.geolocation) {
+    document.getElementById('orderAddress').value = 'Location not supported';
+    return;
+  }
+  var addrInput = document.getElementById('orderAddress');
+  addrInput.value = 'Getting location...';
+  addrInput.style.color = 'var(--muted)';
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    var lat = pos.coords.latitude;
+    var lng = pos.coords.longitude;
+    currentLocation = { lat: lat, lng: lng };
+    addrInput.value = 'https://maps.google.com/?q=' + lat + ',' + lng;
+    addrInput.style.color = '';
+  }, function() {
+    addrInput.value = 'Could not get location. Type manually.';
+    addrInput.style.color = '';
+    currentLocation = null;
+  });
+}
+
+function placeOrder(e) {
+  e.preventDefault();
+  var cart = getCart();
+  if (cart.length === 0) return;
+
+  var phone = document.getElementById('orderPhone').value.trim();
+  var address = document.getElementById('orderAddress').value.trim();
+  var mode = currentOrderMode;
+
+  var msg = '*New RRK Chicken Order*\n(' + mode + ')\n\n';
+  cart.forEach(function(i) { msg += i.qty + ' x ' + i.name + ' - \u20B9' + (i.price * i.qty) + '\n'; });
+  msg += '\n*Total: \u20B9' + cartTotal() + '*';
+  msg += '\n\n*Phone:* ' + phone;
+  if (mode === 'Delivery') {
+    if (currentLocation) {
+      msg += '\n*Maps:* https://maps.google.com/?q=' + currentLocation.lat + ',' + currentLocation.lng;
+    }
+    if (address) {
+      msg += '\n*Address:* ' + address;
+    }
+  }
+
+  // Track for admin
   try {
-    const orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
-    orders.push({ items: cart.map(i => i.qty+'x '+i.name).join(', '), total: cartTotal(), mode: type, created_at: new Date().toISOString() });
+    var orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
+    orders.push({ items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '), total: cartTotal(), mode: mode, phone: phone, address: address, created_at: new Date().toISOString() });
     localStorage.setItem('rrk_orders', JSON.stringify(orders));
-  } catch(e) {}
+  } catch(ex) {}
+
   saveCart([]);
-  addLoyaltyPoints(Math.floor(cartTotal() * 0.05));
   incrementOrderCount();
-  sendPush('Order Confirmed! 🎉', 'Your order of ₹' + cartTotal() + ' has been placed. We\'ll prepare it shortly.');
+  sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
 
-  window.open(`https://wa.me/919999999999?text=${msg}`, '_blank');
+  closeOrderModal();
+  window.open('https://wa.me/919999999999?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function checkout() {
+  closeCart(); openCheckout();
 }
 
 // ============================================
