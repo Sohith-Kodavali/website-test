@@ -391,6 +391,8 @@ function initDarkMode() {
   if (localStorage.getItem('rrk_dark') === '1') {
     document.body.classList.add('dark-mode');
   }
+  var navRight = document.querySelector('.nav__right');
+  if (!navRight) return;
   var toggle = document.createElement('button');
   toggle.className = 'dark-toggle';
   toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
@@ -401,12 +403,7 @@ function initDarkMode() {
     toggle.innerHTML = isDark ? '☀️' : '🌙';
     localStorage.setItem('rrk_dark', isDark ? '1' : '0');
   });
-  var nav = document.querySelector('.nav');
-  if (nav) {
-    nav.parentNode.insertBefore(toggle, nav.nextSibling);
-  } else {
-    document.body.insertBefore(toggle, document.body.firstChild);
-  }
+  navRight.insertBefore(toggle, navRight.firstChild);
 }
 
 // ============================================
