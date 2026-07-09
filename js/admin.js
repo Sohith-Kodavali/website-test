@@ -92,7 +92,8 @@ function rawFields(item) {
     { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
     { key: 'image', label: 'Image', type: 'text', val: item.image||'' },
-    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' }
+    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
+    { key: 'show_home', label: 'Show on Homepage? (1/0)', type: 'text', val: item.show_home||'1' }
   ];
 }
 
