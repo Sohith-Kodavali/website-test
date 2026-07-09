@@ -36,11 +36,9 @@
 .dark-mode .section--soft{background:var(--grad-soft)}
 .dark-mode .btn--gold-outline{color:var(--ink)}
 
-/* Dark mode toggle */
-.dark-toggle{position:fixed;top:16px;right:72px;z-index:51;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gold);background:var(--card-bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-card);transition:transform .3s}
+/* Dark mode toggle (in nav) */
+.dark-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gold);background:var(--card-bg);cursor:pointer;font-size:16px;box-shadow:var(--sh-card);transition:transform .3s;flex-shrink:0}
 .dark-toggle:hover{transform:scale(1.1)}
-@media(min-width:768px){.dark-toggle{position:fixed;top:auto;bottom:24px;right:96px;width:44px;height:44px}}
-}
 
 /* ============ RESET & BASE (Mobile Default) ============ */
 *{margin:0;padding:0;box-sizing:border-box}

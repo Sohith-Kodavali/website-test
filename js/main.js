@@ -385,17 +385,19 @@ function initDarkMode() {
   if (localStorage.getItem('rrk_dark') === '1') {
     document.body.classList.add('dark-mode');
   }
-  const toggle = document.createElement('button');
+  var navRight = document.querySelector('.nav__right');
+  if (!navRight) return;
+  var toggle = document.createElement('button');
   toggle.className = 'dark-toggle';
   toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   toggle.title = 'Toggle dark mode';
   toggle.addEventListener('click', function() {
     document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
+    var isDark = document.body.classList.contains('dark-mode');
     toggle.innerHTML = isDark ? '☀️' : '🌙';
     localStorage.setItem('rrk_dark', isDark ? '1' : '0');
   });
-  document.body.appendChild(toggle);
+  navRight.insertBefore(toggle, navRight.firstChild);
 }
 
 // ============================================
