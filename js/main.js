@@ -648,6 +648,21 @@ function pickChip(el, group) {
   el.classList.add('active');
 }
 
+// ============================================
+// RAW CHICKEN ITEMS
+// ============================================
+function searchRawItems(query) {
+  var q = query.toLowerCase().trim();
+  document.querySelectorAll('.menu-row[data-raw-search]').forEach(function(row) {
+    if (!q) { row.style.display = ''; return; }
+    var search = row.dataset.rawSearch || '';
+    row.style.display = search.indexOf(q) !== -1 ? '' : 'none';
+  });
+}
+function orderRawItem(item) {
+  window.open('https://wa.me/919999999999?text=' + encodeURIComponent('*Raw Chicken Order*\n\n' + item + '\n\nHi, I want to order this. Please share details.'), '_blank');
+}
+
 // Init non-render-dependent things on ready
 document.addEventListener('DOMContentLoaded', () => {
   renderCart();
