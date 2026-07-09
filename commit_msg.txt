@@ -1,3 +1,11 @@
-Update map embed to RRK Chicken actual location on Railway Track Rd, Eluru
+Implement 6-step Craft My Plate catering flow
+
+- Step 1: Gatekeeper banner with min 20 guests / 5 items requirements
+- Step 2: Guest count input with preset buttons and validation
+- Step 3: Dynamic combo cards (Value ₹250, Premium ₹500, Luxury ₹900)
+- Step 4: Combo customization with item swaps and premium upgrades
+- Step 5: Build-from-scratch sandbox with tabbed menu builder
+- Step 6: Occasion selection with auto-coupons and free delivery logic
+- Sticky checkout bar with live pricing and WhatsApp booking
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

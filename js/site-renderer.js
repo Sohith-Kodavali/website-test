@@ -15,14 +15,14 @@ const SITE_DATA = {
   heroBadge: { main: '20% OFF', sub: 'Today Only' },
   heroStats: [{count:4.9,suffix:'★',duration:2000,label:'2,400+ reviews'},{count:30,suffix:' min',duration:1500,label:'Fast delivery'},{count:100,suffix:'%',duration:1600,label:'Fresh daily'}],
   menu: [
-    {name:'Signature Grilled Chicken',category:'chicken',diet:'nonveg',description:'Flame-grilled with house spices.',price:'249',image:'2.jpeg',special:'1',special_tag:'15% OFF'},
-    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',image:'3.jpeg',special:'1',special_tag:'Bestseller'},
-    {name:'Crispy Chicken 65',category:'starters',diet:'nonveg',description:'Spicy, crunchy, addictive.',price:'179',image:'4.jpeg',special:'1',special_tag:'Hot'},
-    {name:'Chicken Lollipop',category:'starters',diet:'nonveg',description:'6 pcs, tangy glaze.',price:'189',image:'16.jpeg',special:'0'},
-    {name:'Chicken Combo Meal',category:'meals',diet:'nonveg',description:'Rice, curry, starter & drink.',price:'279',image:'17.jpeg',special:'0'},
-    {name:'Family Feast Pack',category:'family',diet:'nonveg',description:'Serves 4 · biryani + starters.',price:'699',image:'5.jpeg',special:'1',special_tag:'Combo'},
-    {name:'Fresh Lime Soda',category:'beverages',diet:'veg',description:'Chilled & refreshing.',price:'59',image:'18.jpeg',special:'0'},
-    {name:'Gulab Jamun (2 pcs)',category:'desserts',diet:'veg',description:'Warm, syrup-soaked.',price:'69',image:'19.jpeg',special:'0'}
+    {name:'Signature Grilled Chicken',category:'chicken',diet:'nonveg',description:'Flame-grilled with house spices.',price:'249',craftPrice:'60',craftCategory:'starters',craftEnabled:true,image:'2.jpeg',special:'1',special_tag:'15% OFF'},
+    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',craftPrice:'50',craftCategory:'breads',craftEnabled:true,image:'3.jpeg',special:'1',special_tag:'Bestseller'},
+    {name:'Crispy Chicken 65',category:'starters',diet:'nonveg',description:'Spicy, crunchy, addictive.',price:'179',craftPrice:'65',craftCategory:'starters',craftEnabled:true,image:'4.jpeg',special:'1',special_tag:'Hot'},
+    {name:'Chicken Lollipop',category:'starters',diet:'nonveg',description:'6 pcs, tangy glaze.',price:'189',craftPrice:'55',craftCategory:'starters',craftEnabled:true,image:'16.jpeg',special:'0'},
+    {name:'Chicken Combo Meal',category:'meals',diet:'nonveg',description:'Rice, curry, starter & drink.',price:'279',craftPrice:'80',craftCategory:'mains',craftEnabled:true,image:'17.jpeg',special:'0'},
+    {name:'Family Feast Pack',category:'family',diet:'nonveg',description:'Serves 4 · biryani + starters.',price:'699',craftPrice:'0',craftCategory:'',craftEnabled:false,image:'5.jpeg',special:'1',special_tag:'Combo'},
+    {name:'Fresh Lime Soda',category:'beverages',diet:'veg',description:'Chilled & refreshing.',price:'59',craftPrice:'20',craftCategory:'beverages',craftEnabled:true,image:'18.jpeg',special:'0'},
+    {name:'Gulab Jamun (2 pcs)',category:'desserts',diet:'veg',description:'Warm, syrup-soaked.',price:'69',craftPrice:'40',craftCategory:'desserts',craftEnabled:true,image:'19.jpeg',special:'0'}
   ],
   raw: [
     {name:'Boneless',image:'7.jpeg',price:'320',weight:'1 kg',tag:'Fresh Today'},
@@ -40,36 +40,16 @@ const SITE_DATA = {
   ],
   occasions: [{emoji:'🎂',label:'Birthday'},{emoji:'💼',label:'Office'},{emoji:'💍',label:'Wedding'},{emoji:'👪',label:'Family'},{emoji:'🎊',label:'Festival'}],
   craftOccasions: ['Birthday Party','Corporate Event','Wedding/Engagement','Casual House Party'],
-  craftMenu: {
-    starters: [
-      {name:'Paneer Tikka',price:50,diet:'veg'},{name:'Chicken Wings',price:70,diet:'nonveg'},{name:'Chicken 65',price:65,diet:'nonveg'},{name:'Veg Manchurian',price:55,diet:'veg'},{name:'Tandoori Chicken',price:80,diet:'nonveg'},{name:'Hara Bhara Kebab',price:45,diet:'veg'},{name:'Fish Fry',price:75,diet:'nonveg'},{name:'Spring Rolls',price:40,diet:'veg'}
-    ],
-    mains: [
-      {name:'Dal Makhani',price:60,diet:'veg'},{name:'Butter Chicken',price:90,diet:'nonveg'},{name:'Paneer Butter Masala',price:75,diet:'veg'},{name:'Chicken Curry',price:70,diet:'nonveg'},{name:'Kadai Chicken',price:85,diet:'nonveg'},{name:'Palak Paneer',price:65,diet:'veg'},{name:'Mutton Rogan Josh',price:110,diet:'nonveg'},{name:'Aloo Gobi',price:50,diet:'veg'},{name:'Chicken Chettinad',price:95,diet:'nonveg'},{name:'Mix Veg Curry',price:55,diet:'veg'}
-    ],
-    breads: [
-      {name:'Jeera Rice',price:30,diet:'veg'},{name:'Veg Pulao',price:35,diet:'veg'},{name:'Butter Naan',price:25,diet:'veg'},{name:'Tandoori Roti',price:15,diet:'veg'},{name:'Chicken Biryani Rice',price:50,diet:'nonveg'},{name:'Steamed Rice',price:20,diet:'veg'},{name:'Garlic Naan',price:30,diet:'veg'},{name:'Paratha',price:20,diet:'veg'}
-    ],
-    desserts: [
-      {name:'Gulab Jamun (2pcs)',price:40,diet:'veg'},{name:'Rasmalai',price:60,diet:'veg'},{name:'Kulfi',price:50,diet:'veg'},{name:'Gajar Halwa',price:55,diet:'veg'},{name:'Ice Cream',price:35,diet:'veg'}
-    ],
-    beverages: [
-      {name:'Fresh Lime Soda',price:20,diet:'veg'},{name:'Masala Chaas',price:25,diet:'veg'},{name:'Mango Lassi',price:35,diet:'veg'},{name:'Sweet Lassi',price:30,diet:'veg'},{name:'Mineral Water',price:10,diet:'veg'}
-    ]
-  },
   comboDefs: {
     value: {label:'VALUE COMBO',tag:'Budget-Friendly',pricePer:250,badge:'',items:[
-      {cat:'starters',idx:1},{cat:'mains',idx:0},{cat:'mains',idx:7},{cat:'breads',idx:0},{cat:'desserts',idx:0}
+      {cat:'starters',idx:0},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'breads',idx:0},{cat:'desserts',idx:0}
     ]},
     premium: {label:'PREMIUM COMBO',tag:'Most Popular',pricePer:500,badge:'Best Value',items:[
-      {cat:'starters',idx:1},{cat:'starters',idx:0},{cat:'mains',idx:1},{cat:'mains',idx:2},{cat:'mains',idx:3},{cat:'breads',idx:4},{cat:'desserts',idx:1}
-    ]},
-    luxury: {label:'LUXURY COMBO',tag:'Elite Experience',pricePer:900,badge:'',items:[
-      {cat:'starters',idx:1},{cat:'starters',idx:4},{cat:'starters',idx:6},{cat:'mains',idx:1},{cat:'mains',idx:4},{cat:'mains',idx:5},{cat:'mains',idx:6},{cat:'breads',idx:4},{cat:'breads',idx:2},{cat:'desserts',idx:3}
+      {cat:'starters',idx:0},{cat:'starters',idx:1},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'mains',idx:2},{cat:'breads',idx:0},{cat:'desserts',idx:0}
     ]}
   },
-  craftConfig: {peopleMin:20,peopleMax:500,peopleDefault:50,guestMin:20},
-  craftPreview: {eyebrow:'Signature Feature',headline:'Craft My Plate',desc:'Plan your catering · 20+ guests · custom combos & live pricing.',buttonText:'Start Crafting',chips:[{emoji:'👥',text:'20+ Guests'},{emoji:'📦',text:'3 Combos'},{emoji:'💰',text:'Best Value'}],comboText:'Catering from <b>₹250/person</b>'},
+  craftConfig: {peopleMin:20,peopleMax:500,peopleDefault:50,guestMin:20,budgetMin:100,budgetMax:2000,budgetStep:50,budgetDefault:300},
+  craftPreview: {eyebrow:'Signature Feature',headline:'Craft My Plate',desc:'Plan your catering · 20+ guests · custom combos & live pricing.',buttonText:'Start Crafting',chips:[{emoji:'👥',text:'20+ Guests'},{emoji:'📦',text:'2 Combos'},{emoji:'💰',text:'Best Value'}],comboText:'Catering from <b>₹250/person</b>'},
   about: {eyebrow:'Our Story',headlineL1:'Rooted in flavour,',headlineL2:'refined for you',body:'RRK Chicken started in the heart of Eluru with one belief: premium chicken should be fresh, hygienic and honestly priced.',image:'6.jpeg',buttonText:'Visit Us'},
   whyCards: [{icon:'🐔',title:'Fresh Chicken',desc:'Sourced & cut daily.'},{icon:'👑',title:'Premium Quality',desc:'Only grade-A cuts.'},{icon:'✨',title:'Hygienic Kitchen',desc:'Spotless & safe.'},{icon:'⚡',title:'Fast Delivery',desc:'Hot in 30 mins.'},{icon:'💰',title:'Affordable',desc:'Great value always.'}],
   whySection: {eyebrow:'Why RRK',headline:'Why RRK Chicken'},
@@ -99,6 +79,22 @@ function loadSiteData() {
 }
 
 function getStars(n) { return '★'.repeat(parseInt(n)||5); }
+
+// Derive craft menu items from main menu (only items with craftEnabled=true)
+function deriveCraftMenu(D) {
+  var cats = {starters:[], mains:[], breads:[], desserts:[], beverages:[]};
+  D.menu.forEach(function(m) {
+    if (m.craftEnabled && m.craftCategory && cats[m.craftCategory]) {
+      cats[m.craftCategory].push({
+        name: m.name,
+        price: parseInt(m.craftPrice) || 0,
+        diet: m.diet || 'nonveg',
+        image: m.image || ''
+      });
+    }
+  });
+  return cats;
+}
 
 function renderForPage(page) {
   const saved = loadSiteData();
@@ -158,16 +154,16 @@ function renderMenuPage(D) {
 
 function renderCraftPage(D) {
   var el = document.getElementById('render-craft'); if(!el)return;
+  var craftMenu = deriveCraftMenu(D);
   var catKeys = ['starters','mains','breads','desserts','beverages'];
   var catLabels = {starters:'Starters',mains:'Main Course',breads:'Breads & Rice',desserts:'Desserts',beverages:'Beverages'};
   var catEmojis = {starters:'🍗',mains:'🍛',breads:'🍞',desserts:'🍰',beverages:'🥤'};
 
-  // Build sandbox tab items
   function sandboxItemHTML(item, cat, idx, checked) {
-    return '<label class="cp5-item'+(checked?' checked':'')+'">'+
+    return '<label class="cp-item'+(checked?' checked':'')+'">'+
       '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onchange="CpApp.sandboxToggle()">'+
-      '<span class="cp5-name">'+item.name+'</span>'+
-      '<span class="cp5-price">+₹'+item.price+'/person</span>'+
+      '<span class="cp-item-name">'+item.name+'</span>'+
+      '<span class="cp-item-price">+₹'+item.price+'/person</span>'+
     '</label>';
   }
 
@@ -187,96 +183,69 @@ function renderCraftPage(D) {
     '</div>'+
   '</section>';
 
-  // ===== STEP 2: Guest Input =====
+  // ===== STEP 2: Guest Count + Budget =====
   html += '<section class="cp-step-section reveal" id="step2">'+
-    '<div class="cp-step-head"><div class="cp-step-num">2</div><h3>How many guests?</h3></div>'+
-    '<div class="cp-input-row">'+
-      '<input type="number" id="cpGuestCount" min="'+D.craftConfig.guestMin+'" max="'+D.craftConfig.peopleMax+'" value="'+D.craftConfig.peopleDefault+'" placeholder="Enter Number of Guests" class="cp-guest-input" oninput="CpApp.onGuestChange()">'+
-      '<div class="cp-guest-btns">'+
-        '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(20)">20</button>'+
-        '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(50)">50</button>'+
-        '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(100)">100</button>'+
-        '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(200)">200</button>'+
+    '<div class="cp-step-head"><div class="cp-step-num">2</div><h3>Guests &amp; Budget</h3></div>'+
+    '<div class="cp2-grid">'+
+      '<div class="cp2-field">'+
+        '<label class="cp2-label">Number of Guests</label>'+
+        '<input type="number" id="cpGuestCount" min="'+D.craftConfig.guestMin+'" max="'+D.craftConfig.peopleMax+'" value="'+D.craftConfig.peopleDefault+'" placeholder="Enter Number of Guests" class="cp-guest-input" oninput="CpApp.onGuestChange()">'+
+        '<div class="cp-guest-btns">'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(20)">20</button>'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(50)">50</button>'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(100)">100</button>'+
+          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(200)">200</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="cp2-field">'+
+        '<label class="cp2-label">Budget Per Person (₹)</label>'+
+        '<input type="range" id="cpBudget" min="'+D.craftConfig.budgetMin+'" max="'+D.craftConfig.budgetMax+'" step="'+D.craftConfig.budgetStep+'" value="'+D.craftConfig.budgetDefault+'" class="range" oninput="CpApp.onBudgetChange()">'+
+        '<div class="cp-budget-display">₹<strong id="cpBudgetVal">'+D.craftConfig.budgetDefault+'</strong>/person</div>'+
+        '<div class="cp-budget-note">We\'ll highlight items that fit your budget</div>'+
       '</div>'+
     '</div>'+
     '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 20 guests required for catering services.</div>'+
-    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests.</div>'+
+    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
   '</section>';
 
-  // ===== STEP 3: Combo Cards =====
+  // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
   html += '<section class="cp-step-section reveal cp-step-locked" id="step3">'+
-    '<div class="cp-step-head"><div class="cp-step-num">3</div><h3>Choose Your Catering Combo</h3></div>'+
-    '<p class="muted cp-step-desc">Prices update dynamically based on your guest count.</p>'+
-    '<div class="cp-combos" id="cpCombos">'+
-      ['value','premium','luxury'].map(function(k) {
-        var def = D.comboDefs[k];
-        return '<div class="cp-combo-card'+(def.badge?' cp-combo-card--best':'')+'" data-combo="'+k+'">'+
-          (def.badge?'<span class="cp-best-badge">🌟 '+def.badge+'</span>':'')+
-          '<span class="cp-combo-tag">'+def.tag+'</span>'+
-          '<h4 class="cp-combo-label">'+def.label+'</h4>'+
-          '<div class="cp-combo-price">₹<span class="cp-combo-total" data-base="'+def.pricePer+'">0</span></div>'+
-          '<div class="cp-combo-per">₹'+def.pricePer+' per person</div>'+
-          '<ul class="cp-combo-includes">'+
-            def.items.map(function(ref) {
-              var item = D.craftMenu[ref.cat][ref.idx];
-              return '<li>'+item.name+'</li>';
-            }).join('')+
-          '</ul>'+
-          '<button class="btn btn--primary btn--block" onclick="CpApp.selectCombo(\''+k+'\')">Select &amp; Customize</button>'+
-        '</div>';
+    '<div class="cp-step-head"><div class="cp-step-num">3</div><h3>Build Your Menu</h3></div>'+
+    '<p class="muted cp-step-desc">Select items for your catering. Each item is priced per person. Pick at least 5 items.</p>'+
+    '<div class="cp-tabs" id="cpTabs">'+
+      catKeys.map(function(cat, i) {
+        return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catEmojis[cat]+' '+catLabels[cat]+'</button>';
       }).join('')+
     '</div>'+
-    '<p class="cp-alt-option">— or —</p>'+
-    '<button class="btn btn--gold-outline cp-scratch-btn" onclick="CpApp.showScratch()">🛠️ Build From Scratch</button>'+
-  '</section>';
-
-  // ===== STEP 4: Combo Customization =====
-  html += '<section class="cp-step-section reveal" id="step4" style="display:none">'+
-    '<div class="cp-step-head"><div class="cp-step-num">4</div><h3>Customize Your <span id="cp4ComboName"></span></h3></div>'+
-    '<div class="cp4-list" id="cp4Items"></div>'+
-    '<div class="cp4-upgrades"><h5>⚡ Premium Upgrades</h5>'+
-      '<label class="cp4-upgrade"><input type="checkbox" id="cpUpgradeBoneless" data-price="40" onchange="CpApp.recalc()"><span>Upgrade to Boneless Meat (+₹40/person)</span></label>'+
-      '<label class="cp4-upgrade"><input type="checkbox" id="cpUpgradeLiveCounter" data-price="80" onchange="CpApp.recalc()"><span>Add Live Food Counter (+₹80/person)</span></label>'+
-      '<label class="cp4-upgrade"><input type="checkbox" id="cpUpgradeWelcome" data-price="25" onchange="CpApp.recalc()"><span>Welcome Drink for All Guests (+₹25/person)</span></label>'+
-    '</div>'+
-  '</section>';
-
-  // ===== STEP 5: Build From Scratch Sandbox =====
-  html += '<section class="cp-step-section reveal" id="step5" style="display:none">'+
-    '<div class="cp-step-head"><div class="cp-step-num">5</div><h3>Tailor Your Own Menu</h3></div>'+
-    '<div class="cp5-tabs" id="cp5Tabs">'+
+    '<div class="cp-panels">'+
       catKeys.map(function(cat, i) {
-        return '<button class="cp5-tab'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catEmojis[cat]+' '+catLabels[cat]+'</button>';
-      }).join('')+
-    '</div>'+
-    '<div class="cp5-panels">'+
-      catKeys.map(function(cat, i) {
-        return '<div class="cp5-panel'+(i===0?' active':'')+'" data-cat="'+cat+'">'+
-          D.craftMenu[cat].map(function(item, idx) {
+        var items = craftMenu[cat] || [];
+        return '<div class="cp-panel'+(i===0?' active':'')+'" data-cat="'+cat+'">'+
+          (items.length === 0 ? '<p class="muted" style="padding:16px">No items in this category yet.</p>' :
+          items.map(function(item, idx) {
             return sandboxItemHTML(item, cat, idx, false);
-          }).join('')+
+          }).join(''))+
         '</div>';
       }).join('')+
     '</div>'+
-    '<div class="cp5-summary">'+
-      '<div class="cp5-stats"><span>Per Plate: <strong>₹<span id="cp5PerPlate">0</span></strong></span><span>Total Selected: <strong id="cp5ItemCount">0</strong></span></div>'+
-      '<div class="cp5-warning" id="cp5Warning" style="display:none">⚠️ Please select at least 5 items to build your custom menu.</div>'+
+    '<div class="cp-summary">'+
+      '<div class="cp-stats"><span>Per Plate: <strong>₹<span id="cpPerPlate">0</span></strong></span><span>Total Selected: <strong id="cpItemCount">0</strong></span></div>'+
+      '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 5 items to build your custom menu.</div>'+
     '</div>'+
-    '<button class="btn btn--gold-outline" onclick="CpApp.backToCombos()" style="margin-top:16px">← Back to Combos</button>'+
   '</section>';
 
-  // ===== STEP 6: Occasion & Coupon =====
-  html += '<section class="cp-step-section reveal" id="step6" style="display:none">'+
-    '<div class="cp-step-head"><div class="cp-step-num">6</div><h3>Occasion &amp; Coupons</h3></div>'+
-    '<div class="cp6-occasion">'+
-      '<label for="cpOccasion" class="cp6-label">Choose Your Occasion</label>'+
-      '<select id="cpOccasion" class="cp6-select" onchange="CpApp.onOccasionChange()">'+
+  // ===== STEP 4: Occasion & Coupon =====
+  html += '<section class="cp-step-section reveal" id="step4" style="display:none">'+
+    '<div class="cp-step-head"><div class="cp-step-num">4</div><h3>Occasion &amp; Coupons</h3></div>'+
+    '<div class="cp-occasion">'+
+      '<label for="cpOccasion" class="cp-label">Choose Your Occasion</label>'+
+      '<select id="cpOccasion" class="cp-select" onchange="CpApp.onOccasionChange()">'+
         '<option value="">— Select —</option>'+
         D.craftOccasions.map(function(o){return'<option value="'+o+'">'+o+'</option>';}).join('')+
       '</select>'+
     '</div>'+
-    '<div class="cp6-coupon" id="cp6Coupon" style="display:none"></div>'+
-    '<div class="cp6-coupon free-del" id="cp6FreeDelivery" style="display:none">🚚 <strong>FREE DELIVERY</strong> automatically applied — orders above ₹40,000!</div>'+
+    '<div class="cp-coupon" id="cpCoupon" style="display:none"></div>'+
+    '<div class="cp-coupon free-del" id="cpFreeDelivery" style="display:none">🚚 <strong>FREE DELIVERY</strong> automatically applied — orders above ₹40,000!</div>'+
   '</section>';
 
   // ===== STICKY CHECKOUT BAR =====
