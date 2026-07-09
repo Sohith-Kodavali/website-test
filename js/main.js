@@ -265,7 +265,14 @@ if (modal) {
 // ============================================
 // CART LOGIC
 // ============================================
-const CART_KEY = 'rrk_cart';
+var CART_PAGE = (function() {
+  if (typeof pageType !== 'undefined') return pageType;
+  // Detect from URL path
+  var path = window.location.pathname;
+  if (path.indexOf('raw-chicken') !== -1) return 'raw';
+  return 'food';
+})();
+const CART_KEY = 'rrk_cart_' + CART_PAGE;
 function getCart() { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); }
 function saveCart(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); renderCart(); }
 function addToCart(name, price) {
@@ -549,7 +556,7 @@ function initShareButton() {
 // ============================================
 const RESTAURANT_LAT = 16.7106762;
 const RESTAURANT_LNG = 81.1007719;
-const DELIVERY_RADIUS_KM = 10.5;
+const DELIVERY_RADIUS_KM = 10;
 
 function initDeliveryCheck() {
   const container = document.getElementById('deliveryCheck');
