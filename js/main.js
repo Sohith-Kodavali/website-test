@@ -231,7 +231,13 @@ const modal = document.getElementById('loginModal');
 function openModal() { if (modal) modal.classList.add('open'); }
 function closeModal() { if (modal) modal.classList.remove('open'); }
 if (modal) {
-  if (!localStorage.getItem('rrk_member')) setTimeout(openModal, 5000);
+  if (!localStorage.getItem('rrk_member') && !localStorage.getItem('rrk_modal_shown')) {
+    setTimeout(function() {
+      if (localStorage.getItem('rrk_member')) return;
+      openModal();
+      localStorage.setItem('rrk_modal_shown', '1');
+    }, 5000);
+  }
   // Use event delegation so close buttons work even after dynamic render
   modal.addEventListener('click', function(e) {
     if (e.target.closest('[data-close]')) closeModal();
@@ -405,7 +411,7 @@ function initShareButton() {
   if (!navigator.share) return;
   const btn = document.createElement('button');
   btn.className = 'share-btn';
-  btn.innerHTML = '📤';
+  btn.innerHTML = '🔗';
   btn.title = 'Share';
   btn.addEventListener('click', function() {
     navigator.share({
@@ -477,7 +483,7 @@ function initSocialProof() {
     localStorage.setItem('rrk_order_count', '0');
     stored = 0;
   }
-  var displayCount = stored + Math.floor(Math.random() * 5) + 3;
+  var displayCount = 15 + stored + Math.floor(Math.random() * 5);
   var el = document.getElementById('socialProof');
   if (!el) return;
   el.innerHTML = '<span class="sp-dot"></span> <span class="sp-count">' + displayCount + '</span> customers ordered today!';
