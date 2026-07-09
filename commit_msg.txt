@@ -1,10 +1,9 @@
-Lower min items to 3, add budget bar, delivery mode, toast popup
+Show checkout bar on 1 item, add delivery location input
 
-- Changed minimum items from 5 to 3 across badge, validation, and config
-- Added budget status bar below Step 3 showing in-budget/slightly-over/over-budget with color coding
-- Added takeaway/delivery toggle in Step 2 with styled radio buttons
-- Added toast popup "Soon our team will contact you" after WhatsApp order before opening WhatsApp
-- Delivery mode included in WhatsApp message
-- Budget bar fills and changes color based on per-plate vs budget comparison
+- Checkout bar now visible as soon as 1 item selected (not waiting for 3)
+- Min-3 warning shown as advisory in confirm step, doesn't block ordering
+- Delivery mode: added location input field + "Share Live Location" button using browser geolocation
+- Location included in WhatsApp order message for delivery orders
+- New .cp-location-input and .cp-review-warning CSS styles
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
