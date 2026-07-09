@@ -11,7 +11,7 @@ const SITE_DATA = {
     craft: { eyebrow: 'Catering', headline: 'Craft My Plate', subhead: 'Bespoke catering experiences designed for gatherings of 20+ guests. Sculpt your ideal menu entirely from scratch with immediate, live pricing updates.' },
     raw: { eyebrow: 'Farm Fresh', headline: 'Raw Chicken', subhead: 'Cut fresh every morning · hygienically packed.' }
   },
-  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Premium Chicken,', headlineGold: 'Perfection', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '1.jpeg' },
+  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Where Every Bite', headlineGold: 'Tells a Story.', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '2.jpeg' },
   heroBadge: { main: '20% OFF', sub: 'Today Only' },
   heroStats: [{count:4.9,suffix:'★',duration:2000,label:'2,400+ reviews'},{count:30,suffix:' min',duration:1500,label:'Fast delivery'},{count:100,suffix:'%',duration:1600,label:'Fresh daily'}],
   menu: [
@@ -64,7 +64,7 @@ const SITE_DATA = {
     {image:'12.jpeg',caption:'Fresh cuts daily'},{image:'13.jpeg',caption:'Family feast'},
     {image:'14.jpeg',caption:'Tandoori special'},{image:'15.jpeg',caption:'Curry cuts ready'}
   ],
-  contact: {phone:'+91 99999 99999',phoneRaw:'919999999999',whatsapp:'+91 99999 99999',address:'Railway Track Rd, Ramachandra Rao Pet, Eluru, AP 534002',hours:'11:00 AM – 11:00 PM',mapsUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3820.8001938655!2d81.1007719!3d16.7106762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3615e01ad28f5d%3A0xf1c2f543e5e71e0a!2sRRK%20CHICKEN!5e0!3m2!1sen!2sin!4v99999999999'},
+  contact: {phone:'+91 99999 99999',phoneRaw:'919999999999',whatsapp:'+91 99999 99999',address:'Railway Track Rd, Ramachandra Rao Pet, Eluru, AP 534002',hours:'11:00 AM – 11:00 PM',mapsUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3820.8001938655!2d81.1007719!3d16.7106762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3615e01ad28f5d%3A0xf1c2f543e5e71e0a!2sRRK%20FOOD%20COURT!5e0!3m2!1sen!2sin!4v99999999999'},
   social: {instagram:'#',facebook:'#',youtube:'#'},
   footer: {copyright:'© 2026 RRK Food Court. All rights reserved.'},
   loginModal: {eyebrow:'Welcome to RRK',headline:'Join the RRK Food Court Family',desc:'Unlock birthday offers, festival deals & exclusive combos.',benefits:['🎂 Birthday Offer','🎊 Festival Offers','🔑 Exclusive Deals','💬 WhatsApp Community'],privacy:'We respect your privacy.'}
@@ -122,7 +122,7 @@ function renderForPage(page) {
 function renderIndex(D) {
   var h = document.getElementById('render-hero');
   if (!h) return;
-  h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/>Crafted to <span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Premium chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
+  h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/><span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Signature Grilled Chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
 
   var specialItems = D.menu.filter(function(m){return m.special=='1' || m.special===true}).slice(0,2);
   document.getElementById('render-specials').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">Chef\'s Picks</span><h2>Today\'s Special</h2></div><div class="grid grid--2">'+specialItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>'+(m.special_tag?'<span class="tag tag--offer">'+m.special_tag+'</span>':'')+'<div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';
@@ -191,7 +191,7 @@ function renderCraftPage(D) {
 
   // ===== STEP 2: Guest Count + Budget =====
   html += '<section class="cp-step-section reveal" id="step2">'+
-    '<div class="cp-step-head"><div class="cp-step-num">2</div><h3>Guests &amp; Budget</h3></div>'+
+    '<div class="cp-step-head"><div class="cp-step-num">2</div><h3>Guests &amp; Estimated Budget</h3></div>'+
     '<div class="cp2-grid">'+
       '<div class="cp2-field">'+
         '<label class="cp2-label">Number of Guests</label>'+
@@ -218,7 +218,7 @@ function renderCraftPage(D) {
       '</div>'+
     '</div>'+
     '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 10 guests required for catering services.</div>'+
-    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
+    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Est. Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
   '</section>';
 
   // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
