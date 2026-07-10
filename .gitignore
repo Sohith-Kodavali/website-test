@@ -1,0 +1,13 @@
+# Generated Firebase config (contains real credentials in production)
+js/firebase-config.js
+
+# Local environment variables
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
