@@ -30,8 +30,9 @@ var CpApp = (function() {
     var cats = {};
     craftCats.forEach(function(c){ cats[c.key] = []; });
     (D.menu || []).forEach(function(m) {
-      if (m.craftEnabled && m.craftCategory && cats[m.craftCategory]) {
-        cats[m.craftCategory].push({
+      var cat = m.craftCategory || m.category;
+      if (m.craftEnabled && cat && cats[cat]) {
+        cats[cat].push({
           name: m.name,
           price: parseInt(m.craftPrice) || 0,
           diet: m.diet || 'nonveg'

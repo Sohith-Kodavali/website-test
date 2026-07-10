@@ -151,9 +151,7 @@ window.rrkCategories = {
   syncToLocal: () => {
     return window.rrkCategories.list().then(items => {
       var menu = items.filter(function(c){return c.type==='menu';});
-      var craft = items.filter(function(c){return c.type==='craft';});
       localStorage.setItem('rrk_menu_cats', JSON.stringify(menu));
-      localStorage.setItem('rrk_craft_cats', JSON.stringify(craft));
       return items;
     });
   }

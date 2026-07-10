@@ -21,15 +21,7 @@ function getMenuCategories() {
 }
 
 function getCraftCategories() {
-  try {
-    var stored = localStorage.getItem('rrk_craft_cats');
-    if (stored) { var parsed = JSON.parse(stored); if (parsed.length > 0) return parsed; }
-  } catch(e) {}
-  return [
-    {key:'starters',label:'🍗 Starters',order:0},{key:'mains',label:'🍛 Mains',order:1},
-    {key:'breads',label:'🍞 Breads & Rice',order:2},{key:'desserts',label:'🍰 Desserts',order:3},
-    {key:'beverages',label:'🥤 Beverages',order:4}
-  ];
+  return getMenuCategories();
 }
 
 const SITE_DATA = {
@@ -118,8 +110,9 @@ function deriveCraftMenu(D) {
   var cats = {};
   craftCats.forEach(function(c){ cats[c.key] = []; });
   D.menu.forEach(function(m) {
-    if (m.craftEnabled && m.craftCategory && cats[m.craftCategory]) {
-      cats[m.craftCategory].push({
+    var cat = m.craftCategory || m.category;
+    if (m.craftEnabled && cat && cats[cat]) {
+      cats[cat].push({
         name: m.name,
         price: parseInt(m.craftPrice) || 0,
         diet: m.diet || 'nonveg',

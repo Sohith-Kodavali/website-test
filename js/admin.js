@@ -67,9 +67,21 @@ function renderMenuEditor() {
 }
 
 function refreshMenuEditor() {
+  loadMenuCategories();
   rrkMenu.list().then(function(items) {
     window.__adminMenuItems = items;
+    var el = document.getElementById('cms-menu');
+    if (!el) return;
+    var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminMenu(\'all\',this)">All</button>'+
+      adminMenuCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminMenu(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
+    // Rebuild category buttons bar while keeping items and add button
+    var catsBar = el.querySelector('.cms-cats');
+    if (catsBar) catsBar.innerHTML = catBtns;
+    // Reset active state on "All" button
+    catsBar.querySelector('.cms-cat-btn').classList.add('active');
+    adminActiveMenuCat = 'all';
     renderAdminMenuList(items, adminActiveMenuCat);
+    renderCategoriesInline();
   });
 }
 
@@ -121,6 +133,7 @@ function editMenuDoc(id) {
   rrkMenu.list().then(items => {
     const item = items.find(m => m.id === id); if (!item) return;
     showItemEditor('Menu Item', menuFields(item), (vals) => {
+      vals.craftCategory = vals.category;
       rrkMenu.save({ id, ...vals }).then(() => refreshMenuEditor());
     });
   });
@@ -129,6 +142,7 @@ function editMenuDoc(id) {
 function addMenuDoc() {
   const item = {};
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
+    vals.craftCategory = vals.category;
     rrkMenu.save(vals).then(() => refreshMenuEditor());
   });
 }
@@ -209,17 +223,8 @@ var adminActiveCraftCat = 'all';
 var adminCraftCategories = [];
 
 function loadCraftCategories() {
-  try {
-    var stored = localStorage.getItem('rrk_craft_cats');
-    if (stored) adminCraftCategories = JSON.parse(stored);
-  } catch(e) {}
-  if (!adminCraftCategories || adminCraftCategories.length === 0) {
-    adminCraftCategories = [
-      {key:'starters',label:'🍗 Starters',order:0},{key:'mains',label:'🍛 Mains',order:1},
-      {key:'breads',label:'🍞 Breads & Rice',order:2},{key:'desserts',label:'🍰 Desserts',order:3},
-      {key:'beverages',label:'🥤 Beverages',order:4}
-    ];
-  }
+  loadMenuCategories();
+  adminCraftCategories = adminMenuCategories;
 }
 
 function renderCraftEditor() {
@@ -242,11 +247,12 @@ function renderCraftEditor() {
 function renderAdminCraftList(items, cat) {
   var listEl = document.getElementById('cms-craft-list');
   if (!listEl) return;
-  var filtered = cat === 'all' ? items : items.filter(function(m){return m.craftCategory===cat;});
+  var filtered = cat === 'all' ? items : items.filter(function(m){return m.category===cat;});
   if (filtered.length === 0) { listEl.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
   listEl.innerHTML = filtered.map(function(m){
+    var catLabel = (adminCraftCategories.find(function(c){return c.key===m.category;}) || {}).label || (m.category||'—');
     return '<div class="cms-item" style="flex-wrap:nowrap">'+
-      '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/person · '+(m.craftCategory||'—'):'Disabled')+'</span></div></div>'+
+      '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/person · '+catLabel:'Disabled')+'</span></div></div>'+
       '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Craft Settings</button>'+
     '</div>';
   }).join('');
@@ -260,15 +266,9 @@ function filterAdminCraft(cat, btn) {
 }
 
 function craftFields(item) {
-  loadCraftCategories();
-  var catOptions = '<option value="">— None —</option>'+adminCraftCategories.map(function(v){
-    var sel = (item.craftCategory||'') === v.key ? ' selected' : '';
-    return '<option value="'+v.key+'"'+sel+'>'+v.label+'</option>';
-  }).join('');
   return [
     { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'text', val: item.craftEnabled?'1':'0' },
-    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 },
-    { key: 'craftCategory', label: 'Craft Category', type: 'select', val: item.craftCategory||'', optionsHtml: catOptions }
+    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 }
   ];
 }
 
@@ -277,14 +277,22 @@ function editCraftItem(id) {
     var item = items.find(function(m) { return m.id === id; }); if (!item) return;
     showItemEditor('Craft Settings: '+item.name, craftFields(item), function(vals) {
       vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true';
-      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: vals.craftCategory }).then(function() { refreshCraftEditor(); });
+      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: item.category }).then(function() { refreshCraftEditor(); });
     });
   });
 }
 
 function refreshCraftEditor() {
+  loadCraftCategories();
   rrkMenu.list().then(function(items) {
     window.__adminCraftItems = items;
+    var catsBar = document.querySelector('#cms-craft .cms-cats');
+    if (catsBar) {
+      var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminCraft(\'all\',this)">All</button>'+
+        adminCraftCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminCraft(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
+      catsBar.innerHTML = catBtns;
+    }
+    adminActiveCraftCat = 'all';
     renderAdminCraftList(items, adminActiveCraftCat);
   });
 }
