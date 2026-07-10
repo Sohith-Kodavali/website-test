@@ -1,9 +1,6 @@
-Show checkout bar on 1 item, add delivery location input
+Merge upstream/master and resolve conflicts
 
-- Checkout bar now visible as soon as 1 item selected (not waiting for 3)
-- Min-3 warning shown as advisory in confirm step, doesn't block ordering
-- Delivery mode: added location input field + "Share Live Location" button using browser geolocation
-- Location included in WhatsApp order message for delivery orders
-- New .cp-location-input and .cp-review-warning CSS styles
+- Resolved blog.html deletion conflict (upstream removed it)
+- Updated tagline in js/config.js to match new tagline
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
