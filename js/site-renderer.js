@@ -5,7 +5,7 @@
 
 // Bump this when SITE_DATA defaults change.
 // Old localStorage caches with a lower version are discarded.
-var DATA_VERSION = 3;
+var DATA_VERSION = 4;
 
 const SITE_DATA = {
   whatsapp: '919999999999',
