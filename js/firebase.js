@@ -13,7 +13,6 @@ function initFirebase() {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    db.settings({ merge: true });
     return Promise.resolve(db);
   } catch(e) {
     console.warn('Firebase init error (may already be initialized):', e.message);
@@ -156,3 +155,82 @@ window.rrkCategories = {
     });
   }
 };
+
+// ============ SEEDING (admin-only helpers) ============
+// These add default data only once per flag. They never overwrite existing documents.
+function seedOnce(flag, fn) {
+  try { if (localStorage.getItem(flag) === '1') return Promise.resolve('already seeded'); } catch(e){}
+  return fn().then(function() { try { localStorage.setItem(flag, '1'); } catch(e){} return 'seeded'; });
+}
+
+function seedMenuToFirestore() {
+  return seedOnce('rrk_menu_seeded', function() {
+    if (typeof SITE_DATA === 'undefined' || !SITE_DATA.menu) return Promise.resolve();
+    var items = SITE_DATA.menu.map(function(m) {
+      return {
+        name: m.name || '', category: m.category || '', diet: m.diet || 'nonveg',
+        description: m.description || '', price: Number(m.price) || 0,
+        craftPrice: Number(m.craftPrice) || 0, craftCategory: m.craftCategory || m.category || '',
+        craftEnabled: m.craftEnabled !== false, image: m.image || '',
+        special: m.special || '0', special_tag: m.special_tag || '', today_special: m.today_special || '0'
+      };
+    });
+    return Promise.all(items.map(function(item) { return addDoc('menu', item); }));
+  });
+}
+
+function seedRawToFirestore() {
+  return seedOnce('rrk_raw_seeded', function() {
+    if (typeof SITE_DATA === 'undefined' || !SITE_DATA.raw) return Promise.resolve();
+    var items = SITE_DATA.raw.map(function(r) {
+      return {
+        name: r.name || '', image: r.image || '', price: Number(r.price) || 0,
+        weight: r.weight || '1 kg', tag: r.tag || 'Fresh Today', show_home: r.show_home || '1'
+      };
+    });
+    return Promise.all(items.map(function(item) { return addDoc('raw', item); }));
+  });
+}
+
+function seedCombosToFirestore() {
+  return seedOnce('rrk_combos_seeded', function() {
+    if (typeof SITE_DATA === 'undefined' || !SITE_DATA.combos) return Promise.resolve();
+    return Promise.all(SITE_DATA.combos.map(function(c) { return addDoc('combos', c); }));
+  });
+}
+
+function seedOccasionsToFirestore() {
+  return seedOnce('rrk_occasions_seeded', function() {
+    if (typeof SITE_DATA === 'undefined' || !SITE_DATA.occasions) return Promise.resolve();
+    return Promise.all(SITE_DATA.occasions.map(function(o) { return addDoc('occasions', o); }));
+  });
+}
+
+function seedCategoriesToFirestore() {
+  return seedOnce('rrk_cats_seeded', function() {
+    var cats = getMenuCategories();
+    return Promise.all(cats.map(function(c) {
+      return addDoc('categories', { type: 'menu', key: c.key, label: c.label, order: c.order });
+    }));
+  });
+}
+
+function resetAllSeeds() {
+  try {
+    localStorage.removeItem('rrk_menu_seeded');
+    localStorage.removeItem('rrk_raw_seeded');
+    localStorage.removeItem('rrk_combos_seeded');
+    localStorage.removeItem('rrk_occasions_seeded');
+    localStorage.removeItem('rrk_cats_seeded');
+  } catch(e){}
+}
+
+function runAllSeeds() {
+  return Promise.all([
+    seedCategoriesToFirestore(),
+    seedMenuToFirestore(),
+    seedRawToFirestore(),
+    seedCombosToFirestore(),
+    seedOccasionsToFirestore()
+  ]);
+}

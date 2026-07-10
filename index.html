@@ -17,12 +17,12 @@
 <meta property="og:type" content="website" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Restaurant","name":"RRK Food Court","image":"2.jpeg","address":{"@type":"PostalAddress","streetAddress":"Railway Track Rd, Ramachandra Rao Pet","addressLocality":"Eluru","addressRegion":"Andhra Pradesh"},"telephone":"+919999999999","servesCuisine":"Indian","priceRange":"₹50 - ₹700","openingHours":"Mo-Su 11:00-23:00"}</script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css?v=5" />
+<link rel="stylesheet" href="css/style.css?v=6" />
 <script>
 // Prevent flash of wrong theme — apply dark-mode before paint
 (function(){try{var d=localStorage.getItem('rrk_dark');if(d==='1'||(d===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark-mode');}}catch(e){}})();
 // Emergency cache purge — nuke stale localStorage from old deploys
-(function(){try{var d=JSON.parse(localStorage.getItem('rrk_site_data')||'{}');if(!d._v||d._v<5){localStorage.removeItem('rrk_site_data');}}catch(e){}})();
+(function(){try{var d=JSON.parse(localStorage.getItem('rrk_site_data')||'{}');if(!d._v||d._v<6){localStorage.removeItem('rrk_site_data');}}catch(e){}})();
 </script>
 </head>
 <body>
@@ -80,12 +80,12 @@
 
 <div class="modal" id="loginModal" aria-hidden="true" role="dialog" aria-modal="true"><div class="modal__backdrop" data-close></div><div id="render-login-modal"></div></div>
 
-<script src="js/config.js?v=4"></script>
+<script src="js/config.js?v=6"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?v=4"></script>
-<script src="js/firebase.js?v=4"></script>
-<script src="js/site-renderer.js?v=4"></script>
-<script src="js/main.js?v=4"></script>
+<script src="js/firebase-config.js?v=6"></script>
+<script src="js/firebase.js?v=6"></script>
+<script src="js/site-renderer.js?v=6"></script>
+<script src="js/main.js?v=6"></script>
 <script>renderForPage('index');initDeliveryCheck();initSocialProof();requestPushPermission();</script>
 </body></html>

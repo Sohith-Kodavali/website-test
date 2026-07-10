@@ -15,13 +15,7 @@ var CpApp = (function() {
     deliveryLocation: ''
   };
 
-  var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
-    try {
-      var parsed = JSON.parse(localStorage.getItem('rrk_site_data'));
-      if (parsed && parsed._v >= (typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : 0)) return parsed;
-      return {};
-    } catch(e) { return {}; }
-  })();
+  var D = {};
 
   function getD() { return D; }
   function deriveCraftMenu() {
@@ -453,7 +447,8 @@ var CpApp = (function() {
   }
 
   // ========== INIT ==========
-  function init() {
+  function init(data) {
+    D = data || (typeof SITE_DATA !== 'undefined' ? SITE_DATA : {});
     var budgetSlider = document.getElementById('cpBudget');
     if (budgetSlider && D.craftConfig) {
       budgetSlider.value = D.craftConfig.budgetDefault || 300;

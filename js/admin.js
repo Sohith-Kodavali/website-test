@@ -28,6 +28,27 @@ function showTab(tabId) {
   if (tab) tab.classList.add('active');
 }
 
+function seedAdminData() {
+  if (!confirm('This will add the default menu, raw items, combos, occasions and categories to Firestore once. Existing items will not be overwritten. Continue?')) return;
+  Promise.all([
+    typeof seedCategoriesToFirestore === 'function' ? seedCategoriesToFirestore() : Promise.resolve(),
+    typeof seedMenuToFirestore === 'function' ? seedMenuToFirestore() : Promise.resolve(),
+    typeof seedRawToFirestore === 'function' ? seedRawToFirestore() : Promise.resolve(),
+    typeof seedCombosToFirestore === 'function' ? seedCombosToFirestore() : Promise.resolve(),
+    typeof seedOccasionsToFirestore === 'function' ? seedOccasionsToFirestore() : Promise.resolve()
+  ]).then(function() {
+    alert('Default data seeded successfully. Reloading editors.');
+    refreshMenuEditor();
+    renderRawEditor();
+    renderComboEditor();
+    renderOccasionEditor();
+    if (typeof rrkCategories !== 'undefined') rrkCategories.syncToLocal();
+  }).catch(function(e) {
+    console.error(e);
+    alert('Seed failed. Check console.');
+  });
+}
+
 // ============ MENU ============
 var adminActiveMenuCat = 'all';
 var adminMenuCategories = [];
@@ -60,7 +81,8 @@ function renderMenuEditor() {
       '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-menu-list"></div>'+
       '<button class="btn btn--primary" style="margin-top:16px;margin-right:10px" onclick="addMenuDoc()">+ Add Menu Item</button>'+
-      '<button class="btn btn--gold-outline" style="margin-top:16px" onclick="addCategoryDocInline()">+ Add Category</button>'+
+      '<button class="btn btn--gold-outline" style="margin-top:16px;margin-right:10px" onclick="addCategoryDocInline()">+ Add Category</button>'+
+      '<button class="btn" style="margin-top:16px;background:#222;color:#fff;border:1px solid #444" onclick="seedAdminData()" title="One-time seed of menu, raw, combos, occasions and categories">🔄 Seed Default Data</button>'+
       '<div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)" id="cms-menu-cats-inline"></div>';
     renderAdminMenuList(items, adminActiveMenuCat);
     renderCategoriesInline();
@@ -124,6 +146,8 @@ function menuFields(item) {
     { key: 'diet', label: 'Diet', type: 'select', val: item.diet||'nonveg', optionsHtml: '<option value="nonveg"'+(item.diet==='nonveg'?' selected':'')+'>Non-Veg</option><option value="veg"'+(item.diet==='veg'?' selected':'')+'>Veg</option>' },
     { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
     { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
+    { key: 'craftEnabled', label: 'Show in Craft My Plate?', type: 'toggle', val: item.craftEnabled?'1':'0' },
+    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
     { key: 'special', label: 'Chef\'s Pick? (Appears in "Chef\'s Picks" section)', type: 'select', val: item.special||'0', optionsHtml: '<option value="1"'+(item.special==='1'?' selected':'')+'>Yes</option><option value="0"'+(item.special!=='1'?' selected':'')+'>No</option>' },
     { key: 'special_tag', label: 'Special Badge Text', type: 'text', val: item.special_tag||'' }
@@ -134,6 +158,7 @@ function editMenuDoc(id) {
   rrkMenu.list().then(items => {
     const item = items.find(m => m.id === id); if (!item) return;
     showItemEditor('Menu Item', menuFields(item), (vals) => {
+      vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
       vals.craftCategory = vals.category;
       rrkMenu.save({ id, ...vals }).then(() => refreshMenuEditor());
     });
@@ -143,6 +168,7 @@ function editMenuDoc(id) {
 function addMenuDoc() {
   const item = {};
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
+    vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
     vals.craftCategory = vals.category;
     rrkMenu.save(vals).then(() => refreshMenuEditor());
   });
@@ -268,7 +294,7 @@ function filterAdminCraft(cat, btn) {
 
 function craftFields(item) {
   return [
-    { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'text', val: item.craftEnabled?'1':'0' },
+    { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'toggle', val: item.craftEnabled?'1':'0' },
     { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 }
   ];
 }
@@ -502,7 +528,19 @@ function field(key, label, type, val, opts) {
   if (type === 'select') {
     return '<div class="admin-field"><label>'+label+'</label><select id="field-'+key+'" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:Inter,sans-serif;font-size:14px;background:#fff">'+(opts||'')+'</select></div>';
   }
+  if (type === 'toggle') {
+    var on = val === '1' || val === true || val === 'true';
+    return '<div class="admin-field"><label>'+label+'</label><div class="admin-toggle" id="field-'+key+'-wrap"><button type="button" class="admin-toggle-btn '+(on?'active':'')+'" data-val="1" onclick="setToggle(\''+key+'\',1)">Yes</button><button type="button" class="admin-toggle-btn '+(!on?'active':'')+'" data-val="0" onclick="setToggle(\''+key+'\',0)">No</button><input type="hidden" id="field-'+key+'" value="'+(on?'1':'0')+'" /></div></div>';
+  }
   return '<div class="admin-field"><label>'+label+'</label><input type="'+type+'" id="field-'+key+'" value="'+esc(val)+'" /></div>';
+}
+
+function setToggle(key, val) {
+  var wrap = document.getElementById('field-'+key+'-wrap'); if (!wrap) return;
+  var input = document.getElementById('field-'+key); if (input) input.value = val;
+  wrap.querySelectorAll('.admin-toggle-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-val') === String(val));
+  });
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
