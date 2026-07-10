@@ -1,9 +1,3 @@
-Swap craft section layout on mobile, update pricing/perks
-
-- Mobile: content (eyebrow, headline, steps) above, image below
-- Desktop: side-by-side unchanged
-- Changed pricing from 250/person to 150/person
-- Changed "20+ Guests" to "10+ Guests"
-- Removed "Free Delivery" perk
+Tweak section headings: Chef's Pick and Today's Special
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

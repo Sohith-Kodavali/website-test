@@ -89,7 +89,9 @@ function getStars(n) { return '★'.repeat(parseInt(n)||5); }
 
 // Derive craft menu items from main menu (only items with craftEnabled=true)
 function deriveCraftMenu(D) {
-  var cats = {starters:[], mains:[], breads:[], desserts:[], beverages:[]};
+  var craftCats = getCraftCategories();
+  var cats = {};
+  craftCats.forEach(function(c){ cats[c.key] = []; });
   D.menu.forEach(function(m) {
     if (m.craftEnabled && m.craftCategory && cats[m.craftCategory]) {
       cats[m.craftCategory].push({
@@ -182,8 +184,21 @@ function renderIndex(D) {
   if (!h) return;
   h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/>Crafted to <span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Signature Grilled Chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
 
-  var specialItems = D.menu.filter(function(m){return m.special=='1' || m.special===true}).slice(0,2);
-  document.getElementById('render-specials').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">Chef\'s Picks</span><h2>Today\'s Special</h2></div><div class="grid grid--2">'+specialItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>'+(m.special_tag?'<span class="tag tag--offer">'+m.special_tag+'</span>':'')+'<div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';
+  // Chef's Picks section
+  var chefItems = D.menu.filter(function(m){return m.special=='1' || m.special===true}).slice(0,2);
+  if (chefItems.length > 0) {
+    document.getElementById('render-specials').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">Chef\'s Pick</span><h2>Chef\'s Picks</h2></div><div class="grid grid--2">'+chefItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>'+(m.special_tag?'<span class="tag tag--offer">'+m.special_tag+'</span>':'')+'<div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';
+  } else {
+    document.getElementById('render-specials').innerHTML = '';
+  }
+
+  // Today's Special section (separate)
+  var todayItems = D.menu.filter(function(m){return m.today_special=='1'}).slice(0,2);
+  if (todayItems.length > 0) {
+    document.getElementById('render-today-special').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Today\'s Special</span><h2>🔥 Today\'s Special</h2></div><div class="grid grid--2">'+todayItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div><span class="tag tag--offer">Today Only!</span><div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';
+  } else {
+    document.getElementById('render-today-special').innerHTML = '';
+  }
 
   document.getElementById('render-about').innerHTML = '<section class="section section--soft" id="about"><div class="container split"><div class="split__media reveal reveal-slide-left"><div class="img-ph img-ph--tall"><img src="'+D.about.image+'" alt="Our kitchen" loading="lazy" /></div></div><div class="split__copy reveal reveal-slide-right"><span class="eyebrow">'+D.about.eyebrow+'</span><h2>'+D.about.headlineL1+'<br/>'+D.about.headlineL2+'</h2><p>'+D.about.body+'</p><div class="gold-divider"></div><a href="#contact" class="btn btn--gold-outline">'+D.about.buttonText+'</a></div></div></section>';
 
@@ -210,18 +225,23 @@ function renderSpecialsRow(D) {
 
 function renderMenuPage(D) {
   var el = document.getElementById('render-menu'); if(!el)return;
-  var cats=['all','chicken','biryani','starters','more'];
-  var labels={all:'All',chicken:'🐔 Chicken',biryani:'🍚 Biryani',starters:'🍗 Starters',more:'More'};
-  var moreCats=['meals','family','beverages','desserts'];
-  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderSpecialsRow(D)+'<div class="cats cats--compact reveal">'+cats.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;if(moreCats.indexOf(cat)!==-1)cat='more';return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
+  var allCats = getMenuCategories();
+  var displayCats = allCats.slice(0, 4);
+  var moreCats = allCats.slice(4).map(function(c){return c.key;});
+  var labels = {}; allCats.forEach(function(c){labels[c.key]=c.label;});
+  labels['more'] = 'More';
+  var catKeys = ['all'].concat(displayCats.map(function(c){return c.key;}));
+  if (moreCats.length > 0) catKeys.push('more');
+  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderSpecialsRow(D)+'<div class="cats cats--compact reveal">'+catKeys.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;if(moreCats.indexOf(cat)!==-1 || (displayCats.map(function(dc){return dc.key;}).indexOf(cat)===-1 && cat!=='all'))cat='more';return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
 }
 
 function renderCraftPage(D) {
   var el = document.getElementById('render-craft'); if(!el)return;
   var craftMenu = deriveCraftMenu(D);
-  var catKeys = ['starters','mains','breads','desserts','beverages'];
-  var catLabels = {starters:'Starters',mains:'Main Course',breads:'Breads & Rice',desserts:'Desserts',beverages:'Beverages'};
-  var catEmojis = {starters:'🍗',mains:'🍛',breads:'🍞',desserts:'🍰',beverages:'🥤'};
+  var allCraftCats = getCraftCategories();
+  var catKeys = allCraftCats.map(function(c){return c.key;});
+  var catLabels = {};
+  allCraftCats.forEach(function(c){catLabels[c.key]=c.label;});
 
   function sandboxItemHTML(item, cat, idx, checked) {
     return '<label class="cp-item'+(checked?' checked':'')+'">'+
@@ -285,7 +305,7 @@ function renderCraftPage(D) {
     '<p class="muted cp-step-desc">Select items for your catering. Each item is priced per person. Pick at least 3 items.</p>'+
     '<div class="cp-tabs" id="cpTabs">'+
       catKeys.map(function(cat, i) {
-        return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catEmojis[cat]+' '+catLabels[cat]+'</button>';
+        return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catLabels[cat]+'</button>';
       }).join('')+
     '</div>'+
     '<div class="cp-panels">'+
