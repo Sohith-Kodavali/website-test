@@ -25,7 +25,10 @@ var CpApp = (function() {
 
   function getD() { return D; }
   function deriveCraftMenu() {
-    var cats = {starters:[], mains:[], breads:[], desserts:[], beverages:[]};
+    var craftCats = typeof getCraftCategories === 'function' ? getCraftCategories() : [];
+    if (craftCats.length === 0) craftCats = [{key:'starters'},{key:'mains'},{key:'breads'},{key:'desserts'},{key:'beverages'}];
+    var cats = {};
+    craftCats.forEach(function(c){ cats[c.key] = []; });
     (D.menu || []).forEach(function(m) {
       if (m.craftEnabled && m.craftCategory && cats[m.craftCategory]) {
         cats[m.craftCategory].push({

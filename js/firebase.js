@@ -135,3 +135,26 @@ window.rrkSettings = {
     return Promise.all(promises);
   }
 };
+
+// ============ CATEGORIES ============
+window.rrkCategories = {
+  list: () => getCollection('categories').then(items => {
+    items.sort((a,b) => (a.order||99) - (b.order||99));
+    return items;
+  }),
+  save: (data) => {
+    if (data.id) return updateDoc('categories', data.id, data);
+    return addDoc('categories', data);
+  },
+  remove: (id) => deleteDoc('categories', id),
+  // Export to localStorage so public pages can use without Firebase
+  syncToLocal: () => {
+    return window.rrkCategories.list().then(items => {
+      var menu = items.filter(function(c){return c.type==='menu';});
+      var craft = items.filter(function(c){return c.type==='craft';});
+      localStorage.setItem('rrk_menu_cats', JSON.stringify(menu));
+      localStorage.setItem('rrk_craft_cats', JSON.stringify(craft));
+      return items;
+    });
+  }
+};

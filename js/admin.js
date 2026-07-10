@@ -9,12 +9,15 @@ function loadAdminApp() {
   renderMenuEditor();
   renderCraftEditor();
   renderRawEditor();
+  renderCategoriesEditor();
   renderComboEditor();
   renderOccasionEditor();
   renderCustomersEditor();
   renderContactEditor();
   renderSocialEditor();
   renderSettingsEditor();
+  // Sync categories to localStorage so public pages use them
+  if (typeof rrkCategories !== 'undefined') rrkCategories.syncToLocal();
 }
 
 function showTab(tabId) {
@@ -27,17 +30,34 @@ function showTab(tabId) {
 }
 
 // ============ MENU ============
-var ADMIN_MENU_CATS = ['all','chicken','biryani','starters','meals','family','beverages','desserts'];
-var ADMIN_MENU_LABELS = {all:'All',chicken:'🐔 Chicken',biryani:'🍚 Biryani',starters:'🍗 Starters',meals:'🍛 Meals',family:'👨‍👩‍👧 Family',beverages:'🥤 Beverages',desserts:'🍰 Desserts'};
 var adminActiveMenuCat = 'all';
+var adminMenuCategories = [];
+
+function loadMenuCategories() {
+  try {
+    var stored = localStorage.getItem('rrk_menu_cats');
+    if (stored) adminMenuCategories = JSON.parse(stored);
+  } catch(e) {}
+  if (!adminMenuCategories || adminMenuCategories.length === 0) {
+    adminMenuCategories = [
+      {key:'chicken',label:'🐔 Chicken',order:0},{key:'biryani',label:'🍚 Biryani',order:1},
+      {key:'starters',label:'🍗 Starters',order:2},{key:'meals',label:'🍛 Meals',order:3},
+      {key:'family',label:'👨‍👩‍👧 Family',order:4},{key:'beverages',label:'🥤 Beverages',order:5},
+      {key:'desserts',label:'🍰 Desserts',order:6}
+    ];
+  }
+}
 
 function renderMenuEditor() {
   var el = document.getElementById('cms-menu'); if (!el) return;
+  loadMenuCategories();
   el.innerHTML = '<h3 style="margin-bottom:16px">Menu Items</h3><p class="muted">Loading...</p>';
   rrkMenu.list().then(function(items) {
     window.__adminMenuItems = items;
+    var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminMenu(\'all\',this)">All</button>'+
+      adminMenuCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminMenu(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
     el.innerHTML = '<h3 style="margin-bottom:12px">Menu Items ('+items.length+')</h3>'+
-      '<div class="cms-cats">'+ADMIN_MENU_CATS.map(function(c){return'<button class="cms-cat-btn'+(c===adminActiveMenuCat?' active':'')+'" onclick="filterAdminMenu(\''+c+'\',this)">'+ADMIN_MENU_LABELS[c]+'</button>'}).join('')+'</div>'+
+      '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-menu-list"></div>'+
       '<button class="btn btn--primary" style="margin-top:16px" onclick="addMenuDoc()">+ Add Menu Item</button>';
     renderAdminMenuList(items, adminActiveMenuCat);
@@ -81,9 +101,11 @@ function filterAdminMenu(cat, btn) {
 }
 
 function menuFields(item) {
+  loadMenuCategories();
+  var catOpts = adminMenuCategories.map(function(c){var sel=c.key===item.category?' selected':'';return'<option value="'+c.key+'"'+sel+'>'+c.label+'</option>'}).join('');
   return [
     { key: 'name', label: 'Name', type: 'text', val: item.name||'' },
-    { key: 'category', label: 'Category', type: 'text', val: item.category||'chicken' },
+    { key: 'category', label: 'Category', type: 'select', val: item.category||'', optionsHtml: catOpts },
     { key: 'diet', label: 'Diet', type: 'text', val: item.diet||'nonveg' },
     { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
     { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
@@ -115,19 +137,35 @@ function deleteMenuDoc(id) {
 }
 
 // ============ CRAFT MY PLATE EDITOR ============
-var ADMIN_CRAFT_CATS = ['all','starters','mains','breads','desserts','beverages'];
-var ADMIN_CRAFT_LABELS = {all:'All',starters:'🍗 Starters',mains:'🍛 Mains',breads:'🍞 Breads & Rice',desserts:'🍰 Desserts',beverages:'🥤 Beverages'};
 var adminActiveCraftCat = 'all';
+var adminCraftCategories = [];
+
+function loadCraftCategories() {
+  try {
+    var stored = localStorage.getItem('rrk_craft_cats');
+    if (stored) adminCraftCategories = JSON.parse(stored);
+  } catch(e) {}
+  if (!adminCraftCategories || adminCraftCategories.length === 0) {
+    adminCraftCategories = [
+      {key:'starters',label:'🍗 Starters',order:0},{key:'mains',label:'🍛 Mains',order:1},
+      {key:'breads',label:'🍞 Breads & Rice',order:2},{key:'desserts',label:'🍰 Desserts',order:3},
+      {key:'beverages',label:'🥤 Beverages',order:4}
+    ];
+  }
+}
 
 function renderCraftEditor() {
   var el = document.getElementById('cms-craft'); if (!el) return;
+  loadCraftCategories();
   el.innerHTML = '<h3 style="margin-bottom:16px">Craft My Plate — Item Settings</h3><p class="muted">Loading...</p>';
   rrkMenu.list().then(function(items) {
     window.__adminCraftItems = items;
+    var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminCraft(\'all\',this)">All</button>'+
+      adminCraftCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminCraft(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
     el.innerHTML = '<h3 style="margin-bottom:8px">Craft My Plate — Item Settings</h3>'+
       '<p class="muted" style="margin-bottom:8px">Each menu item can have two prices: online order (per item) and craft catering (per person).</p>'+
       '<p class="muted" style="margin-bottom:16px">Enable items for Craft My Plate and set their per-person price and category.</p>'+
-      '<div class="cms-cats">'+ADMIN_CRAFT_CATS.map(function(c){return'<button class="cms-cat-btn'+(c===adminActiveCraftCat?' active':'')+'" onclick="filterAdminCraft(\''+c+'\',this)">'+ADMIN_CRAFT_LABELS[c]+'</button>'}).join('')+'</div>'+
+      '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-craft-list"></div>';
     renderAdminCraftList(items, adminActiveCraftCat);
   });
@@ -154,10 +192,10 @@ function filterAdminCraft(cat, btn) {
 }
 
 function craftFields(item) {
-  var catOptions = ['','starters','mains','breads','desserts','beverages'].map(function(v) {
-    var label = v === '' ? '— None —' : v.charAt(0).toUpperCase()+v.slice(1);
-    var sel = (item.craftCategory||'') === v ? ' selected' : '';
-    return '<option value="'+v+'"'+sel+'>'+label+'</option>';
+  loadCraftCategories();
+  var catOptions = '<option value="">— None —</option>'+adminCraftCategories.map(function(v){
+    var sel = (item.craftCategory||'') === v.key ? ' selected' : '';
+    return '<option value="'+v.key+'"'+sel+'>'+v.label+'</option>';
   }).join('');
   return [
     { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'text', val: item.craftEnabled?'1':'0' },
@@ -221,6 +259,78 @@ function addRawDoc() {
 function deleteRawDoc(id) {
   if (!confirm('Delete?')) return;
   rrkRaw.remove(id).then(() => renderRawEditor());
+}
+
+// ============ CATEGORIES ============
+function renderCategoriesEditor() {
+  var el = document.getElementById('cms-categories'); if (!el) return;
+  el.innerHTML = '<h3 style="margin-bottom:16px">Categories</h3><p class="muted">Loading...</p>';
+  if (typeof rrkCategories === 'undefined') {
+    el.innerHTML = '<h3 style="margin-bottom:16px">Categories</h3><p class="muted">Firebase not loaded — using default categories.</p>';
+    return;
+  }
+  rrkCategories.list().then(function(items) {
+    var menuCats = items.filter(function(c){return c.type==='menu';});
+    var craftCats = items.filter(function(c){return c.type==='craft';});
+    el.innerHTML = '<h3 style="margin-bottom:16px">Manage Categories</h3>'+
+      '<p class="muted" style="margin-bottom:20px">Add, edit or delete categories. These appear as filter tabs on the Menu and Craft My Plate pages.</p>'+
+
+      '<h4 style="margin-bottom:10px">📋 Menu Categories</h4>'+
+      '<div class="cms-list" id="cms-menu-cats">'+renderCategoryList(menuCats)+'</div>'+
+      '<button class="btn btn--primary" style="margin-top:10px;margin-bottom:28px" onclick="addCategoryDoc(\'menu\')">+ Add Menu Category</button>'+
+
+      '<h4 style="margin-bottom:10px">🍽️ Craft Categories</h4>'+
+      '<div class="cms-list" id="cms-craft-cats">'+renderCategoryList(craftCats)+'</div>'+
+      '<button class="btn btn--primary" style="margin-top:10px" onclick="addCategoryDoc(\'craft\')">+ Add Craft Category</button>';
+  });
+}
+
+function renderCategoryList(items) {
+  if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories yet. Add one below.</p>';
+  return items.map(function(c){
+    var typeLabel = c.type === 'menu' ? 'Menu' : 'Craft';
+    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Type: '+typeLabel+' · Order: '+(c.order||0)+'</span></div>'+
+      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDoc(\''+c.id+'\')">Edit</button>'+
+      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDoc(\''+c.id+'\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function categoryFields(item) {
+  return [
+    { key: 'type', label: 'Type', type: 'select', val: item.type||'menu', optionsHtml: '<option value="menu"'+(item.type==='menu'?' selected':'')+'>Menu</option><option value="craft"'+(item.type==='craft'?' selected':'')+'>Craft</option>' },
+    { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: item.key||'' },
+    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: item.label||'' },
+    { key: 'order', label: 'Sort Order', type: 'number', val: item.order||0 }
+  ];
+}
+
+function addCategoryDoc(type) {
+  showItemEditor('New '+ (type==='menu'?'Menu':'Craft') +' Category', categoryFields({type:type}), function(vals){
+    rrkCategories.save(vals).then(function(){
+      rrkCategories.syncToLocal();
+      renderCategoriesEditor();
+    });
+  });
+}
+
+function editCategoryDoc(id) {
+  rrkCategories.list().then(function(items){
+    var item = items.find(function(c){return c.id===id;}); if(!item) return;
+    showItemEditor('Edit Category', categoryFields(item), function(vals){
+      rrkCategories.save({id:id, type:vals.type, key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
+        rrkCategories.syncToLocal();
+        renderCategoriesEditor();
+      });
+    });
+  });
+}
+
+function deleteCategoryDoc(id) {
+  if(!confirm('Delete this category? Items with this category will still exist but the filter tab will be removed.')) return;
+  rrkCategories.remove(id).then(function(){
+    rrkCategories.syncToLocal();
+    renderCategoriesEditor();
+  });
 }
 
 // ============ COMBOS ============

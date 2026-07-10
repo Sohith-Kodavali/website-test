@@ -1,8 +1,12 @@
-Add category-wise filter tabs to admin Menu and Craft My Plate editors
+Add dynamic categories system with admin management
 
-- Menu tab: filter by Chicken, Biryani, Starters, Meals, Family, Beverages, Desserts
-- Craft tab: filter by Starters, Mains, Breads & Rice, Desserts, Beverages
-- Category filter persists after edit/delete/save operations
-- Style: pill-shaped tab buttons matching the site design
+- New "Categories" tab in admin to add/edit/delete menu and craft categories
+- Firebase Firestore `categories` collection with CRUD via rrkCategories
+- Categories sync to localStorage so public pages work without Firebase
+- Menu page now reads filter tabs dynamically from localStorage
+- Craft page now reads category tabs + panels dynamically
+- craft-app.js deriveCraftMenu() uses dynamic categories too
+- Admin menu/craft editors use dynamic category dropdowns
+- Falls back to defaults (chicken, biryani, starters etc.) if no categories stored
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
