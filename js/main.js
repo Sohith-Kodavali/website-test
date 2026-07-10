@@ -682,6 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initDarkMode();
   initShareButton();
   initPushNotifications();
+  initLoader();
   observeRevealElements();
   if (typeof initFirebase === 'function') {
     initFirebase().catch(function() {});

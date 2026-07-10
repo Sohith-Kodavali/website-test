@@ -7,6 +7,31 @@
 // Old localStorage caches with a lower version are discarded.
 var DATA_VERSION = 4;
 
+function getMenuCategories() {
+  try {
+    var stored = localStorage.getItem('rrk_menu_cats');
+    if (stored) { var parsed = JSON.parse(stored); if (parsed.length > 0) return parsed; }
+  } catch(e) {}
+  return [
+    {key:'chicken',label:'🐔 Chicken',order:0},{key:'biryani',label:'🍚 Biryani',order:1},
+    {key:'starters',label:'🍗 Starters',order:2},{key:'meals',label:'🍛 Meals',order:3},
+    {key:'family',label:'👨‍👩‍👧 Family',order:4},{key:'beverages',label:'🥤 Beverages',order:5},
+    {key:'desserts',label:'🍰 Desserts',order:6}
+  ];
+}
+
+function getCraftCategories() {
+  try {
+    var stored = localStorage.getItem('rrk_craft_cats');
+    if (stored) { var parsed = JSON.parse(stored); if (parsed.length > 0) return parsed; }
+  } catch(e) {}
+  return [
+    {key:'starters',label:'🍗 Starters',order:0},{key:'mains',label:'🍛 Mains',order:1},
+    {key:'breads',label:'🍞 Breads & Rice',order:2},{key:'desserts',label:'🍰 Desserts',order:3},
+    {key:'beverages',label:'🥤 Beverages',order:4}
+  ];
+}
+
 const SITE_DATA = {
   whatsapp: '919999999999',
   brand: { name: 'RRK Food Court', tagline: 'Eluru\'s premier food court destination.' },
@@ -167,13 +192,17 @@ function renderWithData(page, data) {
 
   // After injecting HTML, mark everything as revealed and dismiss loader
   setTimeout(function() {
-    document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(function(el) {
-      el.classList.add('revealed');
-    });
-    if (typeof observeRevealElements === 'function') observeRevealElements();
-    if (typeof initTestimonials === 'function') initTestimonials();
-    if (typeof initMagneticTilt === 'function') initMagneticTilt();
-    if (typeof initCounterObserver === 'function') initCounterObserver();
+    try {
+      document.querySelectorAll('.reveal, .reveal-slide-left, .reveal-slide-right, .reveal-scale, .cascade-left, .cascade-right').forEach(function(el) {
+        el.classList.add('revealed');
+      });
+      if (typeof observeRevealElements === 'function') observeRevealElements();
+      if (typeof initTestimonials === 'function') initTestimonials();
+      if (typeof initMagneticTilt === 'function') initMagneticTilt();
+      if (typeof initCounterObserver === 'function') initCounterObserver();
+    } catch(e) {
+      console.warn('Renderer post-render error:', e);
+    }
     var loader = document.querySelector('.loader');
     if (loader) loader.classList.add('hidden');
   }, 50);
