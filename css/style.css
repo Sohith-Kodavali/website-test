@@ -31,7 +31,7 @@
   --surface-bg:#1A1A1A;
   --bg-pattern:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4d03f' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
-.dark-mode .food-card,.dark-mode .why-card,.dark-mode .contact-card,.dark-mode .testimonial-card,.dark-mode .glass,.dark-mode .step,.dark-mode .qr-card,.dark-mode .suggest-card,.dark-mode .modal__card,.dark-mode .pricing-table,.dark-mode .chip,.dark-mode .cat,.dark-mode .cms-panel,.dark-mode .cms-item,.dark-mode .admin-field input,.dark-mode .admin-field textarea{background:var(--card-bg);color:var(--ink)}
+.dark-mode .food-card,.dark-mode .why-card,.dark-mode .contact-card,.dark-mode .testimonial-card,.dark-mode .glass,.dark-mode .step,.dark-mode .qr-card,.dark-mode .suggest-card,.dark-mode .modal__card,.dark-mode .pricing-table,.dark-mode .chip,.dark-mode .cat,.dark-mode .cms-panel,.dark-mode .cms-item,.dark-mode .admin-field input,.dark-mode .admin-field textarea,.dark-mode .craft-step-card,.dark-mode .craft-highlight{background:var(--card-bg);color:var(--ink)}
 .dark-mode .nav{background:rgba(15,15,15,.85);border-color:var(--border)}
 .dark-mode .section--soft{background:var(--grad-soft)}
 .dark-mode .btn--gold-outline{color:var(--ink)}
@@ -189,14 +189,31 @@ img{max-width:100%;display:block}
 .why-card h4{margin-bottom:4px;font-size:13px}
 .why-card p{font-size:11px;color:var(--muted)}
 
-/* ============ CRAFT PREVIEW ============ */
+/* ============ GLASS UTILITY ============ */
 .glass{background:rgba(255,255,255,.7);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.8);box-shadow:var(--sh-float)}
-.craft-preview{border-radius:28px;padding:28px;display:flex;flex-direction:column;gap:24px;position:relative;overflow:hidden}
-.craft-preview::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(212,175,55,.15),transparent 60%);z-index:-1}
-.craft-preview h2{font-size:clamp(24px,5vw,34px);font-weight:800;margin-bottom:10px;letter-spacing:-.025em}
-.craft-preview__ui{display:flex;flex-wrap:wrap;gap:10px}
-.mini-chip{background:#fff;border:1px solid var(--border);border-radius:999px;padding:10px 18px;font-weight:600;font-family:'Sora';font-size:13px;box-shadow:var(--sh-card)}
-.mini-combo{width:100%;background:var(--grad-red);color:#fff;border-radius:16px;padding:16px 20px;font-family:'Sora';font-size:14px;box-shadow:0 8px 24px rgba(193,18,31,.25)}
+
+/* ============ CRAFT PREVIEW (HOMEPAGE) ============ */
+.craft-section{background:linear-gradient(180deg,var(--bg) 0%,rgba(212,175,55,.06) 100%);padding:64px 0}
+.craft-steps{display:flex;align-items:flex-start;justify-content:center;gap:0;margin:40px 0 32px;flex-wrap:wrap}
+.craft-step-card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:20px;padding:28px 20px;text-align:center;flex:1;min-width:180px;max-width:260px;box-shadow:var(--sh-card);transition:transform .35s ease,box-shadow .35s ease;position:relative}
+.craft-step-card:hover{transform:translateY(-6px);box-shadow:var(--sh-float)}
+.craft-step-icon{width:56px;height:56px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;box-shadow:0 6px 20px rgba(212,175,55,.2)}
+.craft-step-card h4{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:6px;color:var(--ink)}
+.craft-step-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.craft-step-connector{display:flex;align-items:center;padding:0 8px;margin-top:32px;color:var(--gold);font-size:22px;font-weight:700;flex-shrink:0}
+.craft-highlights{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:32px}
+.craft-highlight{display:inline-flex;align-items:center;gap:8px;background:var(--card-bg);border:1.5px solid var(--border);border-radius:999px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--ink);box-shadow:var(--sh-card)}
+.craft-highlight-check{width:20px;height:20px;border-radius:50%;background:var(--success);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.craft-cta-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+.craft-price-pill{display:inline-block;background:var(--grad-gold);color:#5a4300;padding:10px 24px;border-radius:999px;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;box-shadow:0 4px 16px rgba(212,175,55,.25)}
+.craft-price-pill strong{font-weight:800;font-size:18px}
+.craft-cta-btn{min-width:240px}
+
+@media(max-width:767px){
+  .craft-step-connector{display:none}
+  .craft-steps{flex-direction:column;align-items:center;gap:16px}
+  .craft-step-card{max-width:100%}
+}
 
 /* ============ CONTACT ============ */
 .contact-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-card);padding:28px;box-shadow:var(--sh-card);position:relative}
@@ -694,7 +711,7 @@ body{cursor:auto}
   .testimonial-dots{display:none}
   .menu-list{display:grid;grid-template-columns:1fr 1fr}
   .cart-bar{max-width:480px}
-  .craft-preview{padding:52px;border-radius:36px}
+  .craft-section{padding:80px 0}.craft-steps{flex-wrap:nowrap;margin:48px 0 36px}.craft-step-card{padding:36px 24px}.craft-cta-wrap{flex-direction:row;gap:20px}
   .section-foil-divider{height:12px;opacity:.7}
   .grid{gap:26px}
   .elegant-cursor{display:block;position:fixed;pointer-events:none;z-index:9999;transition:transform .08s ease-out}
