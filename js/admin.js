@@ -9,7 +9,6 @@ function loadAdminApp() {
   renderMenuEditor();
   renderCraftEditor();
   renderRawEditor();
-  renderCategoriesEditor();
   renderComboEditor();
   renderOccasionEditor();
   renderCustomersEditor();
@@ -59,8 +58,11 @@ function renderMenuEditor() {
     el.innerHTML = '<h3 style="margin-bottom:12px">Menu Items ('+items.length+')</h3>'+
       '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-menu-list"></div>'+
-      '<button class="btn btn--primary" style="margin-top:16px" onclick="addMenuDoc()">+ Add Menu Item</button>';
+      '<button class="btn btn--primary" style="margin-top:16px;margin-right:10px" onclick="addMenuDoc()">+ Add Menu Item</button>'+
+      '<button class="btn btn--gold-outline" style="margin-top:16px" onclick="addCategoryDocInline()">+ Add Category</button>'+
+      '<div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)" id="cms-menu-cats-inline"></div>';
     renderAdminMenuList(items, adminActiveMenuCat);
+    renderCategoriesInline();
   });
 }
 
@@ -78,10 +80,10 @@ function renderAdminMenuList(items, cat) {
   if (filtered.length === 0) { list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
   list.innerHTML = filtered.map(function(m){
     var chefBadge = m.special==='1' ? '<span style="display:inline-block;background:#D4AF37;color:#5a4300;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px">★ Chef\'s Pick</span>' : '';
-    var todayBadge = m.today_special==='1' ? '<span style="display:inline-block;background:#C1121F;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:4px">🔥 Today</span>' : '';
+    var todayBadge = m.today_special==='1' ? '<span style="display:inline-block;background:#C1121F;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:4px">Today\'s Special</span>' : '';
     var todayBtn = m.today_special==='1'
-      ? '<button class="btn" style="padding:4px 10px;font-size:11px;background:#9E0E19;color:#fff;border:none;border-radius:6px;margin-right:6px" onclick="toggleTodaySpecial(\''+m.id+'\',0)" title="Remove from Today\'s Special">🔥 Remove</button>'
-      : '<button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none;border-radius:6px;margin-right:6px" onclick="toggleTodaySpecial(\''+m.id+'\',1)" title="Show on Today\'s Special">🔥 Today</button>';
+      ? '<button class="btn" style="padding:4px 10px;font-size:11px;background:#9E0E19;color:#fff;border:none;border-radius:6px;margin-right:6px" onclick="toggleTodaySpecial(\''+m.id+'\',0)" title="Remove from Today\'s Special">Remove</button>'
+      : '<button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none;border-radius:6px;margin-right:6px" onclick="toggleTodaySpecial(\''+m.id+'\',1)" title="Show on Today\'s Special">Today\'s Special</button>';
     return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" onerror="this.style.display=\'none\'" class="cms-item-img" /><div><b>'+m.name+chefBadge+todayBadge+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet==='veg'?'🟢 Veg':'Non-Veg')+'</span></div></div>'+
       '<div class="cms-item-actions">'+todayBtn+'<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc(\''+m.id+'\')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc(\''+m.id+'\')">Delete</button></div></div>';
   }).join('');
@@ -134,6 +136,72 @@ function addMenuDoc() {
 function deleteMenuDoc(id) {
   if (!confirm('Delete?')) return;
   rrkMenu.remove(id).then(() => refreshMenuEditor());
+}
+
+// ============ INLINE CATEGORIES (within Menu tab) ============
+function renderCategoriesInline() {
+  var el = document.getElementById('cms-menu-cats-inline');
+  if (!el || typeof rrkCategories === 'undefined') return;
+  rrkCategories.list().then(function(items) {
+    var cats = items.filter(function(c){return c.type==='menu';});
+    el.innerHTML = '<h4 style="margin-bottom:8px">Manage Categories</h4>'+
+      '<div class="cms-list" id="cms-inline-cats">'+renderCategoryListInline(cats)+'</div>';
+  });
+}
+
+function renderCategoryListInline(items) {
+  if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No custom categories. Add one below.</p>';
+  return items.map(function(c){
+    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
+      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
+      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function addCategoryDocInline() {
+  showItemEditor('New Menu Category', [
+    { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: '' },
+    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' },
+    { key: 'order', label: 'Sort Order', type: 'number', val: '0' }
+  ], function(vals){
+    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
+      rrkCategories.syncToLocal().then(function(){
+        loadMenuCategories();
+        refreshMenuEditor();
+        renderCategoriesInline();
+      });
+    });
+  });
+}
+
+function editCategoryDocInline(id) {
+  rrkCategories.list().then(function(items){
+    var item = items.find(function(c){return c.id===id;}); if(!item) return;
+    showItemEditor('Edit Category', [
+      { key: 'key', label: 'Key', type: 'text', val: item.key||'' },
+      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' },
+      { key: 'order', label: 'Sort Order', type: 'number', val: item.order||0 }
+    ], function(vals){
+      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
+        rrkCategories.syncToLocal().then(function(){
+          loadMenuCategories();
+          refreshMenuEditor();
+          renderCategoriesInline();
+        });
+      });
+    });
+  });
+}
+
+function deleteCategoryDocInline(id) {
+  if(!confirm('Delete this category? Items will still exist but the filter tab will be removed.')) return;
+  rrkCategories.remove(id).then(function(){
+    rrkCategories.syncToLocal().then(function(){
+      loadMenuCategories();
+      refreshMenuEditor();
+      renderCategoriesInline();
+    });
+  });
 }
 
 // ============ CRAFT MY PLATE EDITOR ============
@@ -240,8 +308,7 @@ function rawFields(item) {
     { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
-    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
-    { key: 'show_home', label: 'Show on Homepage? (1/0)', type: 'text', val: item.show_home||'1' }
+    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' }
   ];
 }
 
@@ -259,78 +326,6 @@ function addRawDoc() {
 function deleteRawDoc(id) {
   if (!confirm('Delete?')) return;
   rrkRaw.remove(id).then(() => renderRawEditor());
-}
-
-// ============ CATEGORIES ============
-function renderCategoriesEditor() {
-  var el = document.getElementById('cms-categories'); if (!el) return;
-  el.innerHTML = '<h3 style="margin-bottom:16px">Categories</h3><p class="muted">Loading...</p>';
-  if (typeof rrkCategories === 'undefined') {
-    el.innerHTML = '<h3 style="margin-bottom:16px">Categories</h3><p class="muted">Firebase not loaded — using default categories.</p>';
-    return;
-  }
-  rrkCategories.list().then(function(items) {
-    var menuCats = items.filter(function(c){return c.type==='menu';});
-    var craftCats = items.filter(function(c){return c.type==='craft';});
-    el.innerHTML = '<h3 style="margin-bottom:16px">Manage Categories</h3>'+
-      '<p class="muted" style="margin-bottom:20px">Add, edit or delete categories. These appear as filter tabs on the Menu and Craft My Plate pages.</p>'+
-
-      '<h4 style="margin-bottom:10px">📋 Menu Categories</h4>'+
-      '<div class="cms-list" id="cms-menu-cats">'+renderCategoryList(menuCats)+'</div>'+
-      '<button class="btn btn--primary" style="margin-top:10px;margin-bottom:28px" onclick="addCategoryDoc(\'menu\')">+ Add Menu Category</button>'+
-
-      '<h4 style="margin-bottom:10px">🍽️ Craft Categories</h4>'+
-      '<div class="cms-list" id="cms-craft-cats">'+renderCategoryList(craftCats)+'</div>'+
-      '<button class="btn btn--primary" style="margin-top:10px" onclick="addCategoryDoc(\'craft\')">+ Add Craft Category</button>';
-  });
-}
-
-function renderCategoryList(items) {
-  if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories yet. Add one below.</p>';
-  return items.map(function(c){
-    var typeLabel = c.type === 'menu' ? 'Menu' : 'Craft';
-    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Type: '+typeLabel+' · Order: '+(c.order||0)+'</span></div>'+
-      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDoc(\''+c.id+'\')">Edit</button>'+
-      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDoc(\''+c.id+'\')">Delete</button></div></div>';
-  }).join('');
-}
-
-function categoryFields(item) {
-  return [
-    { key: 'type', label: 'Type', type: 'select', val: item.type||'menu', optionsHtml: '<option value="menu"'+(item.type==='menu'?' selected':'')+'>Menu</option><option value="craft"'+(item.type==='craft'?' selected':'')+'>Craft</option>' },
-    { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: item.key||'' },
-    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: item.label||'' },
-    { key: 'order', label: 'Sort Order', type: 'number', val: item.order||0 }
-  ];
-}
-
-function addCategoryDoc(type) {
-  showItemEditor('New '+ (type==='menu'?'Menu':'Craft') +' Category', categoryFields({type:type}), function(vals){
-    rrkCategories.save(vals).then(function(){
-      rrkCategories.syncToLocal();
-      renderCategoriesEditor();
-    });
-  });
-}
-
-function editCategoryDoc(id) {
-  rrkCategories.list().then(function(items){
-    var item = items.find(function(c){return c.id===id;}); if(!item) return;
-    showItemEditor('Edit Category', categoryFields(item), function(vals){
-      rrkCategories.save({id:id, type:vals.type, key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
-        rrkCategories.syncToLocal();
-        renderCategoriesEditor();
-      });
-    });
-  });
-}
-
-function deleteCategoryDoc(id) {
-  if(!confirm('Delete this category? Items with this category will still exist but the filter tab will be removed.')) return;
-  rrkCategories.remove(id).then(function(){
-    rrkCategories.syncToLocal();
-    renderCategoriesEditor();
-  });
 }
 
 // ============ COMBOS ============
