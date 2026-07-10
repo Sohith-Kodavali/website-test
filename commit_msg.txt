@@ -1,8 +1,11 @@
-Add Chef's Special toggle to admin menu editor
+Split Chef's Picks and Today's Special into separate sections
 
-- Added "Show as Chef's Special?" dropdown (Yes/No) and "Special Badge Text" field
-- Special items now show a green "★ Chef's Special" badge in the admin list
-- Diet field now shows "🟢 Veg" or "Non-Veg" instead of raw text
-- Fixed duplicate renderAdminMenuList function
+- Chef's Picks: controlled by "Chef's Pick?" toggle in menu editor (special field),
+  renders as "Handpicked / Chef's Picks" section on homepage
+- Today's Special: new separate toggle (today_special field), quick-set via
+  dedicated "🔥 Today" button next to each item in admin list, renders as
+  "Limited Time / Today's Special" with "Today Only!" badge
+- Admin list shows both badges: gold ★ Chef's Pick and red 🔥 Today
+- index.html: added render-today-special container between hero and specials
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
