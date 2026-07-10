@@ -43,7 +43,6 @@
     <h2>RRK Admin</h2>
     <p class="muted" style="margin-bottom:24px">Content Management System</p>
     <form onsubmit="handleAdminLogin(event)">
-      <input type="text" id="adminUser" placeholder="Username" required class="admin-field-input" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:12px" autocomplete="username" />
       <input type="password" id="adminPass" placeholder="Password" required class="admin-field-input" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;margin-bottom:16px" autocomplete="current-password" />
       <button type="submit" class="btn btn--primary btn--block btn--lg">Login</button>
     </form>
@@ -89,17 +88,28 @@
 <script>
 function handleAdminLogin(e) {
   e.preventDefault();
-  const u = document.getElementById('adminUser').value.trim();
   const p = document.getElementById('adminPass').value.trim();
-  initSiteData();
-  const D = getSiteData() || RRK_DEFAULTS;
-  const creds = D.adminCreds || { user: 'rrk', pass: 'admin1234' };
-  if (u === creds.user && p === creds.pass) {
-    sessionStorage.setItem(ADMIN_KEY, '1');
-    showAdminDashboard();
-  } else {
-    document.getElementById('adminLoginError').style.display = 'block';
+  // Default password — overridden by Firestore settings if available
+  var expectedPass = 'admin1234';
+  function checkLogin() {
+    const err = document.getElementById('adminLoginError');
+    if (p === expectedPass) {
+      sessionStorage.setItem(ADMIN_KEY, '1');
+      showAdminDashboard();
+    } else {
+      err.style.display = 'block';
+    }
   }
+  if (typeof rrkSettings === 'undefined') {
+    checkLogin();
+    return;
+  }
+  rrkSettings.get().then(function(s) {
+    if (s.admin_pass) expectedPass = s.admin_pass;
+    checkLogin();
+  }).catch(function() {
+    checkLogin();
+  });
 }
 
 function showAdminDashboard() {
