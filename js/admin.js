@@ -77,18 +77,8 @@ function renderAdminMenuList(items, cat) {
   var filtered = cat === 'all' ? items : items.filter(function(m){return m.category===cat;});
   if (filtered.length === 0) { list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
   list.innerHTML = filtered.map(function(m){
-    return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img" /><div><b>'+m.name+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet||'nonveg')+' · Special: '+(m.special==='1'?(m.special_tag||'Yes'):'No')+'</span></div></div>'+
-      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc(\''+m.id+'\')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc(\''+m.id+'\')">Delete</button></div></div>';
-  }).join('');
-}
-
-function renderAdminMenuList(items, cat) {
-  var list = document.getElementById('cms-menu-list');
-  if (!list) return;
-  var filtered = cat === 'all' ? items : items.filter(function(m){return m.category===cat;});
-  if (filtered.length === 0) { list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
-  list.innerHTML = filtered.map(function(m){
-    return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img" /><div><b>'+m.name+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet||'nonveg')+' · Special: '+(m.special==='1'?(m.special_tag||'Yes'):'No')+'</span></div></div>'+
+    var specialBadge = m.special==='1' ? '<span style="display:inline-block;background:#2E9E5B;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px">★ Chef\'s Special</span>' : '';
+    return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" onerror="this.style.display=\'none\'" class="cms-item-img" /><div><b>'+m.name+specialBadge+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet==='veg'?'🟢 Veg':'Non-Veg')+'</span></div></div>'+
       '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc(\''+m.id+'\')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc(\''+m.id+'\')">Delete</button></div></div>';
   }).join('');
 }
@@ -109,7 +99,9 @@ function menuFields(item) {
     { key: 'diet', label: 'Diet', type: 'select', val: item.diet||'nonveg', optionsHtml: '<option value="nonveg"'+(item.diet==='nonveg'?' selected':'')+'>Non-Veg</option><option value="veg"'+(item.diet==='veg'?' selected':'')+'>Veg</option>' },
     { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
     { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
-    { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true }
+    { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
+    { key: 'special', label: 'Show as Chef\'s Special?', type: 'select', val: item.special||'0', optionsHtml: '<option value="1"'+(item.special==='1'?' selected':'')+'>Yes — Show on Homepage</option><option value="0"'+(item.special!=='1'?' selected':'')+'>No</option>' },
+    { key: 'special_tag', label: 'Special Badge Text', type: 'text', val: item.special_tag||'' }
   ];
 }
 

@@ -1,9 +1,8 @@
-Improve admin menu editor: diet dropdown, image URL preview, remove special fields
+Add Chef's Special toggle to admin menu editor
 
-- Diet field: changed from free-text to select dropdown (Non-Veg / Veg)
-- Image field: changed label to "Image URL", added live preview that
-  shows the image when a URL is entered (also on raw chicken editor)
-- Removed "Show on Homepage?" and "Homepage Tag" fields from menu editor
-- showItemEditor now supports {preview:true} on any field for live preview
+- Added "Show as Chef's Special?" dropdown (Yes/No) and "Special Badge Text" field
+- Special items now show a green "★ Chef's Special" badge in the admin list
+- Diet field now shows "🟢 Veg" or "Non-Veg" instead of raw text
+- Fixed duplicate renderAdminMenuList function
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
