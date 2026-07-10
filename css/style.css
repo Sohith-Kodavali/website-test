@@ -31,7 +31,7 @@
   --surface-bg:#1A1A1A;
   --bg-pattern:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4d03f' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
-.dark-mode .food-card,.dark-mode .why-card,.dark-mode .contact-card,.dark-mode .testimonial-card,.dark-mode .glass,.dark-mode .step,.dark-mode .qr-card,.dark-mode .suggest-card,.dark-mode .modal__card,.dark-mode .pricing-table,.dark-mode .chip,.dark-mode .cat,.dark-mode .cms-panel,.dark-mode .cms-item,.dark-mode .admin-field input,.dark-mode .admin-field textarea,.dark-mode .craft-step-card,.dark-mode .craft-highlight{background:var(--card-bg);color:var(--ink)}
+.dark-mode .food-card,.dark-mode .why-card,.dark-mode .contact-card,.dark-mode .testimonial-card,.dark-mode .glass,.dark-mode .step,.dark-mode .qr-card,.dark-mode .suggest-card,.dark-mode .modal__card,.dark-mode .pricing-table,.dark-mode .chip,.dark-mode .cat,.dark-mode .cms-panel,.dark-mode .cms-item,.dark-mode .admin-field input,.dark-mode .admin-field textarea{background:var(--card-bg);color:var(--ink)}
 .dark-mode .nav{background:rgba(15,15,15,.85);border-color:var(--border)}
 .dark-mode .section--soft{background:var(--grad-soft)}
 .dark-mode .btn--gold-outline{color:var(--ink)}
