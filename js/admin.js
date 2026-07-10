@@ -39,10 +39,11 @@ function loadMenuCategories() {
   } catch(e) {}
   if (!adminMenuCategories || adminMenuCategories.length === 0) {
     adminMenuCategories = [
-      {key:'chicken',label:'🐔 Chicken',order:0},{key:'biryani',label:'🍚 Biryani',order:1},
-      {key:'starters',label:'🍗 Starters',order:2},{key:'meals',label:'🍛 Meals',order:3},
-      {key:'family',label:'👨‍👩‍👧 Family',order:4},{key:'beverages',label:'🥤 Beverages',order:5},
-      {key:'desserts',label:'🍰 Desserts',order:6}
+      {key:'starters',label:'🍗 Starters',order:0},{key:'kaju-pakodi',label:'🥜 Kaju Pakodi',order:1},
+      {key:'manchuria',label:'🥘 Manchuria',order:2},{key:'biryani',label:'🍚 Biryani',order:3},
+      {key:'fried-rice',label:'🍛 Fried Rice',order:4},{key:'noodles',label:'🍜 Noodles',order:5},
+      {key:'roti-curry',label:'🍲 Roti & Curry',order:6},{key:'breads',label:'🍞 Breads',order:7},
+      {key:'ice-creams',label:'🍦 Ice Creams',order:8}
     ];
   }
 }
