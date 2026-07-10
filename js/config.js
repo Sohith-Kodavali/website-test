@@ -9,7 +9,7 @@ var RRK_CONFIG = {
   phone: '+91 99999 99999',
   phoneRaw: '919999999999',
   brandName: 'RRK Food Court',
-  tagline: 'Premium chicken restaurant in Eluru.',
+  tagline: 'Eluru\'s premier food court destination.',
   loaded: false
 };
 
