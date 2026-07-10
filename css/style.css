@@ -4,6 +4,7 @@
    ============================================ */
 
 :root{
+  color-scheme: light dark;
   --red:#C1121F; --red-dark:#9E0E19; --white:#FFFFFF; --gold:#D4AF37; --gold-light:#F3D77A;
   --bg:#FFF8F0; --border:#E8E0D5; --success:#2E9E5B; --ink:#1A1A1A; --muted:#6B6B6B;
   --r-card:24px; --r-btn:999px; --r-inp:14px;
