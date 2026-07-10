@@ -4,7 +4,6 @@
 const ADMIN_KEY = 'rrk_admin_session';
 
 function loadAdminApp() {
-  const D = getSiteData() || RRK_DEFAULTS;
   document.querySelectorAll('.cms-panel').forEach(p => p.style.display = 'none');
   document.getElementById('cms-menu').style.display = 'block';
   renderMenuEditor();
@@ -299,7 +298,7 @@ function renderSettingsEditor() {
   rrkSettings.get().then(s => {
     el.innerHTML = `<h3 style="margin-bottom:16px">Global Settings</h3>
       ${field('brand_name','Brand Name','text',s.brand_name||'RRK Food Court')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919999999999')}
-      ${field('admin_user','Admin Username','text',s.admin_user||'rrk')}${field('admin_pass','Admin Password','text',s.admin_pass||'admin1234')}
+      ${field('admin_pass','Admin Password','text',s.admin_pass||'admin1234')}
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
       <p class="muted" style="font-size:12px">Data is stored in Firebase Firestore. To reset, delete collections in Firebase Console.</p>`;
@@ -307,7 +306,7 @@ function renderSettingsEditor() {
 }
 
 function saveSettingsDoc() {
-  rrkSettings.save({ brand_name: g('brand_name'), whatsapp: g('whatsapp'), admin_user: g('admin_user'), admin_pass: g('admin_pass') }).then(() => alert('Saved!'));
+  rrkSettings.save({ brand_name: g('brand_name'), whatsapp: g('whatsapp'), admin_pass: g('admin_pass') }).then(() => alert('Saved!'));
 }
 
 // ============ HELPERS ============

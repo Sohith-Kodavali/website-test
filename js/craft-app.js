@@ -16,7 +16,11 @@ var CpApp = (function() {
   };
 
   var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
-    try { return JSON.parse(localStorage.getItem('rrk_site_data')) || {}; } catch(e) { return {}; }
+    try {
+      var parsed = JSON.parse(localStorage.getItem('rrk_site_data'));
+      if (parsed && parsed._v >= (typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : 0)) return parsed;
+      return {};
+    } catch(e) { return {}; }
   })();
 
   function getD() { return D; }
@@ -423,7 +427,7 @@ var CpApp = (function() {
     showToast('✅ Order sent! Soon our team will contact you.');
 
     setTimeout(function() {
-      var wa = (D.whatsapp || '919999999999');
+      var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919999999999');
       window.open('https://wa.me/' + wa + '?text=' + msg, '_blank');
     }, 1200);
   }

@@ -3,6 +3,10 @@
 // No Firebase dependency on public pages
 // ============================================
 
+// Bump this when SITE_DATA defaults change.
+// Old localStorage caches with a lower version are discarded.
+var DATA_VERSION = 3;
+
 const SITE_DATA = {
   whatsapp: '919999999999',
   brand: { name: 'RRK Food Court', tagline: 'Eluru\'s premier food court destination.' },
@@ -11,12 +15,12 @@ const SITE_DATA = {
     craft: { eyebrow: 'Catering', headline: 'Craft My Plate', subhead: 'Bespoke catering experiences designed for gatherings of 20+ guests. Sculpt your ideal menu entirely from scratch with immediate, live pricing updates.' },
     raw: { eyebrow: 'Farm Fresh', headline: 'Raw Chicken', subhead: 'Cut fresh every morning · hygienically packed.' }
   },
-  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Where Every Bite', headlineGold: 'Tells a Story.', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '2.jpeg' },
+  hero: { eyebrow: 'Eluru · Andhra Pradesh', headlineL1: 'Premium Food,', headlineGold: 'Perfection', lead: 'Fresh, hygienic and irresistibly delicious. Order your favourites or build your own combo with Craft My Plate.', image: '2.jpeg' },
   heroBadge: { main: '20% OFF', sub: 'Today Only' },
   heroStats: [{count:4.9,suffix:'★',duration:2000,label:'2,400+ reviews'},{count:30,suffix:' min',duration:1500,label:'Fast delivery'},{count:100,suffix:'%',duration:1600,label:'Fresh daily'}],
   menu: [
     {name:'Signature Grilled Chicken',category:'chicken',diet:'nonveg',description:'Flame-grilled with house spices.',price:'249',craftPrice:'60',craftCategory:'starters',craftEnabled:true,image:'2.jpeg',special:'1',special_tag:'15% OFF'},
-    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',craftPrice:'50',craftCategory:'breads',craftEnabled:true,image:'3.jpeg',special:'1',special_tag:'Bestseller'},
+    {name:'Hyderabadi Biryani',category:'biryani',diet:'nonveg',description:'Slow-dum with basmati & saffron.',price:'199',craftPrice:'50',craftCategory:'mains',craftEnabled:true,image:'3.jpeg',special:'1',special_tag:'Bestseller'},
     {name:'Crispy Chicken 65',category:'starters',diet:'nonveg',description:'Spicy, crunchy, addictive.',price:'179',craftPrice:'65',craftCategory:'starters',craftEnabled:true,image:'4.jpeg',special:'1',special_tag:'Hot'},
     {name:'Chicken Lollipop',category:'starters',diet:'nonveg',description:'6 pcs, tangy glaze.',price:'189',craftPrice:'55',craftCategory:'starters',craftEnabled:true,image:'16.jpeg',special:'0'},
     {name:'Chicken Combo Meal',category:'meals',diet:'nonveg',description:'Rice, curry, starter & drink.',price:'279',craftPrice:'80',craftCategory:'mains',craftEnabled:true,image:'17.jpeg',special:'0'},
@@ -72,8 +76,11 @@ const SITE_DATA = {
 
 function loadSiteData() {
   try {
-    const saved = localStorage.getItem('rrk_site_data');
-    if (saved) return JSON.parse(saved);
+    var saved = localStorage.getItem('rrk_site_data');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (parsed._v >= DATA_VERSION) return parsed;
+    }
   } catch(e) {}
   return null;
 }
@@ -97,8 +104,59 @@ function deriveCraftMenu(D) {
 }
 
 function renderForPage(page) {
-  const saved = loadSiteData();
-  const D = saved || SITE_DATA;
+  // Try Firestore first, fall back to localStorage, then defaults
+  loadFromFirestore(page);
+}
+
+var FIREBASE_SEEDED = false;
+
+function loadFromFirestore(page) {
+  if (typeof rrkMenu === 'undefined') {
+    renderWithData(page, null);
+    return;
+  }
+  Promise.all([
+    rrkMenu.list().catch(function() { return null; }),
+    rrkRaw.list().catch(function() { return null; }),
+    rrkCombos.list().catch(function() { return null; }),
+    rrkOccasions.list().catch(function() { return null; })
+  ]).then(function(results) {
+    var menu = results[0], raw = results[1], combos = results[2], occasions = results[3];
+    var data = JSON.parse(JSON.stringify(SITE_DATA));
+    if (menu && menu.length > 0) data.menu = mergeFirestoreMenu(menu);
+    if (raw && raw.length > 0) data.raw = mergeFirestoreRaw(raw);
+    if (combos && combos.length > 0) data.combos = combos;
+    if (occasions && occasions.length > 0) data.occasions = occasions.map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
+    try { data._v = DATA_VERSION; localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
+    renderWithData(page, data);
+  }).catch(function() {
+    renderWithData(page, null);
+  });
+}
+
+function mergeFirestoreMenu(menu) {
+  return menu.map(function(m) {
+    return {
+      name: m.name || '', category: m.category || 'chicken', diet: m.diet || 'nonveg',
+      description: m.description || '', price: (m.price || 0).toString(),
+      craftPrice: (m.craftPrice || 0).toString(), craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
+      image: m.image || '', special: m.special || '0', special_tag: m.special_tag || ''
+    };
+  });
+}
+
+function mergeFirestoreRaw(raw) {
+  return raw.map(function(r) {
+    return {
+      name: r.name || '', image: r.image || '', price: (r.price || 0).toString(),
+      weight: r.weight || '1 kg', tag: r.tag || 'Fresh Today', show_home: r.show_home || '1'
+    };
+  });
+}
+
+function renderWithData(page, data) {
+  var saved = loadSiteData();
+  var D = data || saved || SITE_DATA;
 
   if (page === 'index') renderIndex(D);
   else if (page === 'menu') renderMenuPage(D);
@@ -122,7 +180,7 @@ function renderForPage(page) {
 function renderIndex(D) {
   var h = document.getElementById('render-hero');
   if (!h) return;
-  h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/><span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Signature Grilled Chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
+  h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/>Crafted to <span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Signature Grilled Chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
 
   var specialItems = D.menu.filter(function(m){return m.special=='1' || m.special===true}).slice(0,2);
   document.getElementById('render-specials').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">Chef\'s Picks</span><h2>Today\'s Special</h2></div><div class="grid grid--2">'+specialItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div>'+(m.special_tag?'<span class="tag tag--offer">'+m.special_tag+'</span>':'')+'<div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';

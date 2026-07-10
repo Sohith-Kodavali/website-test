@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Order Online Ã‚Â· RRK Food Court</title>
+<title>Order Online · RRK Food Court</title>
 <meta name="theme-color" content="#C1121F" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -20,7 +20,7 @@
       <a href="index.html">Home</a><a href="menu.html" class="active" aria-current="page">Order Online</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#about">About</a><a href="index.html#contact">Contact</a>
     </nav>
     <div class="nav__right">
-      <a href="https://wa.me/919999999999" class="btn btn--wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+      <a href="https://wa.me/919999999999" class="btn btn--wa wa-link" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
       <button class="nav__burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -36,39 +36,38 @@
     <div class="footer__links"><h5>Quick Links</h5><a href="menu.html">Order Online</a><a href="craft-my-plate.html">Craft My Plate</a><a href="raw-chicken.html">Raw Chicken</a><a href="index.html#contact">Contact</a></div>
     <div class="footer__links"><h5>Follow</h5><div class="socials"><a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">FB</a><a href="#" aria-label="YouTube">YT</a></div></div>
   </div>
-  <div class="footer__bar">Ã‚Â© 2026 RRK Food Court. All rights reserved.</div>
+  <div class="footer__bar">© 2026 RRK Food Court. All rights reserved.</div>
   <div class="footer__admin"><a href="admin.html">Admin</a></div>
 </footer>
 
 <nav class="bottom-nav" aria-label="Quick navigation">
-  <a href="index.html"><span class="bn-icon">Ã°Å¸ÂÂ </span>Home</a>
-  <a href="menu.html" class="active"><span class="bn-icon">Ã°Å¸â€œâ€¹</span>Order</a>
-  <a href="craft-my-plate.html"><span class="bn-icon">Ã°Å¸ÂÂ½Ã¯Â¸Â</span>Craft</a>
-  <a href="raw-chicken.html"><span class="bn-icon">Ã°Å¸Â¥Â©</span>Raw</a>
+  <a href="index.html"><span class="bn-icon">🏠</span>Home</a>
+  <a href="menu.html" class="active"><span class="bn-icon">📋</span>Order</a>
+  <a href="craft-my-plate.html"><span class="bn-icon">🍽️</span>Craft</a>
+  <a href="raw-chicken.html"><span class="bn-icon">🥩</span>Raw</a>
 </nav>
 
-<button class="cart-fab" onclick="openCart()" style="display:none">Ã°Å¸â€ºâ€™ Cart <span id="cartCount">0</span></button>
+<button class="cart-fab" onclick="openCart()" style="display:none">🛒 Cart <span id="cartCount">0</span></button>
 
 <aside class="cart-drawer" id="cartDrawer">
   <div class="cart-drawer__head"><h3>Your Cart</h3><button class="cart-close" onclick="closeCart()" aria-label="Close cart">&times;</button></div>
   <div class="cart-body" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="cart-total"><span>Total</span><span id="cartTotal">Ã¢â€šÂ¹0</span></div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div>
     <button class="btn btn--wa btn--block btn--lg" onclick="closeCart();openCheckout()">Place Order</button>
   </div>
 </aside>
 
 <div class="modal" id="upsell" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal__backdrop" onclick="closeUpsell()"></div>
-  <div class="modal__card glass"><button class="modal__x" onclick="closeUpsell()" aria-label="Close">&times;</button><span class="eyebrow">Smart Tip</span><h3>Save More with Craft My Plate</h3><p class="muted">Your order is over Ã¢â€šÂ¹1000. Build a combo and unlock extra savings!</p><a href="craft-my-plate.html" class="btn btn--primary btn--block btn--lg" style="margin-top:16px">Go to Craft My Plate</a></div>
+  <div class="modal__card glass"><button class="modal__x" onclick="closeUpsell()" aria-label="Close">&times;</button><span class="eyebrow">Smart Tip</span><h3>Save More with Craft My Plate</h3><p class="muted">Your order is over ₹1000. Build a combo and unlock extra savings!</p><a href="craft-my-plate.html" class="btn btn--primary btn--block btn--lg" style="margin-top:16px">Go to Craft My Plate</a></div>
 </div>
-
 
 <div class="cart-bar" id="cartBar">
   <div class="cart-bar__info" onclick="openCart()">
     <span class="cart-bar__count">0</span>
-    <span>View Cart Ã‚Â·</span>
-    <span class="cart-bar__total">Ã¢â€šÂ¹0</span>
+    <span>View Cart ·</span>
+    <span class="cart-bar__total">₹0</span>
   </div>
   <div class="cart-bar__actions">
     <div class="cart-bar__mode">
@@ -90,13 +89,18 @@
       <input type="tel" id="orderPhone" placeholder="Phone Number" pattern="[0-9]{10}" required />
       <div id="orderAddressGroup" style="display:none">
         <textarea id="orderAddress" placeholder="Delivery address..." rows="2" style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r-inp);font-size:15px;font-family:inherit;background:#fff;margin-bottom:8px;resize:vertical"></textarea>
-        <button type="button" class="btn btn--gold-outline btn--block" style="font-size:12px;padding:10px" onclick="useCurrentLocation()">Ã°Å¸â€œÂ Use Current Location</button>
+        <button type="button" class="btn btn--gold-outline btn--block" style="font-size:12px;padding:10px" onclick="useCurrentLocation()">📍 Use Current Location</button>
       </div>
       <button type="submit" class="btn btn--wa btn--block btn--lg">Send Order on WhatsApp</button>
     </form>
   </div>
 </div>
 
+<script src="js/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase.js"></script>
 <script src="js/site-renderer.js"></script>
 <script src="js/main.js"></script>
 <script>renderForPage('menu');initSocialProof();</script>

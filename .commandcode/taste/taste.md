@@ -20,3 +20,6 @@
 # workflow
 - Push changes to the repository after making them, without needing to be asked. Confidence: 0.85
 
+# architecture
+- Centralize the WhatsApp number in a single configuration source, designed to support admin portal management in the future. Confidence: 0.70
+
