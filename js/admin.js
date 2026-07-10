@@ -27,16 +27,57 @@ function showTab(tabId) {
 }
 
 // ============ MENU ============
+var ADMIN_MENU_CATS = ['all','chicken','biryani','starters','meals','family','beverages','desserts'];
+var ADMIN_MENU_LABELS = {all:'All',chicken:'🐔 Chicken',biryani:'🍚 Biryani',starters:'🍗 Starters',meals:'🍛 Meals',family:'👨‍👩‍👧 Family',beverages:'🥤 Beverages',desserts:'🍰 Desserts'};
+var adminActiveMenuCat = 'all';
+
 function renderMenuEditor() {
-  const el = document.getElementById('cms-menu'); if (!el) return;
-  el.innerHTML = '<h3 style="margin-bottom:20px">Menu Items</h3><p class="muted">Loading...</p>';
-  rrkMenu.list().then(items => {
-    el.innerHTML = `<h3 style="margin-bottom:20px">Menu Items (${items.length})</h3>
-      <div class="cms-list">${items.map(m =>`
-        <div class="cms-item"><div class="cms-item-info"><img src="${m.image||''}" alt="${m.name}" class="cms-item-img" /><div><b>${m.name}</b><span>${m.category||''} · ₹${m.price||0} · ${m.diet||'nonveg'} · Special: ${m.special=='1'?(m.special_tag||'Yes'):'No'}</span></div></div>
-        <div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc('${m.id}')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc('${m.id}')">Delete</button></div></div>`
-      ).join('')}</div><button class="btn btn--primary" style="margin-top:16px" onclick="addMenuDoc()">+ Add Menu Item</button>`;
+  var el = document.getElementById('cms-menu'); if (!el) return;
+  el.innerHTML = '<h3 style="margin-bottom:16px">Menu Items</h3><p class="muted">Loading...</p>';
+  rrkMenu.list().then(function(items) {
+    window.__adminMenuItems = items;
+    el.innerHTML = '<h3 style="margin-bottom:12px">Menu Items ('+items.length+')</h3>'+
+      '<div class="cms-cats">'+ADMIN_MENU_CATS.map(function(c){return'<button class="cms-cat-btn'+(c===adminActiveMenuCat?' active':'')+'" onclick="filterAdminMenu(\''+c+'\',this)">'+ADMIN_MENU_LABELS[c]+'</button>'}).join('')+'</div>'+
+      '<div class="cms-list" id="cms-menu-list"></div>'+
+      '<button class="btn btn--primary" style="margin-top:16px" onclick="addMenuDoc()">+ Add Menu Item</button>';
+    renderAdminMenuList(items, adminActiveMenuCat);
   });
+}
+
+function refreshMenuEditor() {
+  rrkMenu.list().then(function(items) {
+    window.__adminMenuItems = items;
+    renderAdminMenuList(items, adminActiveMenuCat);
+  });
+}
+
+function renderAdminMenuList(items, cat) {
+  var list = document.getElementById('cms-menu-list');
+  if (!list) return;
+  var filtered = cat === 'all' ? items : items.filter(function(m){return m.category===cat;});
+  if (filtered.length === 0) { list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
+  list.innerHTML = filtered.map(function(m){
+    return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img" /><div><b>'+m.name+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet||'nonveg')+' · Special: '+(m.special==='1'?(m.special_tag||'Yes'):'No')+'</span></div></div>'+
+      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc(\''+m.id+'\')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc(\''+m.id+'\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function renderAdminMenuList(items, cat) {
+  var list = document.getElementById('cms-menu-list');
+  if (!list) return;
+  var filtered = cat === 'all' ? items : items.filter(function(m){return m.category===cat;});
+  if (filtered.length === 0) { list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
+  list.innerHTML = filtered.map(function(m){
+    return '<div class="cms-item"><div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img" /><div><b>'+m.name+'</b><span>'+(m.category||'')+' · ₹'+(m.price||0)+' · '+(m.diet||'nonveg')+' · Special: '+(m.special==='1'?(m.special_tag||'Yes'):'No')+'</span></div></div>'+
+      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editMenuDoc(\''+m.id+'\')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteMenuDoc(\''+m.id+'\')">Delete</button></div></div>';
+  }).join('');
+}
+
+function filterAdminMenu(cat, btn) {
+  adminActiveMenuCat = cat;
+  document.querySelectorAll('.cms-cat-btn').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  renderAdminMenuList(window.__adminMenuItems||[], cat);
 }
 
 function menuFields(item) {
@@ -56,7 +97,7 @@ function editMenuDoc(id) {
   rrkMenu.list().then(items => {
     const item = items.find(m => m.id === id); if (!item) return;
     showItemEditor('Menu Item', menuFields(item), (vals) => {
-      rrkMenu.save({ id, ...vals }).then(() => renderMenuEditor());
+      rrkMenu.save({ id, ...vals }).then(() => refreshMenuEditor());
     });
   });
 }
@@ -64,27 +105,52 @@ function editMenuDoc(id) {
 function addMenuDoc() {
   const item = {};
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
-    rrkMenu.save(vals).then(() => renderMenuEditor());
+    rrkMenu.save(vals).then(() => refreshMenuEditor());
   });
 }
 
 function deleteMenuDoc(id) {
   if (!confirm('Delete?')) return;
-  rrkMenu.remove(id).then(() => renderMenuEditor());
+  rrkMenu.remove(id).then(() => refreshMenuEditor());
 }
 
 // ============ CRAFT MY PLATE EDITOR ============
+var ADMIN_CRAFT_CATS = ['all','starters','mains','breads','desserts','beverages'];
+var ADMIN_CRAFT_LABELS = {all:'All',starters:'🍗 Starters',mains:'🍛 Mains',breads:'🍞 Breads & Rice',desserts:'🍰 Desserts',beverages:'🥤 Beverages'};
+var adminActiveCraftCat = 'all';
+
 function renderCraftEditor() {
   var el = document.getElementById('cms-craft'); if (!el) return;
-  el.innerHTML = '<h3 style="margin-bottom:20px">Craft My Plate — Item Settings</h3><p class="muted">Each menu item can have two prices: online order (per item) and craft catering (per person).</p><p class="muted" style="margin-bottom:20px">Enable items for Craft My Plate and set their per-person price.</p>';
+  el.innerHTML = '<h3 style="margin-bottom:16px">Craft My Plate — Item Settings</h3><p class="muted">Loading...</p>';
   rrkMenu.list().then(function(items) {
-    el.innerHTML += '<div class="cms-list">'+items.map(function(m) {
-      return '<div class="cms-item" style="flex-wrap:nowrap">'+
-        '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/'+(m.craftCategory||'—'):'Disabled')+'</span></div></div>'+
-        '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Craft Settings</button>'+
-      '</div>';
-    }).join('')+'</div>';
+    window.__adminCraftItems = items;
+    el.innerHTML = '<h3 style="margin-bottom:8px">Craft My Plate — Item Settings</h3>'+
+      '<p class="muted" style="margin-bottom:8px">Each menu item can have two prices: online order (per item) and craft catering (per person).</p>'+
+      '<p class="muted" style="margin-bottom:16px">Enable items for Craft My Plate and set their per-person price and category.</p>'+
+      '<div class="cms-cats">'+ADMIN_CRAFT_CATS.map(function(c){return'<button class="cms-cat-btn'+(c===adminActiveCraftCat?' active':'')+'" onclick="filterAdminCraft(\''+c+'\',this)">'+ADMIN_CRAFT_LABELS[c]+'</button>'}).join('')+'</div>'+
+      '<div class="cms-list" id="cms-craft-list"></div>';
+    renderAdminCraftList(items, adminActiveCraftCat);
   });
+}
+
+function renderAdminCraftList(items, cat) {
+  var listEl = document.getElementById('cms-craft-list');
+  if (!listEl) return;
+  var filtered = cat === 'all' ? items : items.filter(function(m){return m.craftCategory===cat;});
+  if (filtered.length === 0) { listEl.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
+  listEl.innerHTML = filtered.map(function(m){
+    return '<div class="cms-item" style="flex-wrap:nowrap">'+
+      '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/person · '+(m.craftCategory||'—'):'Disabled')+'</span></div></div>'+
+      '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Craft Settings</button>'+
+    '</div>';
+  }).join('');
+}
+
+function filterAdminCraft(cat, btn) {
+  adminActiveCraftCat = cat;
+  document.querySelectorAll('#cms-craft .cms-cat-btn').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  renderAdminCraftList(window.__adminCraftItems||[], cat);
 }
 
 function craftFields(item) {
@@ -105,8 +171,15 @@ function editCraftItem(id) {
     var item = items.find(function(m) { return m.id === id; }); if (!item) return;
     showItemEditor('Craft Settings: '+item.name, craftFields(item), function(vals) {
       vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true';
-      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: vals.craftCategory }).then(function() { renderCraftEditor(); });
+      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: vals.craftCategory }).then(function() { refreshCraftEditor(); });
     });
+  });
+}
+
+function refreshCraftEditor() {
+  rrkMenu.list().then(function(items) {
+    window.__adminCraftItems = items;
+    renderAdminCraftList(items, adminActiveCraftCat);
   });
 }
 

@@ -1,9 +1,8 @@
-Swap craft section layout on mobile, update pricing/perks
+Add category-wise filter tabs to admin Menu and Craft My Plate editors
 
-- Mobile: content (eyebrow, headline, steps) above, image below
-- Desktop: side-by-side unchanged
-- Changed pricing from 250/person to 150/person
-- Changed "20+ Guests" to "10+ Guests"
-- Removed "Free Delivery" perk
+- Menu tab: filter by Chicken, Biryani, Starters, Meals, Family, Beverages, Desserts
+- Craft tab: filter by Starters, Mains, Breads & Rice, Desserts, Beverages
+- Category filter persists after edit/delete/save operations
+- Style: pill-shaped tab buttons matching the site design
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
