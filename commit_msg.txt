@@ -1,6 +1,9 @@
-Merge upstream/master and resolve conflicts
+Swap craft section layout on mobile, update pricing/perks
 
-- Resolved blog.html deletion conflict (upstream removed it)
-- Updated tagline in js/config.js to match new tagline
+- Mobile: content (eyebrow, headline, steps) above, image below
+- Desktop: side-by-side unchanged
+- Changed pricing from 250/person to 150/person
+- Changed "20+ Guests" to "10+ Guests"
+- Removed "Free Delivery" perk
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
