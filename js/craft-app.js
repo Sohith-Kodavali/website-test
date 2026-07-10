@@ -16,7 +16,11 @@ var CpApp = (function() {
   };
 
   var D = (typeof SITE_DATA !== 'undefined') ? SITE_DATA : (function() {
-    try { return JSON.parse(localStorage.getItem('rrk_site_data')) || {}; } catch(e) { return {}; }
+    try {
+      var parsed = JSON.parse(localStorage.getItem('rrk_site_data'));
+      if (parsed && parsed._v >= (typeof DATA_VERSION !== 'undefined' ? DATA_VERSION : 0)) return parsed;
+      return {};
+    } catch(e) { return {}; }
   })();
 
   function getD() { return D; }

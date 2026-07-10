@@ -3,6 +3,10 @@
 // No Firebase dependency on public pages
 // ============================================
 
+// Bump this when SITE_DATA defaults change.
+// Old localStorage caches with a lower version are discarded.
+var DATA_VERSION = 3;
+
 const SITE_DATA = {
   whatsapp: '919999999999',
   brand: { name: 'RRK Food Court', tagline: 'Premium chicken restaurant in Eluru.' },
@@ -72,8 +76,11 @@ const SITE_DATA = {
 
 function loadSiteData() {
   try {
-    const saved = localStorage.getItem('rrk_site_data');
-    if (saved) return JSON.parse(saved);
+    var saved = localStorage.getItem('rrk_site_data');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (parsed._v >= DATA_VERSION) return parsed;
+    }
   } catch(e) {}
   return null;
 }
@@ -120,7 +127,7 @@ function loadFromFirestore(page) {
     if (raw && raw.length > 0) data.raw = mergeFirestoreRaw(raw);
     if (combos && combos.length > 0) data.combos = combos;
     if (occasions && occasions.length > 0) data.occasions = occasions.map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
-    try { localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
+    try { data._v = DATA_VERSION; localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
     renderWithData(page, data);
   }).catch(function() {
     renderWithData(page, null);
