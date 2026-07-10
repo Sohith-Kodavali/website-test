@@ -106,12 +106,10 @@ function menuFields(item) {
   return [
     { key: 'name', label: 'Name', type: 'text', val: item.name||'' },
     { key: 'category', label: 'Category', type: 'select', val: item.category||'', optionsHtml: catOpts },
-    { key: 'diet', label: 'Diet', type: 'text', val: item.diet||'nonveg' },
+    { key: 'diet', label: 'Diet', type: 'select', val: item.diet||'nonveg', optionsHtml: '<option value="nonveg"'+(item.diet==='nonveg'?' selected':'')+'>Non-Veg</option><option value="veg"'+(item.diet==='veg'?' selected':'')+'>Veg</option>' },
     { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
     { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
-    { key: 'image', label: 'Image Filename', type: 'text', val: item.image||'' },
-    { key: 'special', label: 'Show on Homepage?', type: 'text', val: item.special||'0' },
-    { key: 'special_tag', label: 'Homepage Tag', type: 'text', val: item.special_tag||'' }
+    { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true }
   ];
 }
 
@@ -239,7 +237,7 @@ function rawFields(item) {
     { key: 'name', label: 'Name', type: 'text', val: item.name||'' },
     { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
-    { key: 'image', label: 'Image', type: 'text', val: item.image||'' },
+    { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
     { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
     { key: 'show_home', label: 'Show on Homepage? (1/0)', type: 'text', val: item.show_home||'1' }
   ];
@@ -505,8 +503,15 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot
 function showItemEditor(title, fields, onSave) {
   const existing = document.querySelector('.admin-modal'); if (existing) existing.remove();
   const modal = document.createElement('div'); modal.className = 'admin-modal';
-  modal.innerHTML = '<div class="admin-modal__card"><h3>'+title+'</h3>'+
-    fields.map(function(f) { return field(f.key, f.label, f.type, f.val, f.optionsHtml||''); }).join('')+
+  var fieldsHtml = fields.map(function(f) {
+    if (f.preview) {
+      return '<div class="admin-field"><label>'+f.label+'</label>'+
+        '<input type="text" id="field-'+f.key+'" value="'+esc(f.val)+'" oninput="previewImage(\'field-'+f.key+'\',\'preview-'+f.key+'\')" />'+
+        '<div id="preview-'+f.key+'" style="margin-top:8px;width:100%;max-width:200px;border-radius:10px;overflow:hidden;border:1px solid var(--border);display:'+(f.val?'block':'none')+'"><img id="preview-img-'+f.key+'" src="'+esc(f.val)+'" alt="Preview" style="width:100%;display:block" onerror="this.parentElement.style.display=\'none\'" /></div></div>';
+    }
+    return field(f.key, f.label, f.type, f.val, f.optionsHtml||'');
+  }).join('');
+  modal.innerHTML = '<div class="admin-modal__card"><h3>'+title+'</h3>'+fieldsHtml+
     '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn--primary btn--block" id="am-save">Save</button><button class="btn btn--gold-outline btn--block" id="am-cancel">Cancel</button></div></div>';
   document.body.appendChild(modal);
   modal.querySelector('#am-save').onclick = () => {
@@ -514,4 +519,19 @@ function showItemEditor(title, fields, onSave) {
     modal.remove(); onSave(vals);
   };
   modal.querySelector('#am-cancel').onclick = () => modal.remove();
+}
+
+function previewImage(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  var preview = document.getElementById(previewId);
+  var img = document.getElementById('preview-img-'+inputId.replace('field-',''));
+  if (!input || !preview || !img) return;
+  var url = input.value.trim();
+  if (url) {
+    preview.style.display = 'block';
+    img.src = url;
+  } else {
+    preview.style.display = 'none';
+    img.src = '';
+  }
 }

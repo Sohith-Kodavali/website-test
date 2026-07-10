@@ -1,12 +1,9 @@
-Add dynamic categories system with admin management
+Improve admin menu editor: diet dropdown, image URL preview, remove special fields
 
-- New "Categories" tab in admin to add/edit/delete menu and craft categories
-- Firebase Firestore `categories` collection with CRUD via rrkCategories
-- Categories sync to localStorage so public pages work without Firebase
-- Menu page now reads filter tabs dynamically from localStorage
-- Craft page now reads category tabs + panels dynamically
-- craft-app.js deriveCraftMenu() uses dynamic categories too
-- Admin menu/craft editors use dynamic category dropdowns
-- Falls back to defaults (chicken, biryani, starters etc.) if no categories stored
+- Diet field: changed from free-text to select dropdown (Non-Veg / Veg)
+- Image field: changed label to "Image URL", added live preview that
+  shows the image when a URL is entered (also on raw chicken editor)
+- Removed "Show on Homepage?" and "Homepage Tag" fields from menu editor
+- showItemEditor now supports {preview:true} on any field for live preview
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
