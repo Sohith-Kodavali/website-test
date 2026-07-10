@@ -1,11 +1,3 @@
-Split Chef's Picks and Today's Special into separate sections
-
-- Chef's Picks: controlled by "Chef's Pick?" toggle in menu editor (special field),
-  renders as "Handpicked / Chef's Picks" section on homepage
-- Today's Special: new separate toggle (today_special field), quick-set via
-  dedicated "🔥 Today" button next to each item in admin list, renders as
-  "Limited Time / Today's Special" with "Today Only!" badge
-- Admin list shows both badges: gold ★ Chef's Pick and red 🔥 Today
-- index.html: added render-today-special container between hero and specials
+Tweak section headings: Chef's Pick and Today's Special
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>
