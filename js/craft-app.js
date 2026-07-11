@@ -46,6 +46,7 @@ var CpApp = (function() {
     var inp = document.getElementById('cpGuestCount');
     if (inp) inp.value = n;
     updateGuestState(n);
+    if (typeof playHaptic === 'function') playHaptic('click');
   }
 
   function onGuestChange() {
@@ -67,11 +68,13 @@ var CpApp = (function() {
     if (n < min) n = min;
     if (n > max) n = max;
     setGuests(n);
+    if (typeof playHaptic === 'function') playHaptic('click');
   }
 
   function focusGuests() {
     var inp = document.getElementById('cpGuestCount');
     if (inp) { inp.value = ''; inp.focus(); updateGuestState(0); }
+    if (typeof playHaptic === 'function') playHaptic('click');
   }
 
   function updateGuestState(n) {
@@ -112,6 +115,7 @@ var CpApp = (function() {
     var okBudget = document.getElementById('cpGuestOkBudget');
     if (valEl) valEl.textContent = state.budgetPerPerson;
     if (okBudget) okBudget.textContent = state.budgetPerPerson;
+    if (typeof tapVibe === 'function') tapVibe(8);
     highlightByBudget();
     updateBudgetBar();
     updateCheckoutBar();
@@ -135,6 +139,7 @@ var CpApp = (function() {
     state.sandboxTab = cat;
     var step3 = document.getElementById('step3');
     if (!step3) return;
+    if (typeof playHaptic === 'function') playHaptic('click');
     step3.querySelectorAll('.cp-tab-btn').forEach(function(t) { t.classList.remove('active'); });
     step3.querySelectorAll('.cp-panel').forEach(function(p) { p.classList.remove('active'); });
     if (e && e.target) e.target.classList.add('active');
@@ -146,6 +151,7 @@ var CpApp = (function() {
     if (e && e.target && e.target.matches('input[type="checkbox"]')) {
       e.target.parentNode.classList.toggle('checked', e.target.checked);
     }
+    if (typeof playHaptic === 'function') playHaptic('add');
     rebuildState();
     updateSandboxStats();
     updateCheckoutBar();
@@ -211,6 +217,7 @@ var CpApp = (function() {
 
   function setDeliveryMode(mode) {
     state.deliveryMode = mode;
+    if (typeof playHaptic === 'function') playHaptic('click');
     var opts = document.querySelectorAll('.cp-toggle-opt');
     opts.forEach(function(o) {
       o.classList.toggle('active', o.querySelector('input').value === mode);
@@ -239,6 +246,7 @@ var CpApp = (function() {
   function onOccasionChange() {
     var sel = document.getElementById('cpOccasion');
     state.occasion = sel ? sel.value : '';
+    if (typeof playHaptic === 'function') playHaptic('click');
     var couponEl = document.getElementById('cpCoupon');
     if (!couponEl) return;
     couponEl.style.display = 'none';
@@ -316,6 +324,7 @@ var CpApp = (function() {
   }
 
   function showConfirm() {
+    if (typeof playHaptic === 'function') playHaptic('confirm');
     var step5 = document.getElementById('step5');
     var confirmBox = document.getElementById('cpConfirmBox');
     if (!step5 || !confirmBox) return;
@@ -387,6 +396,7 @@ var CpApp = (function() {
   }
 
   function cancelOrder() {
+    if (typeof playHaptic === 'function') playHaptic('close');
     var step5 = document.getElementById('step5');
     var step6 = document.getElementById('step6');
     if (step5) step5.style.display = 'none';
@@ -395,6 +405,7 @@ var CpApp = (function() {
   }
 
   function confirmOrder() {
+    if (typeof playHaptic === 'function') playHaptic('confirm');
     var step5 = document.getElementById('step5');
     var step6 = document.getElementById('step6');
     var waBox = document.getElementById('cpWaBox');
