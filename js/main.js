@@ -447,7 +447,9 @@ function placeOrder(e) {
   } catch(ex) {}
 
   if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
-    rrkOrders.save(orderData).catch(function(e) { console.warn('Order save failed', e); });
+    rrkOrders.save(orderData).then(function() {
+      console.log('Order saved to Firestore:', orderData.type, '₹' + orderData.total);
+    }).catch(function(e) { console.warn('Order save failed', e); });
   }
 
   saveCart([]);

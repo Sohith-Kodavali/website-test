@@ -451,7 +451,9 @@ var CpApp = (function() {
       created_at: new Date().toISOString()
     };
     if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
-      rrkOrders.save(orderData).catch(function(e) { console.warn('Craft order save failed', e); });
+      rrkOrders.save(orderData).then(function() {
+        console.log('Craft order saved to Firestore: ₹' + orderData.total, orderData.guests + ' guests');
+      }).catch(function(e) { console.warn('Craft order save failed', e); });
     }
 
     showToast('✅ Order sent! Soon our team will contact you.');
