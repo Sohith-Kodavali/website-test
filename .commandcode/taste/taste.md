@@ -14,6 +14,9 @@ See [admin/taste.md](admin/taste.md)
 # raw-chicken
 - Remove the "Show on Home Page" toggle option from all raw chicken items. Confidence: 0.70
 
+# chefs-pick
+- Chef's Pick should only be shown on the ordering page, not on the home page. Confidence: 0.70
+
 # frontend
 - Preserve scroll-reveal animations and loader — fix observer timing/initialization issues rather than removing them to make content visible. Confidence: 0.75
 

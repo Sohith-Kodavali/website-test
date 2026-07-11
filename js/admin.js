@@ -355,6 +355,7 @@ var adminActiveOrderType = 'all';
 function renderOrdersEditor() {
   var el = document.getElementById('cms-orders'); if (!el) return;
   el.innerHTML = '<h3 style="margin-bottom:12px">Orders</h3>'+
+    '<button class="btn btn--gold-outline" style="margin-bottom:12px;font-size:12px" onclick="downloadOrdersPDF()">📥 Download PDF</button>'+
     '<div class="cms-cats" id="orders-cats">'+
       '<button class="cms-cat-btn active" onclick="filterAdminOrders(\'all\',this)">All</button>'+
       '<button class="cms-cat-btn" onclick="filterAdminOrders(\'online\',this)">Online Order</button>'+
@@ -513,7 +514,10 @@ function deleteOccasionDoc(id) {
 function renderCustomersEditor() {
   const el = document.getElementById('cms-customers'); if (!el) return;
   el.innerHTML = `<h3 style="margin-bottom:16px">Registered Customers</h3>
-    <button class="btn btn--gold-outline" style="margin-bottom:16px;font-size:12px" onclick="renderCustomersEditor()">🔄 Refresh</button>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button class="btn btn--gold-outline" style="font-size:12px" onclick="renderCustomersEditor()">🔄 Refresh</button>
+      <button class="btn btn--primary" style="font-size:12px" onclick="downloadCustomersPDF()">📥 Download PDF</button>
+    </div>
     <div id="customers-list"><p class="muted">Loading...</p></div>`;
   rrkCustomers.list().then(data => {
     const list = document.getElementById('customers-list');
@@ -651,6 +655,42 @@ function setToggle(key, val) {
   });
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function downloadOrdersPDF() {
+  var orders = window.__adminOrders || [];
+  if (orders.length === 0) { alert('No orders to download.'); return; }
+  var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:20px}h2{color:#C1121F}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left}th{background:#C1121F;color:#fff}.status-pending{color:#E65100}.status-accepted{color:#1565C0}.status-completed{color:#2E7D32}.status-cancelled{color:#C62828}</style></head><body>'+
+    '<h2>RRK Food Court - Orders Report</h2>'+
+    '<p>Generated: '+new Date().toLocaleString()+' | Total Orders: '+orders.length+'</p>'+
+    '<table><thead><tr><th>Date</th><th>Type</th><th>Phone</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th></tr></thead><tbody>'+
+    orders.map(function(o){
+      var typeLabel = {online:'Online',craft:'Craft',raw:'Raw'}[o.type||'online']||'Online';
+      return '<tr><td>'+((o.created_at||'').substring(0,10))+'</td><td>'+typeLabel+'</td><td>'+((o.phone||'').replace(/</g,''))+'</td><td>'+(o.items||'')+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td><span class="status-'+(o.status||'pending')+'">'+(o.status||'pending')+'</span></td></tr>';
+    }).join('')+
+    '</tbody></table></body></html>';
+  var blob = new Blob([html], {type:'text/html'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-orders-' + new Date().toISOString().substring(0,10) + '.html';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function downloadCustomersPDF() {
+  if (typeof rrkCustomers === 'undefined') { alert('Customers not loaded. Try refreshing.'); return; }
+  rrkCustomers.list().then(function(data){
+    var customers = data || [];
+    if (customers.length === 0) { alert('No customers to download.'); return; }
+    var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:20px}h2{color:#C1121F}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left}th{background:#C1121F;color:#fff}</style></head><body>'+
+      '<h2>RRK Food Court - Customers Report</h2>'+
+      '<p>Generated: '+new Date().toLocaleString()+' | Total Customers: '+customers.length+'</p>'+
+      '<table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Date of Birth</th><th>Registered</th></tr></thead><tbody>'+
+      customers.map(function(c,i){
+        return '<tr><td>'+(i+1)+'</td><td>'+(c.name||'').replace(/</g,'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'')+'</td><td>'+((c.created_at||'').substring(0,10))+'</td></tr>';
+      }).join('')+
+      '</tbody></table></body></html>';
+    var blob = new Blob([html], {type:'text/html'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-customers-' + new Date().toISOString().substring(0,10) + '.html';
+    a.click(); URL.revokeObjectURL(a.href);
+  }).catch(function(){ alert('Failed to load customers.'); });
+}
 
 function showItemEditor(title, fields, onSave) {
   const existing = document.querySelector('.admin-modal'); if (existing) existing.remove();
