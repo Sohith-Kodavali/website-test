@@ -30,7 +30,9 @@ function loadRRKConfig() {
       document.querySelectorAll('.wa-link').forEach(function(el) {
         el.href = 'https://wa.me/' + RRK_CONFIG.whatsapp;
       });
-    }, 50);
+      var ft = document.getElementById('footerTagline');
+      if (ft && RRK_CONFIG.tagline) ft.textContent = RRK_CONFIG.tagline;
+    }, 200);
     return RRK_CONFIG;
   }).catch(function() {
     RRK_CONFIG.loaded = true;
