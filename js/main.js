@@ -31,46 +31,46 @@ function playHaptic(type) {
     var now = ctx.currentTime;
     switch (type) {
       case 'click':   // quick tick
-        o.type = 'sine'; o.frequency.setValueAtTime(600, now);
-        o.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
-        g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        o.type = 'sine'; o.frequency.setValueAtTime(800, now);
+        o.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+        g.gain.setValueAtTime(0.25, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
         o.start(now); o.stop(now + 0.07);
         break;
       case 'add':     // rising pop (add to cart)
-        o.type = 'sine'; o.frequency.setValueAtTime(400, now);
-        o.frequency.exponentialRampToValueAtTime(900, now + 0.08);
-        g.gain.setValueAtTime(0.15, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        o.type = 'sine'; o.frequency.setValueAtTime(500, now);
+        o.frequency.exponentialRampToValueAtTime(1100, now + 0.08);
+        g.gain.setValueAtTime(0.30, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
         o.start(now); o.stop(now + 0.10);
         break;
       case 'remove':  // falling tone
-        o.type = 'triangle'; o.frequency.setValueAtTime(800, now);
-        o.frequency.exponentialRampToValueAtTime(300, now + 0.10);
-        g.gain.setValueAtTime(0.10, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        o.type = 'triangle'; o.frequency.setValueAtTime(900, now);
+        o.frequency.exponentialRampToValueAtTime(350, now + 0.10);
+        g.gain.setValueAtTime(0.22, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
         o.start(now); o.stop(now + 0.12);
         break;
       case 'confirm': // pleasant two-tone success
         o.type = 'sine';
-        o.frequency.setValueAtTime(523, now); o.frequency.setValueAtTime(659, now + 0.08);
-        o.frequency.setValueAtTime(784, now + 0.16);
-        g.gain.setValueAtTime(0.13, now); g.gain.setValueAtTime(0.13, now + 0.08);
+        o.frequency.setValueAtTime(587, now); o.frequency.setValueAtTime(740, now + 0.08);
+        o.frequency.setValueAtTime(880, now + 0.16);
+        g.gain.setValueAtTime(0.28, now); g.gain.setValueAtTime(0.28, now + 0.08);
         g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
         o.start(now); o.stop(now + 0.28);
         break;
       case 'open':    // warm swoosh
-        o.type = 'sine'; o.frequency.setValueAtTime(300, now);
-        o.frequency.exponentialRampToValueAtTime(800, now + 0.12);
-        g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.type = 'sine'; o.frequency.setValueAtTime(350, now);
+        o.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+        g.gain.setValueAtTime(0.18, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
         o.start(now); o.stop(now + 0.15);
         break;
       case 'close':   // quick mute
-        o.type = 'sine'; o.frequency.setValueAtTime(500, now);
-        o.frequency.exponentialRampToValueAtTime(200, now + 0.06);
-        g.gain.setValueAtTime(0.10, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        o.type = 'sine'; o.frequency.setValueAtTime(600, now);
+        o.frequency.exponentialRampToValueAtTime(250, now + 0.06);
+        g.gain.setValueAtTime(0.20, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
         o.start(now); o.stop(now + 0.08);
         break;
       case 'error':   // low buzz
-        o.type = 'square'; o.frequency.setValueAtTime(150, now);
-        g.gain.setValueAtTime(0.06, now); g.gain.setValueAtTime(0.06, now + 0.10);
+        o.type = 'square'; o.frequency.setValueAtTime(180, now);
+        g.gain.setValueAtTime(0.14, now); g.gain.setValueAtTime(0.14, now + 0.10);
         g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
         o.start(now); o.stop(now + 0.15);
         break;
