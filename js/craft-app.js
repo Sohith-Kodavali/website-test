@@ -10,6 +10,7 @@ var CpApp = (function() {
     sandboxTab: 'starters',
     occasion: '',
     couponType: '',
+    offerPercent: 0,
     freeDelivery: false,
     deliveryMode: 'delivery',
     deliveryLocation: ''
@@ -44,10 +45,20 @@ var CpApp = (function() {
     updateGuestState(n);
   }
 
-  function onGuestChange() {
+  function stepGuests(delta) {
     var inp = document.getElementById('cpGuestCount');
-    var n = parseInt(inp.value) || 0;
-    updateGuestState(n);
+    if (!inp) return;
+    var min = parseInt(inp.min) || 1;
+    var max = parseInt(inp.max) || 9999;
+    var n = (parseInt(inp.value) || 0) + delta;
+    if (n < min) n = min;
+    if (n > max) n = max;
+    setGuests(n);
+  }
+
+  function focusGuests() {
+    var inp = document.getElementById('cpGuestCount');
+    if (inp) { inp.value = ''; inp.focus(); updateGuestState(0); }
   }
 
   function updateGuestState(n) {
@@ -220,27 +231,16 @@ var CpApp = (function() {
     couponEl.style.display = 'none';
     couponEl.className = 'cp-coupon';
     state.couponType = '';
+    state.offerPercent = 0;
 
-    if (state.occasion === 'Birthday Party') {
+    var occasion = (D.craftOccasions || []).find(function(o) { return o.name === state.occasion; });
+    if (occasion) {
       couponEl.style.display = 'block';
-      couponEl.className = 'cp-coupon bday';
-      couponEl.innerHTML = '🎁 <strong>Code BDAYFREE applied!</strong> Free custom welcome drinks added for all your <strong>'+state.guests+'</strong> guests!';
-      state.couponType = 'bday';
-    } else if (state.occasion === 'Corporate Event') {
-      couponEl.style.display = 'block';
-      couponEl.className = 'cp-coupon corp';
-      couponEl.innerHTML = '💼 <strong>Code CORP10 applied!</strong> 10% discount subtracted from your total bill.';
-      state.couponType = 'corp';
-    } else if (state.occasion === 'Wedding/Engagement') {
-      couponEl.style.display = 'block';
-      couponEl.className = 'cp-coupon wedding';
-      couponEl.innerHTML = '💍 <strong>Special Wedding Pricing!</strong> Complimentary dessert platter for the couple.';
-      state.couponType = 'wedding';
-    } else if (state.occasion === 'Casual House Party') {
-      couponEl.style.display = 'block';
-      couponEl.className = 'cp-coupon house';
-      couponEl.innerHTML = '🏠 <strong>House Party Bonus!</strong> Extra starter item added at no extra cost.';
-      state.couponType = 'house';
+      couponEl.className = 'cp-coupon ' + (occasion.couponType || 'default');
+      var offerText = occasion.offerPercent > 0 ? ' <strong>' + occasion.offerPercent + '% off applied!</strong>' : '';
+      couponEl.innerHTML = (occasion.message || '') + offerText;
+      state.couponType = occasion.couponType || '';
+      state.offerPercent = Number(occasion.offerPercent) || 0;
     }
     updateFreeDelivery();
     updateCheckoutBar();
@@ -258,7 +258,8 @@ var CpApp = (function() {
     if (!state.guestsValid) return 0;
     var pp = sandboxPerPlate();
     var total = state.guests * pp;
-    if (state.couponType === 'corp') total = total * 0.9;
+    var offer = state.offerPercent || 0;
+    if (offer > 0) total = total * (1 - offer / 100);
     return Math.round(total);
   }
 
@@ -418,9 +419,27 @@ var CpApp = (function() {
       msg += '📍 Location: ' + state.deliveryLocation + '%0A';
     }
     if (state.occasion) msg += '🎉 Occasion: ' + state.occasion + '%0A';
-    if (state.couponType === 'corp') msg += '🏷️ Coupon: CORP10 (10% off) %0A';
-    if (state.couponType === 'bday') msg += '🎁 Coupon: BDAYFREE (Free Welcome Drinks) %0A';
+    if (state.couponType !== '') msg += '🏷️ Applied: ' + state.couponType + (state.offerPercent > 0 ? ' (' + state.offerPercent + '% off)' : '') + '%0A';
     if (state.freeDelivery) msg += '🚚 FREE DELIVERY %0A';
+
+    // Save order to Firestore
+    var orderData = {
+      type: 'craft',
+      status: 'pending',
+      guests: state.guests,
+      items: items.join(', '),
+      total: total,
+      perPlate: sandboxPerPlate(),
+      mode: state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery',
+      location: state.deliveryLocation || '',
+      occasion: state.occasion || '',
+      coupon: state.couponType || '',
+      offerPercent: state.offerPercent || 0,
+      created_at: new Date().toISOString()
+    };
+    if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
+      rrkOrders.save(orderData).catch(function(e) { console.warn('Craft order save failed', e); });
+    }
 
     showToast('✅ Order sent! Soon our team will contact you.');
 
@@ -470,7 +489,7 @@ var CpApp = (function() {
   }
 
   return {
-    init: init, setGuests: setGuests, onGuestChange: onGuestChange,
+    init: init, setGuests: setGuests, onGuestChange: onGuestChange, stepGuests: stepGuests, focusGuests: focusGuests,
     onBudgetChange: onBudgetChange, switchTab: switchTab, sandboxToggle: sandboxToggle,
     onOccasionChange: onOccasionChange, updateCheckoutBar: updateCheckoutBar,
     calcGrandTotal: calcGrandTotal,

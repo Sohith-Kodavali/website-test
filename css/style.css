@@ -334,6 +334,35 @@ img{max-width:100%;display:block}
 .admin-toggle-btn.active{background:var(--grad-red);color:#fff}
 .admin-toggle-btn:first-child{border-right:1px solid var(--border)}
 
+/* ============ STATUS BADGES ============ */
+.status-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;text-transform:capitalize}
+.status-pending{background:#FFF3E0;color:#E65100}
+.status-accepted{background:#E3F2FD;color:#1565C0}
+.status-completed{background:#E8F5E9;color:#2E7D32}
+.status-cancelled{background:#FFEBEE;color:#C62828}
+
+/* ============ CART MODE IN DRAWER ============ */
+.cart-mode--drawer{margin-bottom:12px}
+.cart-mode--drawer .cart-mode-btn{flex:1}
+.cart-mode{display:flex;gap:6px}
+.cart-mode-btn{padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;background:transparent;font-family:'Sora',sans-serif;font-weight:600;font-size:12px;cursor:pointer;color:var(--muted);flex:1;text-align:center;transition:.2s}
+.cart-mode-btn.active{border-color:var(--red);color:var(--red);background:rgba(193,18,31,.05)}
+.cart-mode-btn:hover{border-color:var(--red)}
+
+/* ============ CRAFT GUEST INPUT ============ */
+.cp-guest-input-wrap{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.cp-guest-stepper{width:48px;height:52px;border-radius:14px;border:1.5px solid var(--border);background:var(--card-bg);font-size:22px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.cp-guest-stepper:hover{border-color:var(--red);color:var(--red)}
+.cp-guest-stepper:active{background:var(--grad-red);color:#fff;border-color:transparent}
+.cp-guest-preset--custom{border-color:var(--gold);color:var(--gold)}
+.cp-guest-input{flex:1;max-width:180px;text-align:center;font-size:20px;font-weight:700;padding:12px;border:1.5px solid var(--border);border-radius:14px;font-family:'Sora',sans-serif;background:var(--card-bg);color:var(--ink)}
+.cp-guest-input:focus{outline:none;border-color:var(--red)}
+
+/* ============ CLOSED MESSAGE ============ */
+.closed-banner{background:#FFF3E0;border:1px solid #FFB74D;border-radius:16px;padding:24px;text-align:center;margin:40px auto;max-width:500px}
+.closed-banner h3{color:#E65100;font-size:20px;margin-bottom:8px}
+.closed-banner p{color:#BF360C;font-size:14px;line-height:1.6}
+
 /* ============ MENU SEARCH ============ */
 .menu-search{margin-bottom:8px}
 .menu-search__input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-family:'Inter',sans-serif;background:var(--card-bg);color:var(--ink);transition:border-color .3s}

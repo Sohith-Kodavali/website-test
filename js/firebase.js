@@ -68,7 +68,9 @@ window.rrkCustomers = {
 // ============ ORDERS ============
 window.rrkOrders = {
   list: () => getCollection('orders'),
-  save: (data) => addDoc('orders', { ...data, created_at: new Date().toISOString() })
+  save: (data) => addDoc('orders', { ...data, created_at: new Date().toISOString() }),
+  remove: (id) => deleteDoc('orders', id),
+  updateStatus: (id, status) => updateDoc('orders', id, { status, updated_at: new Date().toISOString() })
 };
 
 // ============ MENU ============

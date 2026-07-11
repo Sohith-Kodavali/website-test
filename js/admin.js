@@ -9,6 +9,7 @@ function loadAdminApp() {
   renderMenuEditor();
   renderCraftEditor();
   renderRawEditor();
+  renderOrdersEditor();
   renderComboEditor();
   renderOccasionEditor();
   renderCustomersEditor();
@@ -363,6 +364,88 @@ function deleteRawDoc(id) {
   rrkRaw.remove(id).then(() => renderRawEditor());
 }
 
+// ============ ORDERS ============
+var adminActiveOrderType = 'all';
+
+function renderOrdersEditor() {
+  var el = document.getElementById('cms-orders'); if (!el) return;
+  el.innerHTML = '<h3 style="margin-bottom:12px">Orders</h3>'+
+    '<div class="cms-cats" id="orders-cats">'+
+      '<button class="cms-cat-btn active" onclick="filterAdminOrders(\'all\',this)">All</button>'+
+      '<button class="cms-cat-btn" onclick="filterAdminOrders(\'online\',this)">Online Order</button>'+
+      '<button class="cms-cat-btn" onclick="filterAdminOrders(\'craft\',this)">Craft My Plate</button>'+
+      '<button class="cms-cat-btn" onclick="filterAdminOrders(\'raw\',this)">Raw Chicken</button>'+
+    '</div>'+
+    '<div id="orders-list"><p class="muted">Loading...</p></div>';
+
+  if (typeof rrkOrders === 'undefined') { el.innerHTML += '<p class="muted">Firestore not connected</p>'; return; }
+  rrkOrders.list().then(function(data) {
+    window.__adminOrders = data || [];
+    renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
+  }).catch(function() {
+    document.getElementById('orders-list').innerHTML = '<p class="muted">Failed to load orders.</p>';
+  });
+}
+
+function renderAdminOrdersList(orders, type) {
+  var list = document.getElementById('orders-list'); if (!list) return;
+  var filtered = type === 'all' ? orders : orders.filter(function(o) { return o.type === type; });
+  if (filtered.length === 0) {
+    list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No orders found.</p>';
+    return;
+  }
+  var statusBadge = function(s) {
+    var cls = {pending:'status-pending',accepted:'status-accepted',completed:'status-completed',cancelled:'status-cancelled'}[s||'pending']||'status-pending';
+    return '<span class="status-badge '+cls+'">' + ((s||'pending').charAt(0).toUpperCase() + (s||'pending').slice(1)) + '</span>';
+  };
+  list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    filtered.map(function(o) {
+      var date = (o.created_at||'').substring(0,10);
+      var time = (o.created_at||'').substring(11,16);
+      var typeLabel = {online:'🍗 Online',craft:'🍽️ Craft',raw:'🥩 Raw'}[o.type||'online']||'Online';
+      var extra = o.type==='craft' ? ' · '+o.guests+' guests' : (o.phone ? ' · '+o.phone : '');
+      var actions = '';
+      if (o.status !== 'completed' && o.status !== 'cancelled') {
+        if (o.status !== 'accepted') actions += '<button class="btn btn--gold-outline" style="padding:3px 8px;font-size:11px;margin-right:4px" onclick="updateOrderStatus(\''+o.id+'\',\'accepted\')">Accept</button>';
+        actions += '<button class="btn" style="padding:3px 8px;font-size:11px;margin-right:4px;background:#C1121F;color:#fff;border:none" onclick="updateOrderStatus(\''+o.id+'\',\'cancelled\')">Cancel</button>';
+      }
+      if (o.status === 'accepted') {
+        actions += '<button class="btn btn--primary" style="padding:3px 8px;font-size:11px;margin-right:4px" onclick="updateOrderStatus(\''+o.id+'\',\'completed\')">Complete</button>';
+      }
+      actions += '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteOrderDoc(\''+o.id+'\')">🗑</button>';
+      return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+((o.items||'').substring(0,40))+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
+    }).join('')+
+  '</tbody></table></div>';
+}
+
+function filterAdminOrders(type, btn) {
+  adminActiveOrderType = type;
+  document.querySelectorAll('#cms-orders .cms-cat-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderAdminOrdersList(window.__adminOrders || [], type);
+}
+
+function updateOrderStatus(id, status) {
+  if (!confirm('Set order #'+id.substring(0,6)+' to "'+status+'"?')) return;
+  if (typeof rrkOrders === 'undefined' || !rrkOrders.updateStatus) return;
+  rrkOrders.updateStatus(id, status).then(function() {
+    if (window.__adminOrders && window.__adminOrders.length) {
+      var order = window.__adminOrders.find(function(o) { return o.id === id; });
+      if (order) order.status = status;
+    }
+    renderAdminOrdersList(window.__adminOrders || [], adminActiveOrderType);
+  }).catch(function(e) { alert('Failed: '+e.message); });
+}
+
+function deleteOrderDoc(id) {
+  if (!confirm('Delete this order permanently?')) return;
+  if (typeof rrkOrders === 'undefined' || !rrkOrders.remove) return;
+  rrkOrders.remove(id).then(function() {
+    window.__adminOrders = (window.__adminOrders || []).filter(function(o) { return o.id !== id; });
+    renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
+  }).catch(function(e) { alert('Failed: '+e.message); });
+}
+
 // ============ COMBOS ============
 function renderComboEditor() {
   const el = document.getElementById('cms-combos'); if (!el) return;
@@ -408,7 +491,7 @@ function renderOccasionEditor() {
   rrkOccasions.list().then(items => {
     el.innerHTML = `<h3 style="margin-bottom:20px">Occasion Options (${items.length})</h3>
       <div class="cms-list">${items.map(o =>`
-        <div class="cms-item"><div><b>${o.emoji} ${o.label}</b></div>
+        <div class="cms-item"><div><b>${o.emoji} ${o.label}</b><span>${o.type||'home'} · ${o.offerPercent||0}% off · ${o.couponType||'—'}</span></div>
         <div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editOccasionDoc('${o.id}')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteOccasionDoc('${o.id}')">Delete</button></div></div>`
       ).join('')}</div><button class="btn btn--primary" style="margin-top:16px" onclick="addOccasionDoc()">+ Add</button>`;
   });
@@ -417,7 +500,11 @@ function renderOccasionEditor() {
 function occasionFields(item) {
   return [
     { key: 'emoji', label: 'Emoji', type: 'text', val: item.emoji||'' },
-    { key: 'label', label: 'Label', type: 'text', val: item.label||'' }
+    { key: 'label', label: 'Label', type: 'text', val: item.label||'' },
+    { key: 'type', label: 'Page', type: 'select', val: item.type||'home', optionsHtml: '<option value="home"'+(item.type==='home'?' selected':'')+'>Home Page</option><option value="craft"'+(item.type==='craft'?' selected':'')+'>Craft My Plate</option>' },
+    { key: 'couponType', label: 'Coupon Key', type: 'text', val: item.couponType||'' },
+    { key: 'offerPercent', label: 'Offer Discount (%)', type: 'number', val: item.offerPercent||0 },
+    { key: 'message', label: 'Discount Message', type: 'text', val: item.message||'' }
   ];
 }
 
@@ -514,12 +601,30 @@ function renderSettingsEditor() {
       ${field('admin_pass','Admin Password','text',s.admin_pass||'admin1234')}
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
+      <h3 style="margin-bottom:12px">Service Hours</h3>
+      ${field('service_open_now','Restaurant Open Now (turn off to close)','toggle',s.service_open_now!=='0' && s.service_open_now!=='false' ? '1' : '0')}
+      ${field('service_open_time','Open Time (HH:MM)','text',s.service_open_time||'11:00')}
+      ${field('service_close_time','Close Time (HH:MM)','text',s.service_close_time||'23:00')}
+      ${field('service_closed_msg','Closed Message','text',s.service_closed_msg||'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours.')}
+      <button class="btn btn--gold-outline" onclick="saveServiceHoursDoc()">Save Service Hours</button>
+      <hr style="margin:28px 0;border-color:var(--border)" />
       <p class="muted" style="font-size:12px">Data is stored in Firebase Firestore. To reset, delete collections in Firebase Console.</p>`;
   });
 }
 
 function saveSettingsDoc() {
   rrkSettings.save({ brand_name: g('brand_name'), whatsapp: g('whatsapp'), admin_pass: g('admin_pass') }).then(() => alert('Saved!'));
+}
+
+function saveServiceHoursDoc() {
+  var openNow = g('service_open_now');
+  if (openNow !== '0' && openNow !== '1') openNow = '1';
+  rrkSettings.save({
+    service_open_now: openNow,
+    service_open_time: g('service_open_time'),
+    service_close_time: g('service_close_time'),
+    service_closed_msg: g('service_closed_msg')
+  }).then(() => alert('Service hours saved!'));
 }
 
 // ============ HELPERS ============

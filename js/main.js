@@ -231,11 +231,10 @@ const modal = document.getElementById('loginModal');
 function openModal() { if (modal) modal.classList.add('open'); }
 function closeModal() { if (modal) modal.classList.remove('open'); }
 if (modal) {
-  if (!localStorage.getItem('rrk_member') && !localStorage.getItem('rrk_modal_shown')) {
+  if (!localStorage.getItem('rrk_member')) {
     setTimeout(function() {
       if (localStorage.getItem('rrk_member')) return;
       openModal();
-      localStorage.setItem('rrk_modal_shown', '1');
     }, 5000);
   }
   // Use event delegation so close buttons work even after dynamic render
@@ -326,6 +325,7 @@ function renderCart() {
     wrap.innerHTML = cart.map(function(i) { return '<div class="cart-row"><div><b>' + i.name + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + i.name + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + i.name + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + i.name + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
   }
   if (totalEl) totalEl.textContent = '\u20B9' + cartTotal();
+  document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
   var upsell = document.getElementById('upsell');
   if (upsell && cartTotal() > 1000 && !sessionStorage.getItem('upsell_seen')) {
     upsell.classList.add('open');
@@ -339,12 +339,15 @@ function closeUpsell() { var u = document.getElementById('upsell'); if (u) u.cla
 // ============================================
 // ORDER MODE & CHECKOUT
 // ============================================
-var currentOrderMode = 'Takeaway';
+var currentOrderMode = localStorage.getItem('rrk_order_mode') || 'Takeaway';
 
 function setOrderMode(mode, el) {
   currentOrderMode = mode;
+  try { localStorage.setItem('rrk_order_mode', mode); } catch(e){}
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.remove('active'); });
   if (el) el.classList.add('active');
+  // Also update any drawer/footer buttons
+  document.querySelectorAll('.cart-mode-btn[data-mode="' + mode + '"]').forEach(function(b) { b.classList.add('active'); });
 }
 
 function openCheckout() {
@@ -418,12 +421,26 @@ function placeOrder(e) {
     }
   }
 
-  // Track for admin
+  // Track for admin (localStorage + Firestore)
+  var orderData = {
+    type: CART_PAGE === 'raw' ? 'raw' : 'online',
+    status: 'pending',
+    items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '),
+    total: cartTotal(),
+    mode: mode,
+    phone: phone,
+    address: address,
+    created_at: new Date().toISOString()
+  };
   try {
     var orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
-    orders.push({ items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '), total: cartTotal(), mode: mode, phone: phone, address: address, created_at: new Date().toISOString() });
+    orders.push(orderData);
     localStorage.setItem('rrk_orders', JSON.stringify(orders));
   } catch(ex) {}
+
+  if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
+    rrkOrders.save(orderData).catch(function(e) { console.warn('Order save failed', e); });
+  }
 
   saveCart([]);
   incrementOrderCount();

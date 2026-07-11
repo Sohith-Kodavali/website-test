@@ -7,6 +7,27 @@
 // Old localStorage caches with a lower version are discarded.
 var DATA_VERSION = 6;
 
+function isRestaurantOpen(D) {
+  var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
+  var openNow = sh.openNow;
+  if (typeof openNow === 'string') openNow = openNow !== '0' && openNow !== 'false';
+  if (openNow === false) return false;
+  var now = new Date();
+  var mins = now.getHours() * 60 + now.getMinutes();
+  var p = function(t) { var x = String(t||'00:00').split(':'); return (parseInt(x[0])||0)*60 + (parseInt(x[1])||0); };
+  var open = p(sh.openTime);
+  var close = p(sh.closeTime);
+  if (open <= close) return mins >= open && mins < close;
+  return mins >= open || mins < close;
+}
+
+function getClosedMessage(D) {
+  var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
+  return sh.closedMessage || 'Restaurant Closed';
+}
+// Old localStorage caches with a lower version are discarded.
+var DATA_VERSION = 6;
+
 function getMenuCategories() {
   try {
     var stored = localStorage.getItem('rrk_menu_cats');
@@ -118,7 +139,13 @@ const SITE_DATA = {
     {name:'Grand Celebration',save_badge:'Save ₹320',description:'Serves 10 · biryani, starters, mains & sweets.',price:'2499'}
   ],
   occasions: [{emoji:'🎂',label:'Birthday'},{emoji:'💼',label:'Office'},{emoji:'💍',label:'Wedding'},{emoji:'👪',label:'Family'},{emoji:'🎊',label:'Festival'}],
-  craftOccasions: ['Birthday Party','Corporate Event','Wedding/Engagement','Casual House Party'],
+  craftOccasions: [
+    {name:'Birthday Party',couponType:'bday',offerPercent:0,message:'🎁 Free custom welcome drinks for all guests!'},
+    {name:'Corporate Event',couponType:'corp',offerPercent:10,message:'💼 Corporate discount'},
+    {name:'Wedding/Engagement',couponType:'wedding',offerPercent:0,message:'💍 Complimentary dessert platter'},
+    {name:'Casual House Party',couponType:'house',offerPercent:0,message:'🏠 Extra starter item added free'}
+  ],
+  serviceHours: {openNow:true,openTime:'11:00',closeTime:'23:00',closedMessage:'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours: 11:00 AM – 11:00 PM.'},
   comboDefs: {
     value: {label:'VALUE COMBO',tag:'Budget-Friendly',pricePer:250,badge:'',items:[
       {cat:'starters',idx:0},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'breads',idx:0},{cat:'desserts',idx:0}
@@ -197,14 +224,28 @@ function loadFromFirestore(page) {
     rrkMenu.list().catch(function() { return null; }),
     rrkRaw.list().catch(function() { return null; }),
     rrkCombos.list().catch(function() { return null; }),
-    rrkOccasions.list().catch(function() { return null; })
+    rrkOccasions.list().catch(function() { return null; }),
+    (typeof rrkSettings !== 'undefined' ? rrkSettings.get().catch(function() { return {}; }) : Promise.resolve({}))
   ]).then(function(results) {
-    var menu = results[0], raw = results[1], combos = results[2], occasions = results[3];
+    var menu = results[0], raw = results[1], combos = results[2], occasions = results[3], settings = results[4] || {};
     var data = JSON.parse(JSON.stringify(SITE_DATA));
     if (menu && menu.length > 0) data.menu = mergeFirestoreMenu(menu);
     if (raw && raw.length > 0) data.raw = mergeFirestoreRaw(raw);
     if (combos && combos.length > 0) data.combos = combos;
-    if (occasions && occasions.length > 0) data.occasions = occasions.map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
+    if (occasions && occasions.length > 0) {
+      data.occasions = occasions.filter(function(o) { return o.type !== 'craft'; }).map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
+      var craftOccs = occasions.filter(function(o) { return o.type === 'craft'; }).map(function(o) { return {name: o.label, couponType: o.couponType||'', offerPercent: Number(o.offerPercent)||0, message: o.message||''}; });
+      if (craftOccs.length > 0) data.craftOccasions = craftOccs;
+    }
+    // Merge service hours from settings
+    if (settings) {
+      data.serviceHours = {
+        openNow: settings.service_open_now !== '0' && settings.service_open_now !== 'false',
+        openTime: settings.service_open_time || SITE_DATA.serviceHours.openTime,
+        closeTime: settings.service_close_time || SITE_DATA.serviceHours.closeTime,
+        closedMessage: settings.service_closed_msg || SITE_DATA.serviceHours.closedMessage
+      };
+    }
     try { data._v = DATA_VERSION; localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
     renderWithData(page, data);
   }).catch(function() {
@@ -309,6 +350,10 @@ function renderSpecialsRow(D) {
 
 function renderMenuPage(D) {
   var el = document.getElementById('render-menu'); if(!el)return;
+  if (!isRestaurantOpen(D)) {
+    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Restaurant Closed</h3><p>'+getClosedMessage(D)+'</p></div></div></section>';
+    return;
+  }
   var allCats = getMenuCategories();
   var labels = {}; allCats.forEach(function(c){labels[c.key]=c.label;});
   labels['all'] = 'All';
@@ -354,12 +399,17 @@ function renderCraftPage(D) {
     '<div class="cp2-grid">'+
       '<div class="cp2-field">'+
         '<label class="cp2-label">Number of Guests</label>'+
-        '<input type="number" id="cpGuestCount" min="'+D.craftConfig.guestMin+'" max="'+D.craftConfig.peopleMax+'" value="'+D.craftConfig.peopleDefault+'" placeholder="Enter Number of Guests" class="cp-guest-input" oninput="CpApp.onGuestChange()">'+
+        '<div class="cp-guest-input-wrap">'+
+          '<button class="cp-guest-stepper" type="button" onclick="CpApp.stepGuests(-1)" aria-label="Decrease guests">−</button>'+
+          '<input type="number" id="cpGuestCount" min="'+D.craftConfig.guestMin+'" max="'+D.craftConfig.peopleMax+'" value="'+D.craftConfig.peopleDefault+'" placeholder="Guests" class="cp-guest-input" oninput="CpApp.onGuestChange()">'+
+          '<button class="cp-guest-stepper" type="button" onclick="CpApp.stepGuests(1)" aria-label="Increase guests">+</button>'+
+        '</div>'+
         '<div class="cp-guest-btns">'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(10)">10</button>'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(25)">25</button>'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(50)">50</button>'+
-          '<button class="btn cp-guest-preset" onclick="CpApp.setGuests(100)">100</button>'+
+          '<button class="btn cp-guest-preset" type="button" onclick="CpApp.setGuests(10)">10</button>'+
+          '<button class="btn cp-guest-preset" type="button" onclick="CpApp.setGuests(25)">25</button>'+
+          '<button class="btn cp-guest-preset" type="button" onclick="CpApp.setGuests(50)">50</button>'+
+          '<button class="btn cp-guest-preset" type="button" onclick="CpApp.setGuests(100)">100</button>'+
+          '<button class="btn cp-guest-preset cp-guest-preset--custom" type="button" onclick="CpApp.focusGuests()">Custom</button>'+
         '</div>'+
       '</div>'+
       '<div class="cp2-field">'+
@@ -414,7 +464,7 @@ function renderCraftPage(D) {
       '<label for="cpOccasion" class="cp-label">Choose Your Occasion</label>'+
       '<select id="cpOccasion" class="cp-select" onchange="CpApp.onOccasionChange()">'+
         '<option value="">— Select —</option>'+
-        D.craftOccasions.map(function(o){return'<option value="'+o+'">'+o+'</option>';}).join('')+
+        D.craftOccasions.map(function(o){return'<option value="'+(typeof o==='object'?o.name:o)+'">'+(typeof o==='object'?o.name:o)+'</option>';}).join('')+
       '</select>'+
     '</div>'+
     '<div class="cp-coupon" id="cpCoupon" style="display:none"></div>'+
@@ -453,5 +503,9 @@ function renderCraftPage(D) {
 
 function renderRawPage(D) {
   var el = document.getElementById('render-raw'); if(!el)return;
+  if (!isRestaurantOpen(D)) {
+    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Restaurant Closed</h3><p>'+getClosedMessage(D)+'</p></div></div></section>';
+    return;
+  }
   el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.raw.eyebrow+'</span><h2>'+D.pageMeta.raw.headline+'</h2><p class="muted">'+D.pageMeta.raw.subhead+'</p></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search raw chicken..." oninput="searchRawItems(this.value)" /></div><div class="menu-list">'+D.raw.map(function(r,i){return'<article class="menu-row reveal" data-raw-search="'+r.name.toLowerCase()+'"><div class="menu-row__img"><img src="'+r.image+'" alt="'+r.name+'" loading="lazy" /><span class="menu-badge menu-badge--best" style="background:var(--success);font-size:8px">'+(r.tag||'Fresh')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+r.name+'</h3></div><p class="menu-row__desc">'+r.weight+'</p><div class="menu-row__bottom"><div class="price">₹'+r.price+' <small>/kg</small></div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(r.name||'').replace(/'/g,"\\'")+'\','+r.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="reveal" style="margin-top:56px"><table class="pricing-table"><thead><tr><th>Item</th><th>Weight</th><th>Price</th><th>Availability</th></tr></thead><tbody>'+D.raw.map(function(r){return'<tr><td>'+r.name+'</td><td>'+r.weight+'</td><td>₹'+r.price+'</td><td>✅ '+(r.tag||'Fresh Today')+'</td></tr>'}).join('')+'</tbody></table></div></div></section>';
 }
