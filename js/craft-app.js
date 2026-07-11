@@ -21,7 +21,10 @@ var CpApp = (function() {
   function getD() { return D; }
   function deriveCraftMenu() {
     var craftCats = typeof getCraftCategories === 'function' ? getCraftCategories() : [];
-    if (craftCats.length === 0) craftCats = [{key:'starters'},{key:'mains'},{key:'breads'},{key:'desserts'},{key:'beverages'}];
+    if (craftCats.length === 0) craftCats = [
+      {key:'starters'},{key:'kaju-pakodi'},{key:'manchuria'},{key:'biryani'},
+      {key:'fried-rice'},{key:'noodles'},{key:'roti-curry'},{key:'breads'},{key:'ice-creams'}
+    ];
     var cats = {};
     craftCats.forEach(function(c){ cats[c.key] = []; });
     (D.menu || []).forEach(function(m) {
@@ -42,6 +45,16 @@ var CpApp = (function() {
     n = parseInt(n) || 0;
     var inp = document.getElementById('cpGuestCount');
     if (inp) inp.value = n;
+    updateGuestState(n);
+  }
+
+  function onGuestChange() {
+    var inp = document.getElementById('cpGuestCount');
+    if (!inp) return;
+    var max = parseInt(inp.max) || 9999;
+    var n = parseInt(inp.value) || 0;
+    if (n < 0) n = 0;
+    if (n > max) { n = max; inp.value = n; }
     updateGuestState(n);
   }
 
