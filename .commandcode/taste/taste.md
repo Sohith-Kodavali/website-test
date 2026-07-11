@@ -29,3 +29,6 @@ See [admin/taste.md](admin/taste.md)
 # architecture
 - Centralize the WhatsApp number in a single configuration source, designed to support admin portal management in the future. Confidence: 0.70
 
+# debugging
+- When fixing a bug caused by a pattern (e.g., hardcoded value that should be dynamic), search the entire codebase for all other instances of the same root cause and fix them together. Confidence: 0.70
+

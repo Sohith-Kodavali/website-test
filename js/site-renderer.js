@@ -249,6 +249,19 @@ function loadFromFirestore(page) {
         closeTime: settings.service_close_time || SITE_DATA.serviceHours.closeTime,
         closedMessage: settings.service_closed_msg || SITE_DATA.serviceHours.closedMessage
       };
+      // Merge contact info
+      if (settings.contact_phone) { data.contact.phone = settings.contact_phone; data.contact.phoneRaw = settings.contact_phone.replace(/[\s+]/g, ''); }
+      if (settings.contact_whatsapp) data.contact.whatsapp = settings.contact_whatsapp;
+      if (settings.contact_address) data.contact.address = settings.contact_address;
+      if (settings.contact_hours) data.contact.hours = settings.contact_hours;
+      if (settings.contact_maps) data.contact.mapsUrl = settings.contact_maps;
+      // Merge social links
+      if (settings.social_instagram) data.social.instagram = settings.social_instagram;
+      if (settings.social_facebook) data.social.facebook = settings.social_facebook;
+      if (settings.social_youtube) data.social.youtube = settings.social_youtube;
+      // Merge footer
+      if (settings.footer_copyright) data.footer.copyright = settings.footer_copyright;
+      if (settings.brand_tagline) data.brand.tagline = settings.brand_tagline;
     }
     try { data._v = DATA_VERSION; localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
     renderWithData(page, data);

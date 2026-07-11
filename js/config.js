@@ -33,6 +33,7 @@ function loadRRKConfig() {
       var ft = document.getElementById('footerTagline');
       if (ft && RRK_CONFIG.tagline) ft.textContent = RRK_CONFIG.tagline;
     }, 200);
+    refreshFooterFromSettings(settings);
     return RRK_CONFIG;
   }).catch(function() {
     RRK_CONFIG.loaded = true;
@@ -42,3 +43,11 @@ function loadRRKConfig() {
 
 // Auto-load on script init
 loadRRKConfig();
+
+function refreshFooterFromSettings(s) {
+  if (!s) return;
+  var ig = document.getElementById('socialIg'); if (ig && s.social_instagram) ig.href = s.social_instagram;
+  var fb = document.getElementById('socialFb'); if (fb && s.social_facebook) fb.href = s.social_facebook;
+  var yt = document.getElementById('socialYt'); if (yt && s.social_youtube) yt.href = s.social_youtube;
+  var bar = document.getElementById('footerBar'); if (bar && s.footer_copyright) bar.textContent = s.footer_copyright;
+}
