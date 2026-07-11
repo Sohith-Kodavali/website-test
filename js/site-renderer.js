@@ -263,7 +263,8 @@ function mergeFirestoreMenu(menu) {
       name: escHtml(m.name || ''), category: m.category || 'chicken', diet: m.diet || 'nonveg',
       description: escHtml(m.description || ''), price: (m.price || 0).toString(),
       craftPrice: (m.craftPrice || 0).toString(), craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
-      image: m.image || '', special: m.special || '0', special_tag: escHtml(m.special_tag || '')
+      image: m.image || '', special: m.special || '0', special_tag: escHtml(m.special_tag || ''),
+      today_special: m.today_special || '0'
     };
   });
 }
