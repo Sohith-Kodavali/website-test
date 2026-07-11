@@ -3,6 +3,11 @@
 // ============================================
 const ADMIN_KEY = 'rrk_admin_session';
 
+function adminError(elId, msg) {
+  var el = elId ? document.getElementById(elId) : null;
+  if (el) el.innerHTML = '<p class="muted" style="color:#C1121F">❌ '+(msg||'Failed to load. Check your connection and refresh.')+'</p>';
+}
+
 function loadAdminApp() {
   document.querySelectorAll('.cms-panel').forEach(p => p.style.display = 'none');
   document.getElementById('cms-menu').style.display = 'block';
@@ -88,26 +93,7 @@ function renderMenuEditor() {
       '<div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)" id="cms-menu-cats-inline"></div>';
     renderAdminMenuList(items, adminActiveMenuCat);
     renderCategoriesInline();
-  });
-}
-
-function refreshMenuEditor() {
-  loadMenuCategories();
-  rrkMenu.list().then(function(items) {
-    window.__adminMenuItems = items;
-    var el = document.getElementById('cms-menu');
-    if (!el) return;
-    var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminMenu(\'all\',this)">All</button>'+
-      adminMenuCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminMenu(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
-    // Rebuild category buttons bar while keeping items and add button
-    var catsBar = el.querySelector('.cms-cats');
-    if (catsBar) catsBar.innerHTML = catBtns;
-    // Reset active state on "All" button
-    catsBar.querySelector('.cms-cat-btn').classList.add('active');
-    adminActiveMenuCat = 'all';
-    renderAdminMenuList(items, adminActiveMenuCat);
-    renderCategoriesInline();
-  });
+  }).catch(function() { adminError('cms-menu', 'Failed to load menu items.'); });
 }
 
 function renderAdminMenuList(items, cat) {
@@ -527,18 +513,15 @@ function deleteOccasionDoc(id) {
 function renderCustomersEditor() {
   const el = document.getElementById('cms-customers'); if (!el) return;
   el.innerHTML = `<h3 style="margin-bottom:16px">Registered Customers</h3>
-    <div style="display:flex;gap:10px;margin-bottom:16px">
-      <a href="backend/api/customers.php?action=export-csv" class="btn btn--primary">⬇ Export CSV</a>
-      <a href="backend/api/customers.php?action=export-pdf" class="btn btn--gold-outline">⬇ Export PDF</a>
-    </div>
+    <button class="btn btn--gold-outline" style="margin-bottom:16px;font-size:12px" onclick="renderCustomersEditor()">🔄 Refresh</button>
     <div id="customers-list"><p class="muted">Loading...</p></div>`;
   rrkCustomers.list().then(data => {
     const list = document.getElementById('customers-list');
-    if (!data || data.length === 0) { list.innerHTML='<p class="muted">No customers yet.</p>'; return; }
+    if (!data || data.length === 0) { list.innerHTML='<p class="muted">No customers yet. Customer sign-ups from the login popup will appear here.</p>'; return; }
     list.innerHTML = `<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Phone</th><th>DOB</th><th>Registered</th><th>Action</th></tr></thead><tbody>
       ${data.map(c=>`<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.dob||'—'}</td><td>${c.created_at?.substr(0,10)||''}</td>
       <td><button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteCustomerDoc('${c.id}')">Delete</button></td></tr>`).join('')}</tbody></table></div>`;
-  });
+  }).catch(function() { adminError('customers-list', 'Could not load customers.'); });
 }
 
 function deleteCustomerDoc(id) {
@@ -620,8 +603,22 @@ function renderSettingsEditor() {
 
 function saveSettingsDoc() {
   var data = {};
-  ['brand_name','whatsapp','admin_pass'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
-  rrkSettings.save(data).then(() => alert('Saved!'));
+  ['brand_name','whatsapp'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  var pw = g('admin_pass');
+  if (pw) {
+    // Hash password before saving
+    if (typeof hashPassword === 'function') {
+      hashPassword(pw).then(function(hashed) {
+        data.admin_pass = hashed;
+        rrkSettings.save(data).then(function() { alert('Saved!'); });
+      });
+    } else {
+      data.admin_pass = pw;
+      rrkSettings.save(data).then(function() { alert('Saved!'); });
+    }
+  } else {
+    rrkSettings.save(data).then(function() { alert('Saved!'); });
+  }
 }
 
 function saveServiceHoursDoc() {

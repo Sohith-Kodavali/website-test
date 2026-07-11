@@ -3,6 +3,10 @@
 // No Firebase dependency on public pages
 // ============================================
 
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // Bump this when SITE_DATA defaults change.
 // Old localStorage caches with a lower version are discarded.
 var DATA_VERSION = 6;
@@ -256,10 +260,10 @@ function loadFromFirestore(page) {
 function mergeFirestoreMenu(menu) {
   return menu.map(function(m) {
     return {
-      name: m.name || '', category: m.category || 'chicken', diet: m.diet || 'nonveg',
-      description: m.description || '', price: (m.price || 0).toString(),
+      name: escHtml(m.name || ''), category: m.category || 'chicken', diet: m.diet || 'nonveg',
+      description: escHtml(m.description || ''), price: (m.price || 0).toString(),
       craftPrice: (m.craftPrice || 0).toString(), craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
-      image: m.image || '', special: m.special || '0', special_tag: m.special_tag || ''
+      image: m.image || '', special: m.special || '0', special_tag: escHtml(m.special_tag || '')
     };
   });
 }
@@ -267,8 +271,8 @@ function mergeFirestoreMenu(menu) {
 function mergeFirestoreRaw(raw) {
   return raw.map(function(r) {
     return {
-      name: r.name || '', image: r.image || '', price: (r.price || 0).toString(),
-      weight: r.weight || '1 kg', tag: r.tag || 'Fresh Today', show_home: r.show_home || '1'
+      name: escHtml(r.name || ''), image: r.image || '', price: (r.price || 0).toString(),
+      weight: escHtml(r.weight || '1 kg'), tag: escHtml(r.tag || 'Fresh Today'), show_home: r.show_home || '1'
     };
   });
 }

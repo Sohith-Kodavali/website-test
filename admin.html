@@ -94,17 +94,33 @@
 <script>
 function handleAdminLogin(e) {
   e.preventDefault();
-  const p = document.getElementById('adminPass').value.trim();
-  // Default password — overridden by Firestore settings if available
-  var expectedPass = 'admin1234';
+  var p = document.getElementById('adminPass').value.trim();
+  var defaultPass = 'admin1234';
   function checkLogin() {
-    const err = document.getElementById('adminLoginError');
-    if (p === expectedPass) {
-      sessionStorage.setItem(ADMIN_KEY, '1');
-      showAdminDashboard();
-    } else {
-      err.style.display = 'block';
-    }
+    var err = document.getElementById('adminLoginError');
+    // Try hashed comparison first, fall back to plaintext for legacy passwords
+    hashPassword(p).then(function(hashed) {
+      if (hashed === expectedPass || p === expectedPass || (!expectedPass && p === defaultPass)) {
+        // Auto-migrate: if password is still plaintext (<64 chars), hash and save it
+        if (expectedPass && expectedPass.length < 60 && typeof rrkSettings !== 'undefined') {
+          hashPassword(expectedPass).then(function(h) {
+            rrkSettings.save({ admin_pass: h }).catch(function(){});
+          });
+        }
+        sessionStorage.setItem(ADMIN_KEY, '1');
+        showAdminDashboard();
+      } else {
+        err.style.display = 'block';
+      }
+    }).catch(function() {
+      // If hashing fails, fall back to plaintext
+      if (p === expectedPass || (!expectedPass && p === defaultPass)) {
+        sessionStorage.setItem(ADMIN_KEY, '1');
+        showAdminDashboard();
+      } else {
+        err.style.display = 'block';
+      }
+    });
   }
   if (typeof rrkSettings === 'undefined') {
     checkLogin();
@@ -116,6 +132,14 @@ function handleAdminLogin(e) {
   }).catch(function() {
     checkLogin();
   });
+}
+
+function hashPassword(pw) {
+  if (typeof crypto === 'undefined' || !crypto.subtle) return Promise.resolve(pw);
+  var encoder = new TextEncoder();
+  return crypto.subtle.digest('SHA-256', encoder.encode(pw)).then(function(buf) {
+    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }).catch(function() { return pw; });
 }
 
 function showAdminDashboard() {
