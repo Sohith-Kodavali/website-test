@@ -1,4 +1,20 @@
 // ============================================
+// VIBRATION & SOUND FX
+// ============================================
+var audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return audioCtx;
+}
+function tapVibe() {
+  try { if (navigator.vibrate) navigator.vibrate(15); } catch(e) {}
+}
+function softClick() {
+  try { if (navigator.vibrate) navigator.vibrate(10); } catch(e) {}
+}
+
 // MAGNETIC TILT ON FOOD CARDS + WHY CARDS
 // ============================================
 function initMagneticTilt() {
@@ -288,6 +304,7 @@ function addToCart(name, price) {
   if (item) item.qty++;
   else cart.push({ name: name, price: price, qty: 1 });
   saveCart(cart);
+  tapVibe();
   showToast('Added to cart · ' + cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items');
 }
 function changeQty(name, delta) {
@@ -458,6 +475,7 @@ function placeOrder(e) {
   if (typeof initSocialProof === 'function') initSocialProof();
 
   closeOrderModal();
+  tapVibe();
   window.open('https://wa.me/' + (window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999') + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
