@@ -8,6 +8,26 @@ function getAudioCtx() {
   }
   return audioCtx;
 }
+// Browser blocks audio until first user gesture — warm it up eagerly
+(function initAudioUnlock() {
+  var unlocked = false;
+  function unlock() {
+    if (unlocked) return;
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    unlocked = true;
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(function() { console.log('Audio unlocked'); });
+    }
+    // Play a silent buffer to fully prime the pipeline
+    var buf = ctx.createBuffer(1,1,22050);
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    src.connect(ctx.destination); src.start(0);
+  }
+  document.addEventListener('click', unlock, {once: true});
+  document.addEventListener('touchstart', unlock, {once: true});
+  document.addEventListener('keydown', unlock, {once: true});
+})();
 function tapVibe(dur) {
   try { if (navigator.vibrate) navigator.vibrate(dur || 15); } catch(e) {}
 }
