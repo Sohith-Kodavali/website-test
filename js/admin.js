@@ -203,10 +203,9 @@ function renderCategoryListInline(items) {
 function addCategoryDocInline() {
   showItemEditor('New Menu Category', [
     { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: '' },
-    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' },
-    { key: 'order', label: 'Sort Order', type: 'number', val: '0' }
+    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' }
   ], function(vals){
-    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
+    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label }).then(function(){
       rrkCategories.syncToLocal().then(function(){
         loadMenuCategories();
         refreshMenuEditor();
@@ -221,10 +220,9 @@ function editCategoryDocInline(id) {
     var item = items.find(function(c){return c.id===id;}); if(!item) return;
     showItemEditor('Edit Category', [
       { key: 'key', label: 'Key', type: 'text', val: item.key||'' },
-      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' },
-      { key: 'order', label: 'Sort Order', type: 'number', val: item.order||0 }
+      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' }
     ], function(vals){
-      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
+      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label}).then(function(){
         rrkCategories.syncToLocal().then(function(){
           loadMenuCategories();
           refreshMenuEditor();
@@ -561,10 +559,13 @@ function renderContactEditor() {
 }
 
 function saveContactDoc() {
-  rrkSettings.save({
-    contact_phone: g('contact_phone'), contact_whatsapp: g('contact_whatsapp'),
-    contact_address: g('contact_address'), contact_hours: g('contact_hours'), contact_maps: g('contact_maps')
-  }).then(() => alert('Saved!'));
+  var data = {};
+  var keys = {contact_phone:'contact_phone',contact_whatsapp:'contact_whatsapp',contact_address:'contact_address',contact_hours:'contact_hours',contact_maps:'contact_maps'};
+  Object.keys(keys).forEach(function(k) {
+    var v = g(k);
+    if (v !== '') data[k] = v;
+  });
+  rrkSettings.save(data).then(() => alert('Saved!'));
 }
 
 // ============ SOCIAL / FOOTER ============
@@ -584,11 +585,15 @@ function renderSocialEditor() {
 }
 
 function saveSocialDoc() {
-  rrkSettings.save({ social_instagram: g('social_instagram'), social_facebook: g('social_facebook'), social_youtube: g('social_youtube') }).then(() => alert('Saved!'));
+  var data = {};
+  ['social_instagram','social_facebook','social_youtube'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  rrkSettings.save(data).then(() => alert('Saved!'));
 }
 
 function saveFooterDoc() {
-  rrkSettings.save({ brand_tagline: g('brand_tagline'), footer_copyright: g('footer_copyright') }).then(() => alert('Saved!'));
+  var data = {};
+  ['brand_tagline','footer_copyright'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  rrkSettings.save(data).then(() => alert('Saved!'));
 }
 
 // ============ SETTINGS ============
@@ -613,18 +618,18 @@ function renderSettingsEditor() {
 }
 
 function saveSettingsDoc() {
-  rrkSettings.save({ brand_name: g('brand_name'), whatsapp: g('whatsapp'), admin_pass: g('admin_pass') }).then(() => alert('Saved!'));
+  var data = {};
+  ['brand_name','whatsapp','admin_pass'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  rrkSettings.save(data).then(() => alert('Saved!'));
 }
 
 function saveServiceHoursDoc() {
+  var data = {};
   var openNow = g('service_open_now');
   if (openNow !== '0' && openNow !== '1') openNow = '1';
-  rrkSettings.save({
-    service_open_now: openNow,
-    service_open_time: g('service_open_time'),
-    service_close_time: g('service_close_time'),
-    service_closed_msg: g('service_closed_msg')
-  }).then(() => alert('Service hours saved!'));
+  ['service_open_now','service_open_time','service_close_time','service_closed_msg'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  data.service_open_now = openNow;
+  rrkSettings.save(data).then(() => alert('Service hours saved!'));
 }
 
 // ============ HELPERS ============
@@ -635,7 +640,7 @@ function field(key, label, type, val, opts) {
   }
   if (type === 'toggle') {
     var on = val === '1' || val === true || val === 'true';
-    return '<div class="admin-field"><label>'+label+'</label><div class="admin-toggle" id="field-'+key+'-wrap"><button type="button" class="admin-toggle-btn '+(on?'active':'')+'" data-val="1" onclick="setToggle(\''+key+'\',1)">Yes</button><button type="button" class="admin-toggle-btn '+(!on?'active':'')+'" data-val="0" onclick="setToggle(\''+key+'\',0)">No</button><input type="hidden" id="field-'+key+'" value="'+(on?'1':'0')+'" /></div></div>';
+    return '<div class="admin-field"><label>'+label+'</label><p class="muted" style="font-size:11px;margin-bottom:4px">Currently: <b>'+(on?'Open':'Closed')+'</b></p><div class="admin-toggle" id="field-'+key+'-wrap"><button type="button" class="admin-toggle-btn '+(on?'active':'')+'" data-val="1" onclick="setToggle(\''+key+'\',1)">Open</button><button type="button" class="admin-toggle-btn '+(!on?'active':'')+'" data-val="0" onclick="setToggle(\''+key+'\',0)">Closed</button><input type="hidden" id="field-'+key+'" value="'+(on?'1':'0')+'" /></div></div>';
   }
   return '<div class="admin-field"><label>'+label+'</label><input type="'+type+'" id="field-'+key+'" value="'+esc(val)+'" /></div>';
 }

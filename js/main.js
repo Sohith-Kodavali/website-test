@@ -254,6 +254,10 @@ if (modal) {
         customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
         localStorage.setItem('rrk_customers', JSON.stringify(customers));
       } catch(e) {}
+      // Also save to Firestore so admin can see registered customers
+      if (typeof rrkCustomers !== 'undefined' && rrkCustomers.register) {
+        rrkCustomers.register({ name: name, phone: phone, dob: dob }).catch(function(){});
+      }
       localStorage.setItem('rrk_member', '1');
       closeModal();
       window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
@@ -669,11 +673,10 @@ function initPushNotifications() {
 
 function requestPushPermission() {
   if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') { PUSH_ENABLED = true; return; }
+  if (Notification.permission === 'denied') return;
   Notification.requestPermission().then(function(p) {
-    if (p === 'granted') {
-      PUSH_ENABLED = true;
-      showToast('🔔 Notifications enabled!');
-    }
+    if (p === 'granted') { PUSH_ENABLED = true; }
   });
 }
 
