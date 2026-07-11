@@ -32,3 +32,6 @@ See [admin/taste.md](admin/taste.md)
 # debugging
 - When fixing a bug caused by a pattern (e.g., hardcoded value that should be dynamic), search the entire codebase for all other instances of the same root cause and fix them together. Confidence: 0.70
 
+# ux
+- Add haptic feedback (vibration) and sound effects to every interactive action across the site — not just cart and order placement. Confidence: 0.80
+

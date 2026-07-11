@@ -457,6 +457,7 @@ var CpApp = (function() {
     }
 
     showToast('✅ Order sent! Soon our team will contact you.');
+    heavyVibe();
 
     setTimeout(function() {
       var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919999999999');

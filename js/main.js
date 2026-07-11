@@ -1,5 +1,5 @@
 // ============================================
-// VIBRATION & SOUND FX
+// VIBRATION & SOUND FX (browser audio API, zero files)
 // ============================================
 var audioCtx = null;
 function getAudioCtx() {
@@ -8,14 +8,75 @@ function getAudioCtx() {
   }
   return audioCtx;
 }
-function tapVibe() {
-  try { if (navigator.vibrate) navigator.vibrate(15); } catch(e) {}
+function tapVibe(dur) {
+  try { if (navigator.vibrate) navigator.vibrate(dur || 15); } catch(e) {}
 }
 function softClick() {
   try { if (navigator.vibrate) navigator.vibrate(10); } catch(e) {}
 }
-
-// MAGNETIC TILT ON FOOD CARDS + WHY CARDS
+function heavyVibe() {
+  try { if (navigator.vibrate) navigator.vibrate([20,40,20]); } catch(e) {}
+}
+/** Play a short synthesized tone using the Web Audio API.
+ *  type: 'click' | 'add' | 'remove' | 'confirm' | 'open' | 'close' | 'error'
+ *  All tones are very short (< 150ms) and low CPU. No audio files needed. */
+function playHaptic(type) {
+  tapVibe();
+  try {
+    var ctx = getAudioCtx(); if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    var now = ctx.currentTime;
+    switch (type) {
+      case 'click':   // quick tick
+        o.type = 'sine'; o.frequency.setValueAtTime(600, now);
+        o.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
+        g.gain.setValueAtTime(0.12, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        o.start(now); o.stop(now + 0.07);
+        break;
+      case 'add':     // rising pop (add to cart)
+        o.type = 'sine'; o.frequency.setValueAtTime(400, now);
+        o.frequency.exponentialRampToValueAtTime(900, now + 0.08);
+        g.gain.setValueAtTime(0.15, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        o.start(now); o.stop(now + 0.10);
+        break;
+      case 'remove':  // falling tone
+        o.type = 'triangle'; o.frequency.setValueAtTime(800, now);
+        o.frequency.exponentialRampToValueAtTime(300, now + 0.10);
+        g.gain.setValueAtTime(0.10, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        o.start(now); o.stop(now + 0.12);
+        break;
+      case 'confirm': // pleasant two-tone success
+        o.type = 'sine';
+        o.frequency.setValueAtTime(523, now); o.frequency.setValueAtTime(659, now + 0.08);
+        o.frequency.setValueAtTime(784, now + 0.16);
+        g.gain.setValueAtTime(0.13, now); g.gain.setValueAtTime(0.13, now + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        o.start(now); o.stop(now + 0.28);
+        break;
+      case 'open':    // warm swoosh
+        o.type = 'sine'; o.frequency.setValueAtTime(300, now);
+        o.frequency.exponentialRampToValueAtTime(800, now + 0.12);
+        g.gain.setValueAtTime(0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.start(now); o.stop(now + 0.15);
+        break;
+      case 'close':   // quick mute
+        o.type = 'sine'; o.frequency.setValueAtTime(500, now);
+        o.frequency.exponentialRampToValueAtTime(200, now + 0.06);
+        g.gain.setValueAtTime(0.10, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        o.start(now); o.stop(now + 0.08);
+        break;
+      case 'error':   // low buzz
+        o.type = 'square'; o.frequency.setValueAtTime(150, now);
+        g.gain.setValueAtTime(0.06, now); g.gain.setValueAtTime(0.06, now + 0.10);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.start(now); o.stop(now + 0.15);
+        break;
+    }
+  } catch(e) { /* no audio available */ }
+}
 // ============================================
 function initMagneticTilt() {
   const cards = document.querySelectorAll('.food-card, .why-card');
@@ -304,7 +365,7 @@ function addToCart(name, price) {
   if (item) item.qty++;
   else cart.push({ name: name, price: price, qty: 1 });
   saveCart(cart);
-  tapVibe();
+  playHaptic('add');
   showToast('Added to cart · ' + cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items');
 }
 function changeQty(name, delta) {
@@ -315,7 +376,7 @@ function changeQty(name, delta) {
   if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
   saveCart(cart);
 }
-function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); }
+function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); playHaptic('remove'); }
 function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
 function renderCart() {
   var wrap = document.getElementById('cartItems');
@@ -357,9 +418,9 @@ function renderCart() {
     sessionStorage.setItem('upsell_seen', '1');
   }
 }
-function openCart() { var d = document.getElementById('cartDrawer'); if (d) d.classList.add('open'); }
-function closeCart() { var d = document.getElementById('cartDrawer'); if (d) d.classList.remove('open'); }
-function closeUpsell() { var u = document.getElementById('upsell'); if (u) u.classList.remove('open'); }
+function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
+function closeCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.remove('open'); playHaptic('close'); } }
+function closeUpsell() { var u = document.getElementById('upsell'); if (u) { u.classList.remove('open'); playHaptic('close'); } }
 
 // ============================================
 // ORDER MODE & CHECKOUT
@@ -371,8 +432,8 @@ function setOrderMode(mode, el) {
   try { localStorage.setItem('rrk_order_mode', mode); } catch(e){}
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.remove('active'); });
   if (el) el.classList.add('active');
-  // Also update any drawer/footer buttons
   document.querySelectorAll('.cart-mode-btn[data-mode="' + mode + '"]').forEach(function(b) { b.classList.add('active'); });
+  playHaptic('click');
 }
 
 function openCheckout() {
@@ -404,6 +465,7 @@ function closeOrderModal() {
 var currentLocation = null;
 
 function useCurrentLocation() {
+  playHaptic('click');
   if (!navigator.geolocation) {
     document.getElementById('orderAddress').value = 'Location not supported';
     return;
@@ -505,6 +567,7 @@ function searchMenu(query) {
 // MENU CATEGORY FILTER
 // ============================================
 function filterCat(cat, el) {
+  playHaptic('click');
   document.querySelectorAll('.cat').forEach(function(c) { c.classList.remove('active'); });
   if (el) el.classList.add('active');
   var searchInput = document.querySelector('.menu-search__input');
@@ -581,6 +644,7 @@ function initDarkMode() {
     toggle.innerHTML = isDark ? '☀️' : '🌙';
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     localStorage.setItem('rrk_dark', isDark ? '1' : '0');
+    playHaptic('click');
   });
   navRight.insertBefore(toggle, navRight.firstChild);
 
