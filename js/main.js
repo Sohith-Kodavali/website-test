@@ -547,6 +547,9 @@ function initDarkMode() {
   // User explicitly chose: respect that. Otherwise, follow system preference.
   if (saved === '1' || (saved === null && prefersDark)) {
     document.body.classList.add('dark-mode');
+    document.documentElement.style.colorScheme = 'dark';
+  } else {
+    document.documentElement.style.colorScheme = 'light';
   }
 
   var navRight = document.querySelector('.nav__right');
@@ -558,6 +561,7 @@ function initDarkMode() {
   toggle.addEventListener('click', function() {
     var isDark = document.body.classList.toggle('dark-mode');
     toggle.innerHTML = isDark ? '☀️' : '🌙';
+    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     localStorage.setItem('rrk_dark', isDark ? '1' : '0');
   });
   navRight.insertBefore(toggle, navRight.firstChild);
@@ -567,9 +571,11 @@ function initDarkMode() {
     if (localStorage.getItem('rrk_dark') === null) {
       if (e.matches) {
         document.body.classList.add('dark-mode');
+        document.documentElement.style.colorScheme = 'dark';
         toggle.innerHTML = '☀️';
       } else {
         document.body.classList.remove('dark-mode');
+        document.documentElement.style.colorScheme = 'light';
         toggle.innerHTML = '🌙';
       }
     }
