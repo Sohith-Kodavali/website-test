@@ -78,12 +78,13 @@ function renderMenuEditor() {
     window.__adminMenuItems = items;
     var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminMenu(\'all\',this)">All</button>'+
       adminMenuCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminMenu(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
-    el.innerHTML = '<h3 style="margin-bottom:12px">Menu Items ('+items.length+')</h3>'+
+    el.innerHTML = '<div style="display:flex;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">'+
+      '<button class="btn btn--primary" onclick="addMenuDoc()">+ Add Menu Item</button>'+
+      '<button class="btn btn--gold-outline" onclick="addCategoryDocInline()">+ Add Category</button>'+
+      '</div>'+
+      '<h3 style="margin-bottom:12px">Menu Items ('+items.length+')</h3>'+
       '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-menu-list"></div>'+
-      '<button class="btn btn--primary" style="margin-top:16px;margin-right:10px" onclick="addMenuDoc()">+ Add Menu Item</button>'+
-      '<button class="btn btn--gold-outline" style="margin-top:16px;margin-right:10px" onclick="addCategoryDocInline()">+ Add Category</button>'+
-      '<button class="btn" style="margin-top:16px;background:#222;color:#fff;border:1px solid #444" onclick="seedAdminData()" title="One-time seed of menu, raw, combos, occasions and categories">🔄 Seed Default Data</button>'+
       '<div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)" id="cms-menu-cats-inline"></div>';
     renderAdminMenuList(items, adminActiveMenuCat);
     renderCategoriesInline();
