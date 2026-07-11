@@ -242,21 +242,25 @@ if (modal) {
     if (e.target.closest('[data-close]')) closeModal();
   });
   modal.addEventListener('submit', function(e) {
-    if (e.target.id === 'loginForm') {
+    if (e.target.id === 'loginForm' || e.target.closest('#loginForm')) {
       e.preventDefault();
-      const form = document.getElementById('loginForm');
-      if (!form) return;
-      const name = form.querySelector('input[type="text"]').value;
-      const phone = form.querySelector('input[type="tel"]').value;
-      const dob = form.querySelector('input[type="date"]').value;
+      var fm = e.target.id === 'loginForm' ? e.target : e.target.closest('#loginForm');
+      if (!fm) return;
+      var name = fm.querySelector('input[type="text"]').value;
+      var phone = fm.querySelector('input[type="tel"]').value;
+      var dob = fm.querySelector('input[type="date"]').value;
       try {
-        const customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
+        var customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
         customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
         localStorage.setItem('rrk_customers', JSON.stringify(customers));
-      } catch(e) {}
+      } catch(ex) {}
       // Also save to Firestore so admin can see registered customers
       if (typeof rrkCustomers !== 'undefined' && rrkCustomers.register) {
-        rrkCustomers.register({ name: name, phone: phone, dob: dob }).catch(function(){});
+        rrkCustomers.register({ name: name, phone: phone, dob: dob }).then(function() {
+          console.log('Customer saved to Firestore:', name, phone);
+        }).catch(function(err) {
+          console.warn('Customer Firestore save failed:', err);
+        });
       }
       localStorage.setItem('rrk_member', '1');
       closeModal();
