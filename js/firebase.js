@@ -68,6 +68,22 @@ window.rrkCustomers = {
 // ============ ORDERS ============
 window.rrkOrders = {
   list: () => getCollection('orders'),
+  listPaginated: (lastDoc, limit) => {
+    limit = limit || 50;
+    return initFirebase().then(function() {
+      var q = db.collection('orders').orderBy('created_at', 'desc').limit(limit);
+      if (lastDoc) q = q.startAfter(lastDoc);
+      return q.get().then(function(snapshot) {
+        var items = [];
+        snapshot.forEach(function(doc) { items.push({ id: doc.id, ...doc.data() }); });
+        return {
+          items: items,
+          lastDoc: snapshot.docs[snapshot.docs.length - 1] || null,
+          hasMore: items.length === limit
+        };
+      });
+    });
+  },
   save: (data) => addDoc('orders', { ...data, created_at: new Date().toISOString() }),
   remove: (id) => deleteDoc('orders', id),
   updateStatus: (id, status) => updateDoc('orders', id, { status, updated_at: new Date().toISOString() })

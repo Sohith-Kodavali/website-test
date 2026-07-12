@@ -455,9 +455,12 @@ function deleteRawDoc(id) {
 
 // ============ ORDERS ============
 var adminActiveOrderType = 'all';
+var ordersLastDoc = null;
+var ordersPageLimit = 50;
 
 function renderOrdersEditor() {
   var el = document.getElementById('cms-orders'); if (!el) return;
+  ordersLastDoc = null;
   el.innerHTML = '<h3 style="margin-bottom:12px">Orders</h3>'+
     '<button class="btn btn--gold-outline" style="margin-bottom:12px;font-size:12px" onclick="downloadOrdersPDF()">📥 Download PDF</button>'+
     '<div class="cms-cats" id="orders-cats">'+
@@ -469,15 +472,30 @@ function renderOrdersEditor() {
     '<div id="orders-list"><p class="muted">Loading...</p></div>';
 
   if (typeof rrkOrders === 'undefined') { el.innerHTML += '<p class="muted">Firestore not connected</p>'; return; }
-  rrkOrders.list().then(function(data) {
-    window.__adminOrders = data || [];
-    renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
+  if (rrkOrders.listPaginated) {
+    loadOrdersPage();
+  } else {
+    rrkOrders.list().then(function(data) {
+      window.__adminOrders = data || [];
+      renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
+    }).catch(function() {
+      document.getElementById('orders-list').innerHTML = '<p class="muted">Failed to load orders.</p>';
+    });
+  }
+}
+
+function loadOrdersPage() {
+  rrkOrders.listPaginated(ordersLastDoc, ordersPageLimit).then(function(result) {
+    if (!ordersLastDoc) window.__adminOrders = [];
+    window.__adminOrders = (window.__adminOrders || []).concat(result.items);
+    ordersLastDoc = result.lastDoc;
+    renderAdminOrdersList(window.__adminOrders, adminActiveOrderType, result.hasMore);
   }).catch(function() {
     document.getElementById('orders-list').innerHTML = '<p class="muted">Failed to load orders.</p>';
   });
 }
 
-function renderAdminOrdersList(orders, type) {
+function renderAdminOrdersList(orders, type, hasMore) {
   var list = document.getElementById('orders-list'); if (!list) return;
   var filtered = type === 'all' ? orders : orders.filter(function(o) { return o.type === type; });
   if (filtered.length === 0) {
@@ -508,7 +526,8 @@ function renderAdminOrdersList(orders, type) {
       actions += '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteOrderDoc(\''+o.id+'\')">🗑</button>';
       return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td>'+(o.phone||'—')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+((o.items||'').substring(0,40))+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
     }).join('')+
-  '</tbody></table></div>';
+  '</tbody></table></div>'+
+  (hasMore ? '<div style="text-align:center;margin-top:16px"><button class="btn btn--gold-outline" onclick="loadOrdersPage()">Load More Orders</button></div>' : '');
 }
 
 function filterAdminOrders(type, btn) {
