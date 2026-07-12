@@ -65,6 +65,7 @@
     <button class="cms-tab" data-tab="craft" onclick="showTab('craft')">Craft My Plate</button>
     <button class="cms-tab" data-tab="raw" onclick="showTab('raw')">Raw Chicken</button>
     <button class="cms-tab" data-tab="orders" onclick="showTab('orders')">Orders</button>
+    <button class="cms-tab" data-tab="combos" onclick="showTab('combos')">Combos</button>
     <button class="cms-tab" data-tab="occasions" onclick="showTab('occasions')">Occasions</button>
     <button class="cms-tab" data-tab="customers" onclick="showTab('customers')">Customers</button>
     <button class="cms-tab" data-tab="contact" onclick="showTab('contact')">Contact</button>
@@ -97,6 +98,7 @@ function handleAdminLogin(e) {
   adminHaptic('click');
   var p = document.getElementById('adminPass').value.trim();
   var defaultPass = 'admin1234';
+  var expectedPass = null;
   function checkLogin() {
     var err = document.getElementById('adminLoginError');
     // Try hashed comparison first, fall back to plaintext for legacy passwords
