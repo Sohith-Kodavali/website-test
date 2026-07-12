@@ -1,6 +1,91 @@
 // ============================================
 // RRK ADMIN CMS — Firestore Backend
 // ============================================
+var adminAudioCtx = null;
+function getAdminAudioCtx() {
+  if (!adminAudioCtx) {
+    try { adminAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  return adminAudioCtx;
+}
+(function initAdminAudioUnlock() {
+  var unlocked = false;
+  function unlock() {
+    if (unlocked) return;
+    var ctx = getAdminAudioCtx();
+    if (!ctx) return;
+    unlocked = true;
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(function() {});
+    }
+    var buf = ctx.createBuffer(1,1,22050);
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    src.connect(ctx.destination); src.start(0);
+  }
+  document.addEventListener('click', unlock, {once: true});
+  document.addEventListener('touchstart', unlock, {once: true});
+  document.addEventListener('keydown', unlock, {once: true});
+})();
+function adminTapVibe(dur) {
+  try { if (navigator.vibrate) navigator.vibrate(dur || 15); } catch(e) {}
+}
+function adminHaptic(type) {
+  adminTapVibe();
+  try {
+    var ctx = getAdminAudioCtx(); if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    var now = ctx.currentTime;
+    switch (type) {
+      case 'click':
+        o.type = 'sine'; o.frequency.setValueAtTime(800, now);
+        o.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+        g.gain.setValueAtTime(0.25, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        o.start(now); o.stop(now + 0.07);
+        break;
+      case 'add':
+        o.type = 'sine'; o.frequency.setValueAtTime(500, now);
+        o.frequency.exponentialRampToValueAtTime(1100, now + 0.08);
+        g.gain.setValueAtTime(0.30, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        o.start(now); o.stop(now + 0.10);
+        break;
+      case 'remove':
+        o.type = 'triangle'; o.frequency.setValueAtTime(900, now);
+        o.frequency.exponentialRampToValueAtTime(350, now + 0.10);
+        g.gain.setValueAtTime(0.22, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        o.start(now); o.stop(now + 0.12);
+        break;
+      case 'confirm':
+        o.type = 'sine';
+        o.frequency.setValueAtTime(587, now); o.frequency.setValueAtTime(740, now + 0.08);
+        o.frequency.setValueAtTime(880, now + 0.16);
+        g.gain.setValueAtTime(0.28, now); g.gain.setValueAtTime(0.28, now + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        o.start(now); o.stop(now + 0.28);
+        break;
+      case 'open':
+        o.type = 'sine'; o.frequency.setValueAtTime(350, now);
+        o.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+        g.gain.setValueAtTime(0.18, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.start(now); o.stop(now + 0.15);
+        break;
+      case 'close':
+        o.type = 'sine'; o.frequency.setValueAtTime(600, now);
+        o.frequency.exponentialRampToValueAtTime(250, now + 0.06);
+        g.gain.setValueAtTime(0.20, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        o.start(now); o.stop(now + 0.08);
+        break;
+      case 'error':
+        o.type = 'square'; o.frequency.setValueAtTime(180, now);
+        g.gain.setValueAtTime(0.14, now); g.gain.setValueAtTime(0.14, now + 0.10);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        o.start(now); o.stop(now + 0.15);
+        break;
+    }
+  } catch(e) {}
+}
 const ADMIN_KEY = 'rrk_admin_session';
 
 function adminError(elId, msg) {
@@ -26,6 +111,7 @@ function loadAdminApp() {
 }
 
 function showTab(tabId) {
+  adminHaptic('click');
   document.querySelectorAll('.cms-panel').forEach(p => p.style.display = 'none');
   document.querySelectorAll('.cms-tab').forEach(t => t.classList.remove('active'));
   const panel = document.getElementById('cms-' + tabId);
@@ -35,6 +121,7 @@ function showTab(tabId) {
 }
 
 function seedAdminData() {
+  adminHaptic('click');
   if (!confirm('This will add the default menu, raw items, combos, occasions and categories to Firestore once. Existing items will not be overwritten. Continue?')) return;
   Promise.all([
     typeof seedCategoriesToFirestore === 'function' ? seedCategoriesToFirestore() : Promise.resolve(),
@@ -113,6 +200,7 @@ function renderAdminMenuList(items, cat) {
 }
 
 function toggleTodaySpecial(id, val) {
+  adminHaptic('click');
   rrkMenu.save({ id: id, today_special: val === 1 ? '1' : '0' }).then(function() {
     refreshMenuEditor();
   });
@@ -120,6 +208,7 @@ function toggleTodaySpecial(id, val) {
 
 function filterAdminMenu(cat, btn) {
   adminActiveMenuCat = cat;
+  adminHaptic('click');
   document.querySelectorAll('.cms-cat-btn').forEach(function(b){b.classList.remove('active');});
   if (btn) btn.classList.add('active');
   renderAdminMenuList(window.__adminMenuItems||[], cat);
@@ -143,6 +232,7 @@ function menuFields(item) {
 }
 
 function editMenuDoc(id) {
+  adminHaptic('click');
   rrkMenu.list().then(items => {
     const item = items.find(m => m.id === id); if (!item) return;
     showItemEditor('Menu Item', menuFields(item), (vals) => {
@@ -154,6 +244,7 @@ function editMenuDoc(id) {
 }
 
 function addMenuDoc() {
+  adminHaptic('add');
   const item = {};
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
     vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
@@ -163,6 +254,7 @@ function addMenuDoc() {
 }
 
 function deleteMenuDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete?')) return;
   rrkMenu.remove(id).then(() => refreshMenuEditor());
 }
@@ -188,6 +280,7 @@ function renderCategoryListInline(items) {
 }
 
 function addCategoryDocInline() {
+  adminHaptic('add');
   showItemEditor('New Menu Category', [
     { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: '' },
     { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' }
@@ -203,6 +296,7 @@ function addCategoryDocInline() {
 }
 
 function editCategoryDocInline(id) {
+  adminHaptic('click');
   rrkCategories.list().then(function(items){
     var item = items.find(function(c){return c.id===id;}); if(!item) return;
     showItemEditor('Edit Category', [
@@ -221,6 +315,7 @@ function editCategoryDocInline(id) {
 }
 
 function deleteCategoryDocInline(id) {
+  adminHaptic('remove');
   if(!confirm('Delete this category? Items will still exist but the filter tab will be removed.')) return;
   rrkCategories.remove(id).then(function(){
     rrkCategories.syncToLocal().then(function(){
@@ -273,6 +368,7 @@ function renderAdminCraftList(items, cat) {
 
 function filterAdminCraft(cat, btn) {
   adminActiveCraftCat = cat;
+  adminHaptic('click');
   document.querySelectorAll('#cms-craft .cms-cat-btn').forEach(function(b){b.classList.remove('active');});
   if (btn) btn.classList.add('active');
   renderAdminCraftList(window.__adminCraftItems||[], cat);
@@ -286,6 +382,7 @@ function craftFields(item) {
 }
 
 function editCraftItem(id) {
+  adminHaptic('click');
   rrkMenu.list().then(function(items) {
     var item = items.find(function(m) { return m.id === id; }); if (!item) return;
     showItemEditor('Craft Settings: '+item.name, craftFields(item), function(vals) {
@@ -334,6 +431,7 @@ function rawFields(item) {
 }
 
 function editRawDoc(id) {
+  adminHaptic('click');
   rrkRaw.list().then(items => {
     const item = items.find(r => r.id === id); if (!item) return;
     showItemEditor('Raw Item', rawFields(item), (vals) => rrkRaw.save({ id, ...vals }).then(() => renderRawEditor()));
@@ -341,10 +439,12 @@ function editRawDoc(id) {
 }
 
 function addRawDoc() {
+  adminHaptic('add');
   showItemEditor('New Raw Item', rawFields({}), (vals) => rrkRaw.save(vals).then(() => renderRawEditor()));
 }
 
 function deleteRawDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete?')) return;
   rrkRaw.remove(id).then(() => renderRawEditor());
 }
@@ -406,6 +506,7 @@ function renderAdminOrdersList(orders, type) {
 
 function filterAdminOrders(type, btn) {
   adminActiveOrderType = type;
+  adminHaptic('click');
   document.querySelectorAll('#cms-orders .cms-cat-btn').forEach(function(b) { b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   renderAdminOrdersList(window.__adminOrders || [], type);
@@ -413,6 +514,7 @@ function filterAdminOrders(type, btn) {
 
 function updateOrderStatus(id, status) {
   if (!confirm('Set order #'+id.substring(0,6)+' to "'+status+'"?')) return;
+  adminHaptic(status === 'completed' ? 'confirm' : (status === 'cancelled' ? 'remove' : 'click'));
   if (typeof rrkOrders === 'undefined' || !rrkOrders.updateStatus) return;
   rrkOrders.updateStatus(id, status).then(function() {
     if (window.__adminOrders && window.__adminOrders.length) {
@@ -424,6 +526,7 @@ function updateOrderStatus(id, status) {
 }
 
 function deleteOrderDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete this order permanently?')) return;
   if (typeof rrkOrders === 'undefined' || !rrkOrders.remove) return;
   rrkOrders.remove(id).then(function() {
@@ -455,6 +558,7 @@ function comboFields(item) {
 }
 
 function editComboDoc(id) {
+  adminHaptic('click');
   rrkCombos.list().then(items => {
     const item = items.find(c => c.id === id); if (!item) return;
     showItemEditor('Combo', comboFields(item), (vals) => rrkCombos.save({ id, ...vals }).then(() => renderComboEditor()));
@@ -462,10 +566,12 @@ function editComboDoc(id) {
 }
 
 function addComboDoc() {
+  adminHaptic('add');
   showItemEditor('New Combo', comboFields({}), (vals) => rrkCombos.save(vals).then(() => renderComboEditor()));
 }
 
 function deleteComboDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete?')) return;
   rrkCombos.remove(id).then(() => renderComboEditor());
 }
@@ -495,6 +601,7 @@ function occasionFields(item) {
 }
 
 function editOccasionDoc(id) {
+  adminHaptic('click');
   rrkOccasions.list().then(items => {
     const item = items.find(o => o.id === id); if (!item) return;
     showItemEditor('Occasion', occasionFields(item), (vals) => rrkOccasions.save({ id, ...vals }).then(() => renderOccasionEditor()));
@@ -502,10 +609,12 @@ function editOccasionDoc(id) {
 }
 
 function addOccasionDoc() {
+  adminHaptic('add');
   showItemEditor('New Occasion', occasionFields({}), (vals) => rrkOccasions.save(vals).then(() => renderOccasionEditor()));
 }
 
 function deleteOccasionDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete?')) return;
   rrkOccasions.remove(id).then(() => renderOccasionEditor());
 }
@@ -515,8 +624,8 @@ function renderCustomersEditor() {
   const el = document.getElementById('cms-customers'); if (!el) return;
   el.innerHTML = `<h3 style="margin-bottom:16px">Registered Customers</h3>
     <div style="display:flex;gap:10px;margin-bottom:16px">
-      <button class="btn btn--gold-outline" style="font-size:12px" onclick="renderCustomersEditor()">🔄 Refresh</button>
-      <button class="btn btn--primary" style="font-size:12px" onclick="downloadCustomersPDF()">📥 Download PDF</button>
+      <button class="btn btn--gold-outline" style="font-size:12px" onclick="adminHaptic('click');renderCustomersEditor()">🔄 Refresh</button>
+      <button class="btn btn--primary" style="font-size:12px" onclick="adminHaptic('click');downloadCustomersPDF()">📥 Download PDF</button>
     </div>
     <div id="customers-list"><p class="muted">Loading...</p></div>`;
   rrkCustomers.list().then(data => {
@@ -529,6 +638,7 @@ function renderCustomersEditor() {
 }
 
 function deleteCustomerDoc(id) {
+  adminHaptic('remove');
   if (!confirm('Delete?')) return;
   rrkCustomers.remove(id).then(() => renderCustomersEditor());
 }
@@ -547,6 +657,7 @@ function renderContactEditor() {
 }
 
 function saveContactDoc() {
+  adminHaptic('confirm');
   var data = {};
   var keys = {contact_phone:'contact_phone',contact_whatsapp:'contact_whatsapp',contact_address:'contact_address',contact_hours:'contact_hours',contact_maps:'contact_maps'};
   Object.keys(keys).forEach(function(k) {
@@ -573,12 +684,14 @@ function renderSocialEditor() {
 }
 
 function saveSocialDoc() {
+  adminHaptic('confirm');
   var data = {};
   ['social_instagram','social_facebook','social_youtube'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
   rrkSettings.save(data).then(() => alert('Saved!'));
 }
 
 function saveFooterDoc() {
+  adminHaptic('confirm');
   var data = {};
   ['brand_tagline','footer_copyright'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
   rrkSettings.save(data).then(() => alert('Saved!'));
@@ -606,6 +719,7 @@ function renderSettingsEditor() {
 }
 
 function saveSettingsDoc() {
+  adminHaptic('confirm');
   var data = {};
   ['brand_name','whatsapp'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
   var pw = g('admin_pass');
@@ -626,6 +740,7 @@ function saveSettingsDoc() {
 }
 
 function saveServiceHoursDoc() {
+  adminHaptic('confirm');
   var data = {};
   var openNow = g('service_open_now');
   if (openNow !== '0' && openNow !== '1') openNow = '1';
@@ -648,6 +763,7 @@ function field(key, label, type, val, opts) {
 }
 
 function setToggle(key, val) {
+  adminHaptic('click');
   var wrap = document.getElementById('field-'+key+'-wrap'); if (!wrap) return;
   var input = document.getElementById('field-'+key); if (input) input.value = val;
   wrap.querySelectorAll('.admin-toggle-btn').forEach(function(btn) {
@@ -657,6 +773,7 @@ function setToggle(key, val) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function downloadOrdersPDF() {
+  adminHaptic('click');
   var orders = window.__adminOrders || [];
   if (orders.length === 0) { alert('No orders to download.'); return; }
   var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:20px}h2{color:#C1121F}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left}th{background:#C1121F;color:#fff}.status-pending{color:#E65100}.status-accepted{color:#1565C0}.status-completed{color:#2E7D32}.status-cancelled{color:#C62828}</style></head><body>'+
@@ -674,6 +791,7 @@ function downloadOrdersPDF() {
 }
 
 function downloadCustomersPDF() {
+  adminHaptic('click');
   if (typeof rrkCustomers === 'undefined') { alert('Customers not loaded. Try refreshing.'); return; }
   rrkCustomers.list().then(function(data){
     var customers = data || [];
@@ -707,10 +825,11 @@ function showItemEditor(title, fields, onSave) {
     '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn--primary btn--block" id="am-save">Save</button><button class="btn btn--gold-outline btn--block" id="am-cancel">Cancel</button></div></div>';
   document.body.appendChild(modal);
   modal.querySelector('#am-save').onclick = () => {
+    adminHaptic('confirm');
     const vals = {}; fields.forEach(f => { vals[f.key] = document.getElementById('field-'+f.key).value; });
     modal.remove(); onSave(vals);
   };
-  modal.querySelector('#am-cancel').onclick = () => modal.remove();
+  modal.querySelector('#am-cancel').onclick = () => { adminHaptic('close'); modal.remove(); };
 }
 
 function previewImage(inputId, previewId) {

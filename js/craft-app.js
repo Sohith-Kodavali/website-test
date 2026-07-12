@@ -372,6 +372,7 @@ var CpApp = (function() {
   }
 
   function shareLiveLocation() {
+    if (typeof playHaptic === 'function') playHaptic('click');
     var statusEl = document.getElementById('cpLocationStatus');
     if (navigator.geolocation) {
       if (statusEl) statusEl.textContent = 'Getting location...';

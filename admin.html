@@ -94,6 +94,7 @@
 <script>
 function handleAdminLogin(e) {
   e.preventDefault();
+  adminHaptic('click');
   var p = document.getElementById('adminPass').value.trim();
   var defaultPass = 'admin1234';
   function checkLogin() {
@@ -149,6 +150,7 @@ function showAdminDashboard() {
 }
 
 function logoutAdmin() {
+  adminHaptic('close');
   sessionStorage.removeItem(ADMIN_KEY);
   location.reload();
 }

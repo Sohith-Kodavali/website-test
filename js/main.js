@@ -178,6 +178,7 @@ const navLinks = document.getElementById('navLinks');
 if (burger) burger.addEventListener('click', () => {
   const isOpen = navLinks.classList.toggle('open');
   burger.setAttribute('aria-expanded', isOpen);
+  if (typeof playHaptic === 'function') playHaptic(isOpen ? 'open' : 'close');
 });
 
 // ============================================
@@ -246,10 +247,10 @@ function initTestimonials() {
     clearInterval(autoPlay);
   }
 
-  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); startAuto(); });
-  if (nextBtn) nextBtn.addEventListener('click', () => { next(); startAuto(); });
+  if (prevBtn) prevBtn.addEventListener('click', () => { prev(); startAuto(); if (typeof playHaptic === 'function') playHaptic('click'); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { next(); startAuto(); if (typeof playHaptic === 'function') playHaptic('click'); });
   dots.forEach((d, i) => {
-    d.addEventListener('click', () => { goTo(i); startAuto(); });
+    d.addEventListener('click', () => { goTo(i); startAuto(); if (typeof playHaptic === 'function') playHaptic('click'); });
   });
 
   track.addEventListener('mouseenter', stopAuto);
@@ -325,8 +326,8 @@ function initLoader() {
 // LOGIN MODAL (after 5s, first visit)
 // ============================================
 const modal = document.getElementById('loginModal');
-function openModal() { if (modal) modal.classList.add('open'); }
-function closeModal() { if (modal) modal.classList.remove('open'); }
+function openModal() { if (modal) { modal.classList.add('open'); if (typeof playHaptic === 'function') playHaptic('open'); } }
+function closeModal() { if (modal) { modal.classList.remove('open'); if (typeof playHaptic === 'function') playHaptic('close'); } }
 if (modal) {
   if (!localStorage.getItem('rrk_member')) {
     setTimeout(function() {
@@ -360,6 +361,7 @@ if (modal) {
         });
       }
       localStorage.setItem('rrk_member', '1');
+      if (typeof playHaptic === 'function') playHaptic('confirm');
       closeModal();
       window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
     }
@@ -395,6 +397,7 @@ function changeQty(name, delta) {
   item.qty += delta;
   if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
   saveCart(cart);
+  if (typeof playHaptic === 'function') playHaptic(delta > 0 ? 'add' : 'remove');
 }
 function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); playHaptic('remove'); }
 function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
@@ -475,11 +478,12 @@ function openCheckout() {
     addrInput.value = '';
   }
   modal.classList.add('open');
+  if (typeof playHaptic === 'function') playHaptic('open');
 }
 
 function closeOrderModal() {
   var modal = document.getElementById('orderModal');
-  if (modal) modal.classList.remove('open');
+  if (modal) { modal.classList.remove('open'); if (typeof playHaptic === 'function') playHaptic('close'); }
 }
 
 var currentLocation = null;
@@ -558,6 +562,7 @@ function placeOrder(e) {
 
   closeOrderModal();
   tapVibe();
+  if (typeof playHaptic === 'function') playHaptic('confirm');
   window.open('https://wa.me/' + (window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999') + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -694,6 +699,7 @@ function initShareButton() {
   btn.innerHTML = '🔗';
   btn.title = 'Share';
   btn.addEventListener('click', function() {
+    if (typeof playHaptic === 'function') playHaptic('click');
     navigator.share({
       title: 'RRK Food Court - Premium Restaurant in Eluru',
       text: 'Check out RRK Food Court! Fresh, hygienic, and delicious.',
@@ -717,6 +723,7 @@ function initDeliveryCheck() {
 }
 
 function checkDelivery() {
+  if (typeof playHaptic === 'function') playHaptic('click');
   const resultDiv = document.getElementById('deliveryResult');
   if (!navigator.geolocation) {
     resultDiv.innerHTML = '<div class="delivery-result out-zone">⚠️ Geolocation not supported by your browser.</div>';
@@ -808,6 +815,7 @@ function sendPush(title, body) {
 function pickChip(el, group) {
   document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  if (typeof playHaptic === 'function') playHaptic('click');
 }
 
 // ============================================
@@ -822,6 +830,7 @@ function searchRawItems(query) {
   });
 }
 function orderRawItem(item) {
+  if (typeof playHaptic === 'function') playHaptic('add');
   var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919999999999';
   window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('*Raw Chicken Order*\n\n' + item + '\n\nHi, I want to order this. Please share details.'), '_blank');
 }
@@ -841,6 +850,15 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof loadRRKConfig === 'function') {
     loadRRKConfig();
   }
+  // Global haptic for nav links, WA links, footer links, bottom nav
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('a');
+    if (!el) return;
+    if (typeof playHaptic !== 'function') return;
+    if (el.closest('.nav__links') || el.closest('.nav__right') || el.closest('.footer') || el.closest('.bottom-nav') || el.classList.contains('wa-fab') || el.classList.contains('wa-link')) {
+      playHaptic('click');
+    }
+  });
 });
 
 // Update all WA links after config loads
