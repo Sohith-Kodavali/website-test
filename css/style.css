@@ -320,7 +320,9 @@ img{max-width:100%;display:block}
 .modal__card h3{font-size:24px;margin-bottom:6px;font-weight:800}
 .modal__x{position:absolute;top:12px;right:18px;background:none;border:none;font-size:26px;cursor:pointer;color:var(--muted)}
 .form{display:flex;flex-direction:column;gap:12px;margin:20px 0}
-.form input{padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r-inp);font-size:15px;font-family:inherit;background:#fff}
+.form input{padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r-inp);font-size:15px;font-family:inherit;background:#fff;-webkit-appearance:none;appearance:none}
+.form input::placeholder{color:var(--muted);font-size:15px;font-family:inherit}
+.form input[type="date"]{min-height:49px}
 .form input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
 .benefits{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;font-weight:600;margin-bottom:12px}
 .benefits li{background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px}

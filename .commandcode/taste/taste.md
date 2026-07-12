@@ -32,6 +32,10 @@ See [admin/taste.md](admin/taste.md)
 # debugging
 - When fixing a bug caused by a pattern (e.g., hardcoded value that should be dynamic), search the entire codebase for all other instances of the same root cause and fix them together. Confidence: 0.70
 
+# firebase-migration
+- When migrating Firebase to a new account, ensure no features break — verify all pages, admin functions, and data seeding work after swapping config keys. Confidence: 0.70
+- When migrating Firebase projects, build a one-click script to migrate ALL existing data (all collections with full documents, IDs, timestamps, and field values) from old Firestore to new Firestore — do not rely on re-seeding defaults. Confidence: 0.85
+
 # ux
 - Add haptic feedback (vibration) and sound effects to every interactive action across the site — not just cart and order placement. Confidence: 0.80
 

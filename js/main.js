@@ -367,7 +367,8 @@ if (modal) {
       if (!fm) return;
       var name = fm.querySelector('input[type="text"]').value;
       var phone = fm.querySelector('input[type="tel"]').value;
-      var dob = fm.querySelector('input[type="date"]').value;
+      var dobEl = fm.querySelector('#loginDob');
+      var dob = dobEl ? dobEl.value : '';
       try {
         var customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
         customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
