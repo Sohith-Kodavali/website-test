@@ -29,7 +29,11 @@ function getAdminAudioCtx() {
 function adminTapVibe(dur) {
   try { if (navigator.vibrate) navigator.vibrate(dur || 15); } catch(e) {}
 }
+var adminHapticLast = 0;
 function adminHaptic(type) {
+  var now = Date.now();
+  if (now - adminHapticLast < 50) return;
+  adminHapticLast = now;
   adminTapVibe();
   try {
     var ctx = getAdminAudioCtx(); if (!ctx) return;
@@ -131,7 +135,7 @@ function seedAdminData() {
     typeof seedOccasionsToFirestore === 'function' ? seedOccasionsToFirestore() : Promise.resolve()
   ]).then(function() {
     alert('Default data seeded successfully. Reloading editors.');
-    refreshMenuEditor();
+    renderMenuEditor();
     renderRawEditor();
     renderComboEditor();
     renderOccasionEditor();
@@ -202,7 +206,7 @@ function renderAdminMenuList(items, cat) {
 function toggleTodaySpecial(id, val) {
   adminHaptic('click');
   rrkMenu.save({ id: id, today_special: val === 1 ? '1' : '0' }).then(function() {
-    refreshMenuEditor();
+    renderMenuEditor();
   });
 }
 
@@ -238,7 +242,7 @@ function editMenuDoc(id) {
     showItemEditor('Menu Item', menuFields(item), (vals) => {
       vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
       vals.craftCategory = vals.category;
-      rrkMenu.save({ id, ...vals }).then(() => refreshMenuEditor());
+      rrkMenu.save({ id, ...vals }).then(() => renderMenuEditor());
     });
   });
 }
@@ -249,14 +253,14 @@ function addMenuDoc() {
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
     vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
     vals.craftCategory = vals.category;
-    rrkMenu.save(vals).then(() => refreshMenuEditor());
+    rrkMenu.save(vals).then(() => renderMenuEditor());
   });
 }
 
 function deleteMenuDoc(id) {
   adminHaptic('remove');
   if (!confirm('Delete?')) return;
-  rrkMenu.remove(id).then(() => refreshMenuEditor());
+  rrkMenu.remove(id).then(() => renderMenuEditor());
 }
 
 // ============ INLINE CATEGORIES (within Menu tab) ============
@@ -288,7 +292,7 @@ function addCategoryDocInline() {
     rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label }).then(function(){
       rrkCategories.syncToLocal().then(function(){
         loadMenuCategories();
-        refreshMenuEditor();
+        renderMenuEditor();
         renderCategoriesInline();
       });
     });
@@ -306,7 +310,7 @@ function editCategoryDocInline(id) {
       rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label}).then(function(){
         rrkCategories.syncToLocal().then(function(){
           loadMenuCategories();
-          refreshMenuEditor();
+          renderMenuEditor();
           renderCategoriesInline();
         });
       });
@@ -320,7 +324,7 @@ function deleteCategoryDocInline(id) {
   rrkCategories.remove(id).then(function(){
     rrkCategories.syncToLocal().then(function(){
       loadMenuCategories();
-      refreshMenuEditor();
+      renderMenuEditor();
       renderCategoriesInline();
     });
   });

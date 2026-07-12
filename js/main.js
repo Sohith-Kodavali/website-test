@@ -40,7 +40,11 @@ function heavyVibe() {
 /** Play a short synthesized tone using the Web Audio API.
  *  type: 'click' | 'add' | 'remove' | 'confirm' | 'open' | 'close' | 'error'
  *  All tones are very short (< 150ms) and low CPU. No audio files needed. */
+var hapticLast = 0;
 function playHaptic(type) {
+  var now = Date.now();
+  if (now - hapticLast < 50) return;
+  hapticLast = now;
   tapVibe();
   try {
     var ctx = getAudioCtx(); if (!ctx) return;
