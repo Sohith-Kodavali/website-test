@@ -48,7 +48,7 @@ function playHaptic(type) {
   tapVibe();
   try {
     var ctx = getAudioCtx(); if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') { ctx.resume(); return; }
     var o = ctx.createOscillator();
     var g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
@@ -128,6 +128,7 @@ const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.classList.add('revealed');
+      revealObserver.unobserve(entry.target);
     }
   });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
@@ -186,32 +187,42 @@ if (burger) burger.addEventListener('click', () => {
 });
 
 // ============================================
-// SHRINKING NAVBAR ON SCROLL
+// SHRINKING NAVBAR ON SCROLL (rAF throttled)
 // ============================================
+var navScrollTicking = false;
 const nav = document.getElementById('nav');
 if (nav) {
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 80) {
-      nav.classList.add('shrunk');
-    } else {
-      nav.classList.remove('shrunk');
+  window.addEventListener('scroll', function() {
+    if (!navScrollTicking) {
+      requestAnimationFrame(function() {
+        nav.classList.toggle('shrunk', window.scrollY > 80);
+        navScrollTicking = false;
+      });
+      navScrollTicking = true;
     }
   });
 }
 
 // ============================================
-// PARALLAX HERO
+// PARALLAX HERO (rAF throttled)
 // ============================================
+var parallaxTicking = false;
 const heroMedia = document.querySelector('.hero__media');
 const heroGlow = document.querySelector('.hero__glow');
 if (heroMedia && heroGlow) {
-  window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    if (scrollY < 800) {
-      heroMedia.style.transform = `translateY(${scrollY * 0.15}px)`;
-      heroGlow.style.transform = `translateY(${scrollY * 0.25}px) translateX(${scrollY * -0.1}px)`;
+  window.addEventListener('scroll', function() {
+    if (!parallaxTicking) {
+      requestAnimationFrame(function() {
+        var scrollY = window.scrollY;
+        if (scrollY < 800) {
+          heroMedia.style.transform = 'translateY(' + (scrollY * 0.15) + 'px)';
+          heroGlow.style.transform = 'translateY(' + (scrollY * 0.25) + 'px) translateX(' + (scrollY * -0.1) + 'px)';
+        }
+        parallaxTicking = false;
+      });
+      parallaxTicking = true;
     }
-  });
+  }, { passive: true });
 }
 
 // ============================================
@@ -297,17 +308,23 @@ function initElegantCursor() {
     mouseY = e.clientY;
   });
 
-  const hoverTargets = document.querySelectorAll('a, button, .food-card, .why-card, .chip, .cat, .ig-card, .btn, .wa-fab, .cart-fab, .modal__x, .mini-chip');
-  hoverTargets.forEach(el => {
-    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  var hoverSel = 'a, button, .food-card, .why-card, .chip, .cat, .ig-card, .btn, .wa-fab, .cart-fab, .modal__x, .mini-chip';
+  document.addEventListener('mouseover', function(e) {
+    if (e.target.closest(hoverSel)) cursor.classList.add('hover');
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest(hoverSel)) cursor.classList.remove('hover');
   });
 
   function animate() {
-    cursorX += (mouseX - cursorX) * 0.12;
-    cursorY += (mouseY - cursorY) * 0.12;
-    cursor.style.left = cursorX + 'px';
-    cursor.style.top = cursorY + 'px';
+    var dx = mouseX - cursorX;
+    var dy = mouseY - cursorY;
+    if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
+      cursorX += dx * 0.12;
+      cursorY += dy * 0.12;
+      cursor.style.left = cursorX + 'px';
+      cursor.style.top = cursorY + 'px';
+    }
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);

@@ -29,8 +29,6 @@ function getClosedMessage(D) {
   var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
   return sh.closedMessage || 'Restaurant Closed';
 }
-// Old localStorage caches with a lower version are discarded.
-var DATA_VERSION = 6;
 
 function getMenuCategories() {
   try {

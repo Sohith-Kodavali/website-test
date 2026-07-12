@@ -17,9 +17,11 @@ var CpApp = (function() {
   };
 
   var D = {};
+  var craftMenuCache = null;
 
   function getD() { return D; }
   function deriveCraftMenu() {
+    if (craftMenuCache) return craftMenuCache;
     var craftCats = typeof getCraftCategories === 'function' ? getCraftCategories() : [];
     if (craftCats.length === 0) craftCats = [
       {key:'starters'},{key:'kaju-pakodi'},{key:'manchuria'},{key:'biryani'},
@@ -37,6 +39,7 @@ var CpApp = (function() {
         });
       }
     });
+    craftMenuCache = cats;
     return cats;
   }
 
@@ -107,6 +110,7 @@ var CpApp = (function() {
   }
 
   // ========== BUDGET ==========
+  var budgetDebounce;
   function onBudgetChange() {
     var slider = document.getElementById('cpBudget');
     if (!slider) return;
@@ -116,9 +120,12 @@ var CpApp = (function() {
     if (valEl) valEl.textContent = state.budgetPerPerson;
     if (okBudget) okBudget.textContent = state.budgetPerPerson;
     if (typeof tapVibe === 'function') tapVibe(8);
-    highlightByBudget();
-    updateBudgetBar();
-    updateCheckoutBar();
+    clearTimeout(budgetDebounce);
+    budgetDebounce = setTimeout(function() {
+      highlightByBudget();
+      updateBudgetBar();
+      updateCheckoutBar();
+    }, 16);
   }
 
   function highlightByBudget() {
@@ -496,6 +503,7 @@ var CpApp = (function() {
   // ========== INIT ==========
   function init(data) {
     D = data || (typeof SITE_DATA !== 'undefined' ? SITE_DATA : {});
+    craftMenuCache = null;
     var budgetSlider = document.getElementById('cpBudget');
     if (budgetSlider && D.craftConfig) {
       budgetSlider.value = D.craftConfig.budgetDefault || 300;

@@ -37,7 +37,7 @@ function adminHaptic(type) {
   adminTapVibe();
   try {
     var ctx = getAdminAudioCtx(); if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') { ctx.resume(); return; }
     var o = ctx.createOscillator();
     var g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
