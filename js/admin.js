@@ -488,7 +488,7 @@ function renderAdminOrdersList(orders, type) {
     var cls = {pending:'status-pending',accepted:'status-accepted',completed:'status-completed',cancelled:'status-cancelled'}[s||'pending']||'status-pending';
     return '<span class="status-badge '+cls+'">' + ((s||'pending').charAt(0).toUpperCase() + (s||'pending').slice(1)) + '</span>';
   };
-  list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Type</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+  list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Type</th><th>Phone</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
     filtered.map(function(o) {
       var date = (o.created_at||'').substring(0,10);
       var time = (o.created_at||'').substring(11,16);
@@ -502,8 +502,11 @@ function renderAdminOrdersList(orders, type) {
       if (o.status === 'accepted') {
         actions += '<button class="btn btn--primary" style="padding:3px 8px;font-size:11px;margin-right:4px" onclick="updateOrderStatus(\''+o.id+'\',\'completed\')">Complete</button>';
       }
+      if (o.phone) {
+        actions += ' <button class="btn" style="padding:3px 8px;font-size:11px;background:#25D366;color:#fff;border:none" onclick="notifyCustomerWhatsApp(\''+o.id+'\')" title="Notify customer via WhatsApp">💬</button>';
+      }
       actions += '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteOrderDoc(\''+o.id+'\')">🗑</button>';
-      return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+((o.items||'').substring(0,40))+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
+      return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td>'+(o.phone||'—')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+((o.items||'').substring(0,40))+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
     }).join('')+
   '</tbody></table></div>';
 }
@@ -526,7 +529,39 @@ function updateOrderStatus(id, status) {
       if (order) order.status = status;
     }
     renderAdminOrdersList(window.__adminOrders || [], adminActiveOrderType);
+    // Prompt to notify customer via WhatsApp
+    var order = (window.__adminOrders || []).find(function(o) { return o.id === id; });
+    if (order && order.phone) {
+      var statusLabel = {accepted:'Accepted ✅', completed:'Completed 🎉', cancelled:'Cancelled ❌'}[status] || status;
+      if (confirm('Notify customer at '+order.phone+' that their order is now '+statusLabel+'?')) {
+        notifyCustomerWhatsApp(id);
+      }
+    }
   }).catch(function(e) { alert('Failed: '+e.message); });
+}
+
+function notifyCustomerWhatsApp(id) {
+  var order = (window.__adminOrders || []).find(function(o) { return o.id === id; });
+  if (!order || !order.phone) { alert('No phone number found for this order.'); return; }
+  var statusLabel = {pending:'Pending', accepted:'Accepted ✅', completed:'Completed 🎉', cancelled:'Cancelled ❌'}[order.status] || order.status;
+  var msg = 'Hi! Your order at *RRK Food Court* has been updated.\n\n';
+  msg += '📋 Order: '+order.id.substring(0,6)+'\n';
+  msg += '📦 Status: '+statusLabel+'\n';
+  msg += '🍽️ Items: '+order.items+'\n';
+  msg += '💰 Total: ₹'+(order.total||0)+'\n';
+  if (order.mode) msg += '🚚 Mode: '+order.mode+'\n';
+  msg += '\nThank you for choosing RRK Food Court! 🙏';
+  var wa = '919999999999';
+  if (typeof rrkSettings !== 'undefined') {
+    rrkSettings.get().then(function(s) {
+      wa = s.whatsapp || '919999999999';
+      window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+    }).catch(function() {
+      window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+    });
+  } else {
+    window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+  }
 }
 
 function deleteOrderDoc(id) {
