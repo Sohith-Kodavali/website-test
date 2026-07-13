@@ -468,15 +468,9 @@ function renderCart() {
   }
   if (totalEl) totalEl.textContent = '\u20B9' + cartTotal();
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
-  var upsell = document.getElementById('upsell');
-  if (upsell && cartTotal() > 1000 && !sessionStorage.getItem('upsell_seen')) {
-    upsell.classList.add('open');
-    sessionStorage.setItem('upsell_seen', '1');
-  }
 }
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
 function closeCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.remove('open'); playHaptic('close'); } }
-function closeUpsell() { var u = document.getElementById('upsell'); if (u) { u.classList.remove('open'); playHaptic('close'); } }
 
 // ============================================
 // ORDER MODE & CHECKOUT
