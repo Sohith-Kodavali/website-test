@@ -412,6 +412,17 @@ function addToCart(name, price) {
   playHaptic('add');
   showToast('Added to cart · ' + cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items');
 }
+
+function addToCartAndGoToMenu(name, price) {
+  var foodCartKey = 'rrk_cart_food';
+  var cart = JSON.parse(localStorage.getItem(foodCartKey) || '[]');
+  var item = cart.find(function(i) { return i.name === name; });
+  if (item) item.qty++;
+  else cart.push({ name: name, price: price, qty: 1 });
+  localStorage.setItem(foodCartKey, JSON.stringify(cart));
+  if (typeof playHaptic === 'function') playHaptic('add');
+  window.location.href = 'menu.html';
+}
 function changeQty(name, delta) {
   let cart = getCart();
   const item = cart.find(i => i.name === name);

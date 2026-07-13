@@ -9,7 +9,7 @@ function escHtml(s) {
 
 // Bump this when SITE_DATA defaults change.
 // Old localStorage caches with a lower version are discarded.
-var DATA_VERSION = 6;
+var DATA_VERSION = 7;
 
 function isRestaurantOpen(D) {
   var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
@@ -328,7 +328,7 @@ function renderIndex(D) {
   // Today's Special section (separate)
   var todayItems = D.menu.filter(function(m){return m.today_special=='1'}).slice(0,2);
   if (todayItems.length > 0) {
-    document.getElementById('render-today-special').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Today\'s Special</span><h2>🔥 Today\'s Special</h2></div><div class="grid grid--2">'+todayItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div><span class="tag tag--offer">Today Only!</span><div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><a href="menu.html" class="btn btn--primary btn--block">Order</a></div></article>'}).join('')+'</div></div></section>';
+    document.getElementById('render-today-special').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Today\'s Special</span><h2>🔥 Today\'s Special</h2></div><div class="grid grid--2">'+todayItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div><span class="tag tag--offer">Today Only!</span><div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--block" onclick="addToCartAndGoToMenu(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">Order Now</button></div></article>'}).join('')+'</div></div></section>';
   } else {
     document.getElementById('render-today-special').innerHTML = '';
   }
@@ -356,6 +356,12 @@ function renderSpecialsRow(D) {
   return '<div class="menu-specials-label">🔥 Chef\'s Picks</div><div class="specials-row">'+specialItems.map(function(m){return'<div class="special-card" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')"><div class="special-card__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+'</div><div class="special-card__info"><span class="special-card__name">'+m.name+'</span><span class="special-card__price">₹'+m.price+'</span></div></div>'}).join('')+'</div>';
 }
 
+function renderTodaysSpecialsRow(D) {
+  var todayItems = D.menu.filter(function(m){return m.today_special=='1'}).slice(0,2);
+  if (todayItems.length === 0) return '';
+  return '<div class="menu-specials-label">🔥 Today\'s Special</div><div class="specials-row">'+todayItems.map(function(m){return'<div class="special-card" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')"><div class="special-card__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+'<span class="menu-badge menu-badge--best">Today Only!</span></div><div class="special-card__info"><span class="special-card__name">'+m.name+'</span><span class="special-card__price">₹'+m.price+'</span></div></div>'}).join('')+'</div>';
+}
+
 function renderMenuPage(D) {
   var el = document.getElementById('render-menu'); if(!el)return;
   if (!isRestaurantOpen(D)) {
@@ -367,7 +373,7 @@ function renderMenuPage(D) {
   var labels = {}; allCats.forEach(function(c){labels[c.key]=c.label;});
   labels['all'] = 'All';
   var catKeys = ['all'].concat(allCats.map(function(c){return c.key;}));
-  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderSpecialsRow(D)+'<div class="cats cats--compact reveal cats--scrollable">'+catKeys.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
+  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderTodaysSpecialsRow(D)+renderSpecialsRow(D)+'<div class="cats cats--compact reveal cats--scrollable">'+catKeys.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
 }
 
 function renderCraftPage(D) {
