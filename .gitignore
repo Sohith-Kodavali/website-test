@@ -8,6 +8,12 @@ js/firebase-config.js
 # Dependencies
 node_modules/
 
+# Firebase service account (contains private keys)
+scripts/service-account.json
+
+# Firestore export dumps
+rrk-firestore-export.json
+
 # OS files
 .DS_Store
 Thumbs.db

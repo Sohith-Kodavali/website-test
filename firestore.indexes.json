@@ -1,0 +1,11 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "created_at", "order": "DESCENDING"}
+      ]
+    }
+  ]
+}

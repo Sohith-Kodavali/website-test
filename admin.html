@@ -58,7 +58,10 @@
 <div class="cms-body" id="adminDashboard" style="display:none">
   <header class="cms-header">
     <h2>RRK <span>Admin CMS</span></h2>
-    <button class="btn btn--gold-outline" style="padding:8px 16px;font-size:12px;color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1)" onclick="logoutAdmin()">Logout</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="btnExportFirestore" class="btn btn--gold-outline" style="padding:8px 16px;font-size:12px;color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1)" onclick="exportFirestoreData()">📥 Export Data</button>
+      <button class="btn btn--gold-outline" style="padding:8px 16px;font-size:12px;color:#fff;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1)" onclick="logoutAdmin()">Logout</button>
+    </div>
   </header>
   <nav class="cms-nav">
     <button class="cms-tab active" data-tab="menu" onclick="showTab('menu')">Menu</button>
@@ -159,6 +162,70 @@ function logoutAdmin() {
 
 if (sessionStorage.getItem(ADMIN_KEY)) {
   showAdminDashboard();
+}
+
+function exportFirestoreData() {
+  adminHaptic('click');
+  if (!confirm('Export all Firestore data? This will download a JSON file with all 8 collections.')) return;
+
+  var collections = ['settings','categories','customers','menu','raw','combos','occasions','orders'];
+  var apis = {
+    settings: window.rrkSettings,
+    categories: window.rrkCategories,
+    customers: window.rrkCustomers,
+    menu: window.rrkMenu,
+    raw: window.rrkRaw,
+    combos: window.rrkCombos,
+    occasions: window.rrkOccasions,
+    orders: window.rrkOrders
+  };
+
+  var result = { exportedAt: new Date().toISOString(), projectId: 'rrk-test', collections: {} };
+  var btn = document.getElementById('btnExportFirestore');
+  var origText = btn.textContent;
+  btn.textContent = '⏳ Exporting...';
+  btn.disabled = true;
+
+  function fetchNext(i) {
+    if (i >= collections.length) {
+      var blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'rrk-firestore-export.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      btn.textContent = origText;
+      btn.disabled = false;
+      adminHaptic('confirm');
+      alert('Export complete! Downloaded rrk-firestore-export.json');
+      return;
+    }
+    var name = collections[i];
+    var api = apis[name];
+    btn.textContent = '⏳ ' + name + '...';
+
+    var promise;
+    if (name === 'settings') {
+      // settings.get() returns key-value object; convert back to array of {key,value} docs
+      promise = api.get().then(function(obj) {
+        return Object.keys(obj).map(function(k) { return { key: k, value: obj[k] }; });
+      });
+    } else {
+      promise = api.list();
+    }
+
+    promise.then(function(docs) {
+      result.collections[name] = docs;
+      fetchNext(i + 1);
+    }).catch(function(err) {
+      console.error('Export failed for ' + name + ':', err);
+      btn.textContent = origText;
+      btn.disabled = false;
+      alert('Export failed on collection: ' + name + '. See console for details.');
+    });
+  }
+
+  fetchNext(0);
 }
 </script>
 </body></html>
