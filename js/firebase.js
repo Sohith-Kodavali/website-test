@@ -130,28 +130,39 @@ window.rrkOccasions = {
 };
 
 // ============ SETTINGS ============
-window.rrkSettings = {
-  get: () => getCollection('settings').then(items => {
-    const obj = {};
-    items.forEach(i => { obj[i.key] = i.value; });
-    return obj;
-  }),
-  save: (data) => {
-    const promises = [];
-    Object.keys(data).forEach(key => {
-      promises.push(
-        queryDocs('settings', 'key', '==', key).then(results => {
-          if (results.length > 0) {
-            return updateDoc('settings', results[0].id, { key, value: data[key] });
-          } else {
-            return addDoc('settings', { key, value: data[key] });
-          }
-        })
-      );
-    });
-    return Promise.all(promises);
-  }
-};
+window.rrkSettings = (function() {
+  var _cached = null;
+  return {
+    get: function() {
+      if (_cached) return _cached;
+      _cached = getCollection('settings').then(function(items) {
+        var obj = {};
+        items.forEach(function(i) { obj[i.key] = i.value; });
+        return obj;
+      });
+      return _cached;
+    },
+    clearCache: function() { _cached = null; },
+    save: function(data) {
+      var promises = [];
+      var self = this;
+      Object.keys(data).forEach(function(key) {
+        promises.push(
+          queryDocs('settings', 'key', '==', key).then(function(results) {
+            if (results.length > 0) {
+              return updateDoc('settings', results[0].id, { key: key, value: data[key] });
+            } else {
+              return addDoc('settings', { key: key, value: data[key] });
+            }
+          })
+        );
+      });
+      return Promise.all(promises).then(function() {
+        self.clearCache();
+      });
+    }
+  };
+})();
 
 // ============ CATEGORIES ============
 window.rrkCategories = {
