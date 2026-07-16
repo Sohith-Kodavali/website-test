@@ -154,7 +154,8 @@ var CpApp = (function() {
     var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
     if (!item) return;
     if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
-    var currentQty = state.sandboxChecked[cat][idx] || 0;
+    var entry = state.sandboxChecked[cat][idx];
+    var currentQty = entry ? (entry.qty || 1) : 0;
     var newQty = currentQty + delta;
     if (newQty <= 0) {
       delete state.sandboxChecked[cat][idx];
