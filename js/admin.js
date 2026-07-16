@@ -275,20 +275,22 @@ function deleteMenuDoc(id) {
 // ============ INLINE CATEGORIES (within Menu tab) ============
 function renderCategoriesInline() {
   var el = document.getElementById('cms-menu-cats-inline');
-  if (!el || typeof rrkCategories === 'undefined') return;
-  rrkCategories.list().then(function(items) {
-    var cats = items.filter(function(c){return c.type==='menu';});
-    el.innerHTML = '<h4 style="margin-bottom:8px">Manage Categories</h4>'+
-      '<div class="cms-list" id="cms-inline-cats">'+renderCategoryListInline(cats)+'</div>';
-  });
+  if (!el) return;
+  loadMenuCategories();
+  el.innerHTML = '<h4 style="margin-bottom:8px">Manage Categories</h4>'+
+    '<div class="cms-list" id="cms-inline-cats">'+renderCategoryListInline(adminMenuCategories)+'</div>';
 }
 
 function renderCategoryListInline(items) {
-  if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No custom categories. Add one below.</p>';
+  if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories.</p>';
   return items.map(function(c){
-    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
-      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
-      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
+    if (c.id) {
+      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
+        '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
+        '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
+    } else {
+      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+' <em style="color:var(--muted)">(default)</em></span></div></div>';
+    }
   }).join('');
 }
 
