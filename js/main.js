@@ -469,7 +469,10 @@ function renderCart() {
       return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + jsSafe + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + jsSafe + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + jsSafe + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>';
     }).join('');
   }
-  if (totalEl) totalEl.innerHTML = '<span>Total</span><span>&#8377;' + cartGrandTotal() + '</span><span class="cart-service-note" style="display:block;font-size:10px;font-weight:400;color:var(--muted);text-align:right;margin-top:2px">incl. 5% service charge</span>';
+  if (totalEl) totalEl.innerHTML =
+    '<div class="cart-total-row"><span>Subtotal</span><span>&#8377;' + cartTotal() + '</span></div>' +
+    '<div class="cart-total-row"><span>Service Charge (5%)</span><span>&#8377;' + cartServiceCharge() + '</span></div>' +
+    '<div class="cart-total-row cart-total-row--grand"><span>Total</span><span>&#8377;' + cartGrandTotal() + '</span></div>';
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
 }
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
