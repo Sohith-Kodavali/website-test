@@ -43,6 +43,11 @@ var CpApp = (function() {
     return cats;
   }
 
+  // ========== HELPERS ==========
+  function overallBudgetTarget() {
+    return state.budgetPerPerson * state.guests;
+  }
+
   // ========== GUEST COUNT ==========
   function setGuests(n) {
     n = parseInt(n) || 0;
@@ -88,7 +93,7 @@ var CpApp = (function() {
     var msgEl = document.getElementById('cpValidMsg');
     var okEl = document.getElementById('cpGuestOk');
     var okCount = document.getElementById('cpGuestOkCount');
-    var okBudget = document.getElementById('cpGuestOkBudget');
+    var okTarget = document.getElementById('cpGuestOkTarget');
     var step3 = document.getElementById('step3');
     var step4 = document.getElementById('step4');
     var bar = document.getElementById('cpCheckoutBar');
@@ -100,12 +105,16 @@ var CpApp = (function() {
       if (step4) step4.style.display = 'none';
       if (bar) { bar.classList.remove('visible'); bar.style.display = 'none'; }
     } else {
+      var target = overallBudgetTarget();
       if (msgEl) msgEl.style.display = 'none';
-      if (okEl) { okEl.style.display = 'block'; if (okCount) okCount.textContent = n; if (okBudget) okBudget.textContent = state.budgetPerPerson; }
+      if (okEl) {
+        okEl.style.display = 'block';
+        if (okCount) okCount.textContent = n;
+        if (okTarget) okTarget.textContent = target.toLocaleString('en-IN');
+      }
       if (step3) step3.classList.add('cp-step-unlocked');
       if (step4) step4.style.display = 'block';
-      updateSandboxStats();
-      updateCheckoutBar();
+      refreshAllStats();
     }
   }
 
@@ -115,30 +124,16 @@ var CpApp = (function() {
     var slider = document.getElementById('cpBudget');
     if (!slider) return;
     state.budgetPerPerson = parseInt(slider.value) || 300;
-    var valEl = document.getElementById('cpBudgetVal');
-    var okBudget = document.getElementById('cpGuestOkBudget');
-    if (valEl) valEl.textContent = state.budgetPerPerson;
-    if (okBudget) okBudget.textContent = state.budgetPerPerson;
+    var perPersonEl = document.getElementById('cpBudgetVal');
+    var okTarget = document.getElementById('cpGuestOkTarget');
+    var targetPreview = document.getElementById('cpBudgetTargetPreview');
+    var target = overallBudgetTarget();
+    if (perPersonEl) perPersonEl.textContent = state.budgetPerPerson;
+    if (okTarget && state.guestsValid) okTarget.textContent = target.toLocaleString('en-IN');
+    if (targetPreview) targetPreview.textContent = state.guestsValid ? target.toLocaleString('en-IN') : '—';
     if (typeof tapVibe === 'function') tapVibe(8);
     clearTimeout(budgetDebounce);
-    budgetDebounce = setTimeout(function() {
-      var ov = sandboxTotal();
-      updateBudgetBar(ov);
-      updateCheckoutBar();
-    }, 16);
-  }
-
-  function highlightByBudget() {
-    var step3 = document.getElementById('step3');
-    if (!step3) return;
-    var items = step3.querySelectorAll('.cp-item');
-    items.forEach(function(el) {
-      var cb = el.querySelector('input[type="checkbox"]');
-      if (!cb) return;
-      var price = parseInt(cb.getAttribute('data-price')) || 0;
-      el.classList.toggle('cp-item-overbudget', price > state.budgetPerPerson);
-      el.classList.toggle('cp-item-inbudget', price <= state.budgetPerPerson);
-    });
+    budgetDebounce = setTimeout(refreshAllStats, 16);
   }
 
   // ========== SANDBOX ==========
@@ -168,71 +163,16 @@ var CpApp = (function() {
     } else {
       state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet, qty: newQty };
     }
-    // Update UI
     var qtyEl = document.getElementById('cp-qty-' + cat + '-' + idx);
     if (qtyEl) qtyEl.textContent = newQty;
     var itemEl = document.getElementById('cp-item-' + cat + '-' + idx);
     if (itemEl) itemEl.classList.toggle('checked', newQty > 0);
     if (typeof playHaptic === 'function') playHaptic('add');
-    updateSandboxStats();
-    updateCheckoutBar();
+    refreshAllStats();
   }
 
   function rebuildState() {
-    // State is maintained via changeItemQty, no DOM checkbox polling needed
-    updateSandboxStats();
-    updateCheckoutBar();
-  }
-
-  function updateSandboxStats() {
-    var totalItems = 0, overallBudget = 0;
-    Object.keys(state.sandboxChecked).forEach(function(cat) {
-      Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
-        var entry = state.sandboxChecked[cat][idx];
-        var qty = entry.qty || 1;
-        totalItems += qty;
-        overallBudget += entry.price * qty;
-      });
-    });
-    var overallEl = document.getElementById('cpOverallBudget');
-    var itemCountEl = document.getElementById('cpItemCount');
-    var warningEl = document.getElementById('cpWarning');
-    if (overallEl) overallEl.textContent = overallBudget.toLocaleString('en-IN');
-    if (itemCountEl) itemCountEl.textContent = totalItems;
-    if (warningEl) warningEl.style.display = (totalItems < 3) ? 'block' : 'none';
-    updateBudgetBar(overallBudget);
-  }
-
-  function updateBudgetBar(overall) {
-    var ov = (typeof overall === 'number') ? overall : sandboxTotal();
-    var budget = state.budgetPerPerson;
-    var fill = document.getElementById('cpBudgetFill');
-    var label = document.getElementById('cpBudgetLabel');
-    if (!fill || !label) return;
-    var pct = budget > 0 ? Math.min((ov / budget) * 100, 200) : 0;
-    fill.style.width = Math.min(pct, 100) + '%';
-    if (ov <= budget) {
-      fill.className = 'cp-budget-bar__fill cp-budget-in';
-      label.textContent = '✅ In Budget — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' budget';
-      label.className = 'cp-budget-bar__label cp-budget-in';
-    } else if (ov <= budget * 1.5) {
-      fill.className = 'cp-budget-bar__fill cp-budget-warn';
-      label.textContent = '⚠️ Slightly Over — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' est. budget';
-      label.className = 'cp-budget-bar__label cp-budget-warn';
-    } else {
-      fill.className = 'cp-budget-bar__fill cp-budget-over';
-      label.textContent = '🔴 Over Budget — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' budget';
-      label.className = 'cp-budget-bar__label cp-budget-over';
-    }
-  }
-
-  function setDeliveryMode(mode) {
-    state.deliveryMode = mode;
-    if (typeof playHaptic === 'function') playHaptic('click');
-    var opts = document.querySelectorAll('.cp-toggle-opt');
-    opts.forEach(function(o) {
-      o.classList.toggle('active', o.querySelector('input').value === mode);
-    });
+    refreshAllStats();
   }
 
   function sandboxItemCount() {
@@ -254,6 +194,65 @@ var CpApp = (function() {
       });
     });
     return total;
+  }
+
+  function refreshAllStats() {
+    updateSandboxStats();
+    updateCheckoutBar();
+  }
+
+  function updateSandboxStats() {
+    var totalItems = 0, currentTotal = 0;
+    Object.keys(state.sandboxChecked).forEach(function(cat) {
+      Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
+        var entry = state.sandboxChecked[cat][idx];
+        var qty = entry.qty || 1;
+        totalItems += qty;
+        currentTotal += entry.price * qty;
+      });
+    });
+    var target = overallBudgetTarget();
+    var overallEl = document.getElementById('cpCurrentTotal');
+    var targetEl = document.getElementById('cpTargetBudget');
+    var itemCountEl = document.getElementById('cpItemCount');
+    var warningEl = document.getElementById('cpWarning');
+    var targetPreview = document.getElementById('cpBudgetTargetPreview');
+
+    if (overallEl) overallEl.textContent = currentTotal.toLocaleString('en-IN');
+    if (targetEl && state.guestsValid) targetEl.textContent = target.toLocaleString('en-IN');
+    if (targetPreview) targetPreview.textContent = state.guestsValid ? target.toLocaleString('en-IN') : '—';
+    if (itemCountEl) itemCountEl.textContent = totalItems;
+    if (warningEl) warningEl.style.display = (totalItems < 3) ? 'block' : 'none';
+
+    // Budget bar: current spending vs overall target
+    var fill = document.getElementById('cpBudgetFill');
+    var label = document.getElementById('cpBudgetLabel');
+    if (fill && label && state.guestsValid) {
+      var pct = target > 0 ? Math.min((currentTotal / target) * 100, 200) : 0;
+      fill.style.width = Math.min(pct, 100) + '%';
+      if (currentTotal <= target) {
+        fill.className = 'cp-budget-bar__fill cp-budget-in';
+        label.textContent = '✅ In Budget — ₹' + currentTotal.toLocaleString('en-IN') + ' spent vs ₹' + target.toLocaleString('en-IN') + ' target';
+        label.className = 'cp-budget-bar__label cp-budget-in';
+      } else if (currentTotal <= target * 1.5) {
+        fill.className = 'cp-budget-bar__fill cp-budget-warn';
+        label.textContent = '⚠️ Slightly Over — ₹' + currentTotal.toLocaleString('en-IN') + ' spent vs ₹' + target.toLocaleString('en-IN') + ' target';
+        label.className = 'cp-budget-bar__label cp-budget-warn';
+      } else {
+        fill.className = 'cp-budget-bar__fill cp-budget-over';
+        label.textContent = '🔴 Over Budget — ₹' + currentTotal.toLocaleString('en-IN') + ' spent vs ₹' + target.toLocaleString('en-IN') + ' target';
+        label.className = 'cp-budget-bar__label cp-budget-over';
+      }
+    }
+  }
+
+  function setDeliveryMode(mode) {
+    state.deliveryMode = mode;
+    if (typeof playHaptic === 'function') playHaptic('click');
+    var opts = document.querySelectorAll('.cp-toggle-opt');
+    opts.forEach(function(o) {
+      o.classList.toggle('active', o.querySelector('input').value === mode);
+    });
   }
 
   // ========== OCCASION & COUPONS ==========
@@ -302,7 +301,6 @@ var CpApp = (function() {
     if (!bar) return;
     var itemCount = sandboxItemCount();
 
-    // Show bar as soon as any item is selected (with valid guests)
     if (state.guestsValid && itemCount >= 1) {
       bar.style.display = 'block';
       bar.classList.add('visible');
@@ -320,7 +318,6 @@ var CpApp = (function() {
     if (coItems) coItems.textContent = itemCount || '—';
     var grandTotal = calcGrandTotal();
     if (coTotal) coTotal.textContent = '₹' + grandTotal.toLocaleString('en-IN');
-    // Enable button when ≥1 item, but show warning <3 in confirm step
     if (coBtn) coBtn.disabled = !(state.guestsValid && itemCount >= 1);
   }
 
@@ -346,8 +343,8 @@ var CpApp = (function() {
     var total = calcGrandTotal();
     var itemCount = sandboxItemCount();
     var items = getSelectedItemNames();
-
     var ov = sandboxTotal();
+    var target = overallBudgetTarget();
     var savings = '';
     var couponText = '';
     var itemWarning = itemCount < 3 ? '<div class="cp-review-warning">⚠️ Minimum 3 items recommended for catering. You have only '+itemCount+'.</div>' : '';
@@ -366,7 +363,9 @@ var CpApp = (function() {
 
     confirmBox.innerHTML =
       '<div class="cp-review-row"><strong>Guests:</strong> <span>'+state.guests+'</span></div>'+
-      '<div class="cp-review-row"><strong>Overall Budget:</strong> <span>₹'+ov.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Budget/person:</strong> <span>₹'+state.budgetPerPerson.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Target Budget:</strong> <span>₹'+target.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Current Total:</strong> <span>₹'+ov.toLocaleString('en-IN')+'</span></div>'+
       '<div class="cp-review-row"><strong>Order Type:</strong> <span>'+(state.deliveryMode==='takeaway'?'🥡 Takeaway':'🚚 Delivery')+'</span></div>'+
       '<div class="cp-review-row"><strong>Items:</strong> <span>'+itemCount+' selected</span></div>'+
       itemWarning+
@@ -429,12 +428,14 @@ var CpApp = (function() {
     var total = calcGrandTotal();
     var itemCount = sandboxItemCount();
     var items = getSelectedItemNames();
+    var target = overallBudgetTarget();
 
     waBox.innerHTML =
       '<div class="cp-wa-summary">'+
         '<div class="cp-wa-stat"><span>👥</span> '+state.guests+' Guests</div>'+
         '<div class="cp-wa-stat"><span>🍽️</span> '+itemCount+' Items</div>'+
         '<div class="cp-wa-stat"><span>💰</span> ₹'+total.toLocaleString('en-IN')+'</div>'+
+        '<div class="cp-wa-stat"><span>🎯</span> Target: ₹'+target.toLocaleString('en-IN')+'</div>'+
         (state.occasion ? '<div class="cp-wa-stat"><span>🎉</span> '+state.occasion+'</div>' : '')+
       '</div>'+
       '<p class="cp-wa-items">'+items.slice(0,6).join(', ')+(items.length>6?' +'+(items.length-6)+' more':'')+'</p>';
@@ -448,9 +449,11 @@ var CpApp = (function() {
     var total = calcGrandTotal();
     var itemCount = sandboxItemCount();
     var items = getSelectedItemNames();
+    var target = overallBudgetTarget();
 
     var msg = '*Craft My Plate · Confirmed Order*%0A%0A';
-    msg += '👥 Guests: ' + state.guests + '%0A';
+    msg += '👥 Guests: ' + state.guests + ' (₹' + state.budgetPerPerson + '/person)%0A';
+    msg += '🎯 Target Budget: ₹' + target.toLocaleString('en-IN') + '%0A';
     msg += '🍽️ Items (' + itemCount + '): ' + items.join(', ') + '%0A';
     msg += '💰 Grand Total: ₹' + total.toLocaleString('en-IN') + '%0A';
     msg += '📦 Type: ' + (state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery') + '%0A';
@@ -461,11 +464,11 @@ var CpApp = (function() {
     if (state.couponType !== '') msg += '🏷️ Applied: ' + state.couponType + (state.offerPercent > 0 ? ' (' + state.offerPercent + '% off)' : '') + '%0A';
     if (state.freeDelivery) msg += '🚚 FREE DELIVERY %0A';
 
-    // Save order to Firestore
     var orderData = {
       type: 'craft',
       status: 'pending',
       guests: state.guests,
+      budgetPerPerson: state.budgetPerPerson,
       items: items.join(', '),
       total: total,
       overallBudget: sandboxTotal(),
@@ -477,9 +480,7 @@ var CpApp = (function() {
       created_at: new Date().toISOString()
     };
     if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
-      rrkOrders.save(orderData).then(function() {
-        // Craft order saved
-      }).catch(function(e) { console.warn('Craft order save failed', e); });
+      rrkOrders.save(orderData).then(function() {}).catch(function(e) { console.warn('Craft order save failed', e); });
     }
 
     showToast('✅ Order sent! Soon our team will contact you.');
@@ -498,9 +499,7 @@ var CpApp = (function() {
     toast.className = 'cp-toast';
     toast.textContent = message;
     document.body.appendChild(toast);
-    setTimeout(function() {
-      toast.classList.add('cp-toast-visible');
-    }, 10);
+    setTimeout(function() { toast.classList.add('cp-toast-visible'); }, 10);
     setTimeout(function() {
       toast.classList.remove('cp-toast-visible');
       setTimeout(function() { toast.remove(); }, 400);

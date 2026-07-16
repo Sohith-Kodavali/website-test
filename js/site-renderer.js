@@ -143,7 +143,7 @@ const SITE_DATA = {
     {name:'Casual House Party',couponType:'house',offerPercent:0,message:'🏠 Extra starter item added free'}
   ],
   serviceHours: {openNow:true,openTime:'11:00',closeTime:'23:00',closedMessage:'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours: 11:00 AM – 11:00 PM.'},
-  craftConfig: {peopleMin:10,peopleMax:500,peopleDefault:50,guestMin:10,budgetMin:100,budgetMax:2000,budgetStep:50,budgetDefault:300},
+  craftConfig: {peopleMin:10,peopleMax:500,peopleDefault:50,guestMin:10,budgetMin:200,budgetMax:2000,budgetStep:50,budgetDefault:300},
   craftPreview: {eyebrow:'Signature Feature',headline:'Craft My Plate',desc:'Plan your catering · 20+ guests · custom combos & live pricing.',buttonText:'Start Crafting',chips:[{emoji:'👥',text:'20+ Guests'},{emoji:'📦',text:'2 Combos'},{emoji:'💰',text:'Best Value'}],comboText:'Catering from <b>₹250/person</b>'},
   about: {eyebrow:'Our Story',headlineL1:'Rooted in flavour,',headlineL2:'refined for you',body:'RRK Food Court started in the heart of Eluru with one belief: premium chicken should be fresh, hygienic and honestly priced.',image:'6.jpeg',buttonText:'Visit Us'},
   whyCards: [{icon:'🐔',title:'Fresh Chicken',desc:'Sourced & cut daily.'},{icon:'👑',title:'Premium Quality',desc:'Only grade-A cuts.'},{icon:'✨',title:'Hygienic Kitchen',desc:'Spotless & safe.'},{icon:'⚡',title:'Fast Delivery',desc:'Hot in 30 mins.'},{icon:'💰',title:'Affordable',desc:'Great value always.'}],
@@ -418,10 +418,10 @@ function renderCraftPage(D) {
         '</div>'+
       '</div>'+
       '<div class="cp2-field">'+
-        '<label class="cp2-label">Estimated Budget Per Person (₹)</label>'+
+        '<label class="cp2-label">Budget Per Person (₹)</label>'+
         '<input type="range" id="cpBudget" min="'+D.craftConfig.budgetMin+'" max="'+D.craftConfig.budgetMax+'" step="'+D.craftConfig.budgetStep+'" value="'+D.craftConfig.budgetDefault+'" class="range" oninput="CpApp.onBudgetChange()">'+
-        '<div class="cp-budget-display">Target Budget: ₹<strong id="cpBudgetVal">'+D.craftConfig.budgetDefault+'</strong></div>'+
-        '<div class="cp-budget-note">We\'ll highlight items that fit your budget</div>'+
+        '<div class="cp-budget-display">₹<strong id="cpBudgetVal">'+D.craftConfig.budgetDefault+'</strong>/person · Target: ₹<strong id="cpBudgetTargetPreview">0</strong></div>'+
+        '<div class="cp-budget-note">Set a budget per person. We\'ll show your estimated target as you go.</div>'+
       '</div>'+
     '</div>'+
     '<div class="cp2-delivery">'+
@@ -432,7 +432,7 @@ function renderCraftPage(D) {
       '</div>'+
     '</div>'+
     '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 10 guests required for catering services.</div>'+
-    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Target Budget ₹<strong id="cpGuestOkBudget"></strong></div>'+
+    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Overall Budget Target: ₹<strong id="cpGuestOkTarget">0</strong></div>'+
   '</section>';
 
   // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
@@ -456,7 +456,7 @@ function renderCraftPage(D) {
       }).join('')+
     '</div>'+
     '<div class="cp-summary">'+
-      '<div class="cp-stats"><span>Overall Budget: <strong>₹<span id="cpOverallBudget">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span></div>'+
+      '<div class="cp-stats"><span>Current Total: <strong>₹<span id="cpCurrentTotal">0</span></strong></span><span>Target: <strong>₹<span id="cpTargetBudget">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span></div>'+
       '<div class="cp-budget-bar" id="cpBudgetBar"><div class="cp-budget-bar__track"><div class="cp-budget-bar__fill" id="cpBudgetFill"></div></div><span class="cp-budget-bar__label" id="cpBudgetLabel"></span></div>'+
       '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 3 items to build your custom menu.</div>'+
     '</div>'+
