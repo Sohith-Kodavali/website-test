@@ -489,7 +489,7 @@ var CpApp = (function() {
 
     setTimeout(function() {
       var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919999999999');
-      var waUrl = 'https://wa.me/' + wa + '?text=' + msg;
+      var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
       var a = document.createElement('a');
       a.href = waUrl;
       a.target = '_blank';
