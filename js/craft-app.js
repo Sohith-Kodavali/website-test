@@ -104,7 +104,6 @@ var CpApp = (function() {
       if (okEl) { okEl.style.display = 'block'; if (okCount) okCount.textContent = n; if (okBudget) okBudget.textContent = state.budgetPerPerson; }
       if (step3) step3.classList.add('cp-step-unlocked');
       if (step4) step4.style.display = 'block';
-      highlightByBudget();
       updateSandboxStats();
       updateCheckoutBar();
     }
@@ -123,8 +122,8 @@ var CpApp = (function() {
     if (typeof tapVibe === 'function') tapVibe(8);
     clearTimeout(budgetDebounce);
     budgetDebounce = setTimeout(function() {
-      highlightByBudget();
-      updateBudgetBar();
+      var ov = sandboxTotal();
+      updateBudgetBar(ov);
       updateCheckoutBar();
     }, 16);
   }
@@ -155,72 +154,74 @@ var CpApp = (function() {
     if (panel) panel.classList.add('active');
   }
 
-  function sandboxToggle(e) {
-    if (e && e.target && e.target.matches('input[type="checkbox"]')) {
-      e.target.parentNode.classList.toggle('checked', e.target.checked);
+  function changeItemQty(cat, idx, delta) {
+    var craftMenu = deriveCraftMenu();
+    var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
+    if (!item) return;
+    if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
+    var currentQty = state.sandboxChecked[cat][idx] || 0;
+    var newQty = currentQty + delta;
+    if (newQty <= 0) {
+      delete state.sandboxChecked[cat][idx];
+      if (Object.keys(state.sandboxChecked[cat]).length === 0) delete state.sandboxChecked[cat];
+      newQty = 0;
+    } else {
+      state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet, qty: newQty };
     }
+    // Update UI
+    var qtyEl = document.getElementById('cp-qty-' + cat + '-' + idx);
+    if (qtyEl) qtyEl.textContent = newQty;
+    var itemEl = document.getElementById('cp-item-' + cat + '-' + idx);
+    if (itemEl) itemEl.classList.toggle('checked', newQty > 0);
     if (typeof playHaptic === 'function') playHaptic('add');
-    rebuildState();
     updateSandboxStats();
     updateCheckoutBar();
   }
 
   function rebuildState() {
-    state.sandboxChecked = {};
-    var step3 = document.getElementById('step3');
-    if (!step3) return;
-    step3.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
-      var cat = cb.getAttribute('data-cat');
-      var idx = cb.getAttribute('data-idx');
-      var checked = cb.checked;
-      cb.parentNode.classList.toggle('checked', checked);
-      if (checked) {
-        if (!state.sandboxChecked[cat]) state.sandboxChecked[cat] = {};
-        var craftMenu = deriveCraftMenu();
-        var item = craftMenu[cat] && craftMenu[cat][parseInt(idx)];
-        if (item) state.sandboxChecked[cat][idx] = { name: item.name, price: item.price, diet: item.diet };
-      }
-    });
+    // State is maintained via changeItemQty, no DOM checkbox polling needed
+    updateSandboxStats();
+    updateCheckoutBar();
   }
 
   function updateSandboxStats() {
-    var totalItems = 0, perPlate = 0;
+    var totalItems = 0, overallBudget = 0;
     Object.keys(state.sandboxChecked).forEach(function(cat) {
       Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
-        totalItems++;
-        perPlate += state.sandboxChecked[cat][idx].price;
+        var entry = state.sandboxChecked[cat][idx];
+        var qty = entry.qty || 1;
+        totalItems += qty;
+        overallBudget += entry.price * qty;
       });
     });
-    var perPlateEl = document.getElementById('cpPerPlate');
-    var itemCountEl = document.getElementById('cpItemCount');
     var overallEl = document.getElementById('cpOverallBudget');
+    var itemCountEl = document.getElementById('cpItemCount');
     var warningEl = document.getElementById('cpWarning');
-    if (perPlateEl) perPlateEl.textContent = perPlate.toLocaleString('en-IN');
+    if (overallEl) overallEl.textContent = overallBudget.toLocaleString('en-IN');
     if (itemCountEl) itemCountEl.textContent = totalItems;
-    if (overallEl && state.guestsValid) overallEl.textContent = (perPlate * state.guests).toLocaleString('en-IN');
     if (warningEl) warningEl.style.display = (totalItems < 3) ? 'block' : 'none';
-    updateBudgetBar(perPlate);
+    updateBudgetBar(overallBudget);
   }
 
-  function updateBudgetBar(perPlate) {
-    var pp = (typeof perPlate === 'number') ? perPlate : sandboxPerPlate();
+  function updateBudgetBar(overall) {
+    var ov = (typeof overall === 'number') ? overall : sandboxTotal();
     var budget = state.budgetPerPerson;
     var fill = document.getElementById('cpBudgetFill');
     var label = document.getElementById('cpBudgetLabel');
     if (!fill || !label) return;
-    var pct = budget > 0 ? Math.min((pp / budget) * 100, 200) : 0;
+    var pct = budget > 0 ? Math.min((ov / budget) * 100, 200) : 0;
     fill.style.width = Math.min(pct, 100) + '%';
-    if (pp <= budget) {
+    if (ov <= budget) {
       fill.className = 'cp-budget-bar__fill cp-budget-in';
-      label.textContent = '✅ In Budget — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.textContent = '✅ In Budget — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' budget';
       label.className = 'cp-budget-bar__label cp-budget-in';
-    } else if (pp <= budget * 1.5) {
+    } else if (ov <= budget * 1.5) {
       fill.className = 'cp-budget-bar__fill cp-budget-warn';
-      label.textContent = '⚠️ Slightly Over — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' est. budget';
+      label.textContent = '⚠️ Slightly Over — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' est. budget';
       label.className = 'cp-budget-bar__label cp-budget-warn';
     } else {
       fill.className = 'cp-budget-bar__fill cp-budget-over';
-      label.textContent = '🔴 Over Budget — ₹' + pp.toLocaleString('en-IN') + '/plate vs ₹' + budget + ' budget';
+      label.textContent = '🔴 Over Budget — ₹' + ov.toLocaleString('en-IN') + ' vs ₹' + budget + ' budget';
       label.className = 'cp-budget-bar__label cp-budget-over';
     }
   }
@@ -237,16 +238,19 @@ var CpApp = (function() {
   function sandboxItemCount() {
     var count = 0;
     Object.keys(state.sandboxChecked).forEach(function(cat) {
-      count += Object.keys(state.sandboxChecked[cat]).length;
+      Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
+        count += state.sandboxChecked[cat][idx].qty || 1;
+      });
     });
     return count;
   }
 
-  function sandboxPerPlate() {
+  function sandboxTotal() {
     var total = 0;
     Object.keys(state.sandboxChecked).forEach(function(cat) {
       Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
-        total += state.sandboxChecked[cat][idx].price;
+        var entry = state.sandboxChecked[cat][idx];
+        total += entry.price * (entry.qty || 1);
       });
     });
     return total;
@@ -286,9 +290,7 @@ var CpApp = (function() {
 
   // ========== PRICING ==========
   function calcGrandTotal() {
-    if (!state.guestsValid) return 0;
-    var pp = sandboxPerPlate();
-    var total = state.guests * pp;
+    var total = sandboxTotal();
     var offer = state.offerPercent || 0;
     if (offer > 0) total = total * (1 - offer / 100);
     return Math.round(total);
@@ -327,7 +329,9 @@ var CpApp = (function() {
     var names = [];
     Object.keys(state.sandboxChecked).forEach(function(cat) {
       Object.keys(state.sandboxChecked[cat]).forEach(function(idx) {
-        names.push(state.sandboxChecked[cat][idx].name);
+        var entry = state.sandboxChecked[cat][idx];
+        var qty = entry.qty || 1;
+        names.push(qty + 'x ' + entry.name);
       });
     });
     return names;
@@ -343,7 +347,7 @@ var CpApp = (function() {
     var itemCount = sandboxItemCount();
     var items = getSelectedItemNames();
 
-    var pp = sandboxPerPlate();
+    var ov = sandboxTotal();
     var savings = '';
     var couponText = '';
     var itemWarning = itemCount < 3 ? '<div class="cp-review-warning">⚠️ Minimum 3 items recommended for catering. You have only '+itemCount+'.</div>' : '';
@@ -362,7 +366,7 @@ var CpApp = (function() {
 
     confirmBox.innerHTML =
       '<div class="cp-review-row"><strong>Guests:</strong> <span>'+state.guests+'</span></div>'+
-      '<div class="cp-review-row"><strong>Per Plate:</strong> <span>₹'+pp.toLocaleString('en-IN')+'</span></div>'+
+      '<div class="cp-review-row"><strong>Overall Budget:</strong> <span>₹'+ov.toLocaleString('en-IN')+'</span></div>'+
       '<div class="cp-review-row"><strong>Order Type:</strong> <span>'+(state.deliveryMode==='takeaway'?'🥡 Takeaway':'🚚 Delivery')+'</span></div>'+
       '<div class="cp-review-row"><strong>Items:</strong> <span>'+itemCount+' selected</span></div>'+
       itemWarning+
@@ -464,7 +468,7 @@ var CpApp = (function() {
       guests: state.guests,
       items: items.join(', '),
       total: total,
-      perPlate: sandboxPerPlate(),
+      overallBudget: sandboxTotal(),
       mode: state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery',
       location: state.deliveryLocation || '',
       occasion: state.occasion || '',
@@ -520,16 +524,14 @@ var CpApp = (function() {
       guestInput.value = defaultVal;
       updateGuestState(defaultVal);
     }
-    // Reveal all elements
     document.querySelectorAll('.cp-hero, .cp-step-section').forEach(function(el) {
       el.classList.add('revealed');
     });
-    highlightByBudget();
   }
 
   return {
     init: init, setGuests: setGuests, onGuestChange: onGuestChange, stepGuests: stepGuests, focusGuests: focusGuests,
-    onBudgetChange: onBudgetChange, switchTab: switchTab, sandboxToggle: sandboxToggle,
+    onBudgetChange: onBudgetChange, switchTab: switchTab, changeItemQty: changeItemQty, sandboxToggle: rebuildState,
     onOccasionChange: onOccasionChange, updateCheckoutBar: updateCheckoutBar,
     calcGrandTotal: calcGrandTotal,
     showConfirm: showConfirm, cancelOrder: cancelOrder, confirmOrder: confirmOrder, orderWhatsApp: orderWhatsApp,

@@ -369,12 +369,17 @@ function renderCraftPage(D) {
   var catLabels = {};
   allCraftCats.forEach(function(c){catLabels[c.key]=c.label;});
 
-  function sandboxItemHTML(item, cat, idx, checked) {
-    return '<label class="cp-item'+(checked?' checked':'')+'">'+
-      '<input type="checkbox" data-cat="'+cat+'" data-idx="'+idx+'" data-price="'+item.price+'"'+(checked?' checked':'')+' onclick="CpApp.sandboxToggle(event)">'+
+  function sandboxItemHTML(item, cat, idx, qty) {
+    qty = qty || 0;
+    return '<div class="cp-item'+(qty>0?' checked':'')+'" id="cp-item-'+cat+'-'+idx+'">'+
       '<span class="cp-item-name">'+item.name+'</span>'+
-      '<span class="cp-item-price">+₹'+item.price+'/person</span>'+
-    '</label>';
+      '<span class="cp-item-price">₹'+item.price+'</span>'+
+      '<div class="cp-qty-stepper">'+
+        '<button class="cp-qty-btn" onclick="CpApp.changeItemQty(\''+cat+'\','+idx+',-1)" aria-label="Decrease quantity">−</button>'+
+        '<span class="cp-qty-val" id="cp-qty-'+cat+'-'+idx+'">'+qty+'</span>'+
+        '<button class="cp-qty-btn" onclick="CpApp.changeItemQty(\''+cat+'\','+idx+',1)" aria-label="Increase quantity">+</button>'+
+      '</div>'+
+    '</div>';
   }
 
   var html = '';
@@ -415,7 +420,7 @@ function renderCraftPage(D) {
       '<div class="cp2-field">'+
         '<label class="cp2-label">Estimated Budget Per Person (₹)</label>'+
         '<input type="range" id="cpBudget" min="'+D.craftConfig.budgetMin+'" max="'+D.craftConfig.budgetMax+'" step="'+D.craftConfig.budgetStep+'" value="'+D.craftConfig.budgetDefault+'" class="range" oninput="CpApp.onBudgetChange()">'+
-        '<div class="cp-budget-display">₹<strong id="cpBudgetVal">'+D.craftConfig.budgetDefault+'</strong>/person</div>'+
+        '<div class="cp-budget-display">Target Budget: ₹<strong id="cpBudgetVal">'+D.craftConfig.budgetDefault+'</strong></div>'+
         '<div class="cp-budget-note">We\'ll highlight items that fit your budget</div>'+
       '</div>'+
     '</div>'+
@@ -427,13 +432,13 @@ function renderCraftPage(D) {
       '</div>'+
     '</div>'+
     '<div class="cp-validation-msg" id="cpValidMsg" style="display:none"><span>⚠️</span> Minimum 10 guests required for catering services.</div>'+
-    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Est. Budget ₹<strong id="cpGuestOkBudget"></strong>/person</div>'+
+    '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Target Budget ₹<strong id="cpGuestOkBudget"></strong></div>'+
   '</section>';
 
   // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
   html += '<section class="cp-step-section reveal cp-step-locked" id="step3">'+
     '<div class="cp-step-head"><div class="cp-step-num">3</div><h3>Build Your Menu</h3></div>'+
-    '<p class="muted cp-step-desc">Select items for your catering. Each item is priced per person. Pick at least 3 items.</p>'+
+    '<p class="muted cp-step-desc">Select items for your catering. Each item has its own price. Pick at least 3 items.</p>'+
     '<div class="cp-tabs" id="cpTabs">'+
       catKeys.map(function(cat, i) {
         return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catLabels[cat]+'</button>';
@@ -445,13 +450,13 @@ function renderCraftPage(D) {
         return '<div class="cp-panel'+(i===0?' active':'')+'" data-cat="'+cat+'">'+
           (items.length === 0 ? '<p class="muted" style="padding:16px">No items in this category yet.</p>' :
           items.map(function(item, idx) {
-            return sandboxItemHTML(item, cat, idx, false);
+            return sandboxItemHTML(item, cat, idx, 0);
           }).join(''))+
         '</div>';
       }).join('')+
     '</div>'+
     '<div class="cp-summary">'+
-      '<div class="cp-stats"><span>Per Plate: <strong>₹<span id="cpPerPlate">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span><span>Est. Overall: <strong>₹<span id="cpOverallBudget">0</span></strong></span></div>'+
+      '<div class="cp-stats"><span>Overall Budget: <strong>₹<span id="cpOverallBudget">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span></div>'+
       '<div class="cp-budget-bar" id="cpBudgetBar"><div class="cp-budget-bar__track"><div class="cp-budget-bar__fill" id="cpBudgetFill"></div></div><span class="cp-budget-bar__label" id="cpBudgetLabel"></span></div>'+
       '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 3 items to build your custom menu.</div>'+
     '</div>'+
