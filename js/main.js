@@ -468,7 +468,11 @@ function renderCart() {
   if (cart.length === 0) {
     wrap.innerHTML = '<div class="cart-empty"><div class="cart-empty__ic">&#x1f6cd;&#xfe0f;</div><p>Your plate is empty</p><span>Add something delicious!</span></div>';
   } else {
-    wrap.innerHTML = cart.map(function(i) { var safeName = typeof escHtml === 'function' ? escHtml(i.name) : i.name; return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + safeName.replace(/'/g,"\\'") + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
+    wrap.innerHTML = cart.map(function(i) {
+      var safeName = typeof escHtml === 'function' ? escHtml(i.name) : i.name;
+      var jsSafe = i.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + jsSafe + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + jsSafe + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + jsSafe + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>';
+    }).join('');
   }
   if (totalEl) totalEl.innerHTML = '<span>Total</span><span>&#8377;' + cartGrandTotal() + '</span><span class="cart-service-note" style="display:block;font-size:10px;font-weight:400;color:var(--muted);text-align:right;margin-top:2px">incl. 5% service charge</span>';
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });

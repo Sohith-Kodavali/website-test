@@ -275,9 +275,13 @@ function renderCategoriesInline() {
 function renderCategoryListInline(items) {
   if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories.</p>';
   return items.map(function(c){
-    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+'</span></div>'+
-      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
-      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
+    if (c.id) {
+      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+'</span></div>'+
+        '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
+        '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
+    } else {
+      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' (sync to Firestore first)</span></div></div>';
+    }
   }).join('');
 }
 
