@@ -46,6 +46,7 @@ img[src=""], img[src=""] { display: none; }
 /* ============ MENU PAGE HIDE ============ */
 .menu-page .wa-fab,.menu-page .share-btn,.menu-page .dark-toggle{display:none}
 .craft-page .wa-fab,.craft-page .share-btn{display:none}
+.craft-hide-wa{display:none}
 
 /* ============ RESET & BASE (Mobile Default) ============ */
 *{margin:0;padding:0;box-sizing:border-box}

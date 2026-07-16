@@ -369,12 +369,7 @@ if (modal) {
       var phone = fm.querySelector('input[type="tel"]').value;
       var dobEl = fm.querySelector('#loginDob');
       var dob = dobEl ? dobEl.value : '';
-      try {
-        var customers = JSON.parse(localStorage.getItem('rrk_customers') || '[]');
-        customers.push({ name: name, phone: phone, dob: dob, created_at: new Date().toISOString() });
-        localStorage.setItem('rrk_customers', JSON.stringify(customers));
-      } catch(ex) {}
-      // Also save to Firestore so admin can see registered customers
+      // Save to Firestore so admin can see registered customers
       if (typeof rrkCustomers !== 'undefined' && rrkCustomers.register) {
         rrkCustomers.register({ name: name, phone: phone, dob: dob }).then(function() {
           // Customer saved to Firestore
@@ -385,7 +380,7 @@ if (modal) {
       localStorage.setItem('rrk_member', '1');
       if (typeof playHaptic === 'function') playHaptic('confirm');
       closeModal();
-      window.open('https://chat.whatsapp.com/YOUR_COMMUNITY_LINK', '_blank');
+      showToast('🎉 Welcome to the RRK family!');
     }
   });
 }
@@ -583,12 +578,7 @@ function placeOrder(e) {
     address: address,
     created_at: new Date().toISOString()
   };
-  try {
-    var orders = JSON.parse(localStorage.getItem('rrk_orders') || '[]');
-    orders.push(orderData);
-    localStorage.setItem('rrk_orders', JSON.stringify(orders));
-  } catch(ex) {}
-
+  // Save to Firestore
   if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
     rrkOrders.save(orderData).then(function() {
       // Order saved successfully
@@ -868,11 +858,6 @@ function searchRawItems(query) {
     var search = row.dataset.rawSearch || '';
     row.style.display = search.indexOf(q) !== -1 ? '' : 'none';
   });
-}
-function orderRawItem(item) {
-  if (typeof playHaptic === 'function') playHaptic('add');
-  var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919999999999';
-  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('*Raw Chicken Order*\n\n' + item + '\n\nHi, I want to order this. Please share details.'), '_blank');
 }
 
 // Init non-render-dependent things on ready

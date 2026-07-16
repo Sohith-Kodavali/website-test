@@ -111,6 +111,10 @@ function loadAdminApp() {
   renderSettingsEditor();
   // Sync categories to localStorage so public pages use them
   if (typeof rrkCategories !== 'undefined') rrkCategories.syncToLocal();
+  // Request notification permission for order alerts
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
 }
 
 function showTab(tabId) {
@@ -461,11 +465,13 @@ function deleteRawDoc(id) {
 var adminActiveOrderType = 'all';
 var ordersLastDoc = null;
 var ordersPageLimit = 50;
+var ordersPollingInterval = null;
+var lastOrderCount = 0;
 
 function renderOrdersEditor() {
   var el = document.getElementById('cms-orders'); if (!el) return;
   ordersLastDoc = null;
-  el.innerHTML = '<h3 style="margin-bottom:12px">Orders</h3>'+
+  el.innerHTML = '<h3 style="margin-bottom:12px">Orders <span id="orders-status" style="font-size:11px;color:var(--muted);margin-left:8px">🔄 Live</span></h3>'+
     '<button class="btn btn--gold-outline" style="margin-bottom:12px;font-size:12px" onclick="downloadOrdersPDF()">📥 Download PDF</button>'+
     '<div class="cms-cats" id="orders-cats">'+
       '<button class="cms-cat-btn active" onclick="filterAdminOrders(\'all\',this)">All</button>'+
@@ -481,9 +487,91 @@ function renderOrdersEditor() {
   } else {
     rrkOrders.list().then(function(data) {
       window.__adminOrders = data || [];
+      lastOrderCount = (data || []).length;
       renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
     }).catch(function() {
       document.getElementById('orders-list').innerHTML = '<p class="muted">Failed to load orders.</p>';
+    });
+  }
+  // Start polling for new orders every 10 seconds
+  startOrdersPolling();
+}
+
+function startOrdersPolling() {
+  if (ordersPollingInterval) clearInterval(ordersPollingInterval);
+  ordersPollingInterval = setInterval(pollForNewOrders, 10000);
+}
+
+function stopOrdersPolling() {
+  if (ordersPollingInterval) { clearInterval(ordersPollingInterval); ordersPollingInterval = null; }
+}
+
+function pollForNewOrders() {
+  if (typeof rrkOrders === 'undefined') return;
+  var statusEl = document.getElementById('orders-status');
+  if (statusEl) statusEl.textContent = '🔄 Checking...';
+  rrkOrders.list().then(function(data) {
+    var orders = data || [];
+    if (statusEl) statusEl.textContent = '🔄 Live';
+    if (orders.length > lastOrderCount) {
+      var newCount = orders.length - lastOrderCount;
+      lastOrderCount = orders.length;
+      window.__adminOrders = orders;
+      var wasCraft = orders[0] && orders[0].type === 'craft';
+      playNewOrderAlert(newCount, wasCraft);
+      renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
+    }
+  }).catch(function() {
+    if (statusEl) statusEl.textContent = '⚠️ Offline';
+  });
+}
+
+function playNewOrderAlert(count, isCraft) {
+  // Vibrate pattern for attention
+  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); } catch(e) {}
+  // Loud alarm sound — high volume, long duration
+  try {
+    var ctx = getAdminAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var now = ctx.currentTime;
+    var duration = 3.0; // 3 seconds
+
+    // Layer 1: Deep alarm tone
+    var o1 = ctx.createOscillator();
+    var g1 = ctx.createGain();
+    o1.type = 'sawtooth';
+    o1.frequency.setValueAtTime(440, now);
+    o1.frequency.setValueAtTime(660, now + 0.15);
+    o1.frequency.setValueAtTime(440, now + 0.30);
+    o1.frequency.setValueAtTime(660, now + 0.45);
+    o1.frequency.setValueAtTime(550, now + 1.5);
+    g1.gain.setValueAtTime(0.6, now);
+    g1.gain.exponentialRampToValueAtTime(0.3, now + 2.5);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.start(now); o1.stop(now + duration);
+
+    // Layer 2: High-pitched alert beeps
+    var o2 = ctx.createOscillator();
+    var g2 = ctx.createGain();
+    o2.type = 'square';
+    for (var i = 0; i < 6; i++) {
+      var t = now + i * 0.5;
+      o2.frequency.setValueAtTime(880, t);
+      g2.gain.setValueAtTime(0.4, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    }
+    o2.connect(g2); g2.connect(ctx.destination);
+    o2.start(now); o2.stop(now + duration);
+  } catch(e) {}
+
+  // Browser notification
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    new Notification('🔔 New Order!', {
+      body: count + ' new ' + (isCraft ? 'craft' : 'food') + ' order' + (count > 1 ? 's' : '') + ' received!',
+      tag: 'new-order',
+      requireInteraction: true
     });
   }
 }
