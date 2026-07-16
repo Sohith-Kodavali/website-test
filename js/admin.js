@@ -275,7 +275,7 @@ function renderCategoriesInline() {
 function renderCategoryListInline(items) {
   if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories.</p>';
   return items.map(function(c){
-    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
+    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+'</span></div>'+
       '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
       '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
   }).join('');
@@ -284,11 +284,11 @@ function renderCategoryListInline(items) {
 function addCategoryDocInline() {
   adminHaptic('add');
   showItemEditor('New Menu Category', [
-    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' },
-    { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: '0' }
+    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' }
   ], function(vals){
     var autoKey = vals.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'new-cat';
-    rrkCategories.save({ type: 'menu', key: autoKey, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
+    var maxOrder = adminMenuCategories.reduce(function(max, c) { return Math.max(max, c.order || 0); }, 0);
+    rrkCategories.save({ type: 'menu', key: autoKey, label: vals.label, order: maxOrder + 1 }).then(function(){
       rrkCategories.syncToLocal().then(function(){
         loadMenuCategories();
         renderMenuEditor();
@@ -303,11 +303,10 @@ function editCategoryDocInline(id) {
   rrkCategories.list().then(function(items){
     var item = items.find(function(c){return c.id===id;}); if(!item) return;
     showItemEditor('Edit Category', [
-      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' },
-      { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: item.order||0 }
+      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' }
     ], function(vals){
       var autoKey = vals.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || item.key;
-      rrkCategories.save({id:id, type:'menu', key:autoKey, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
+      rrkCategories.save({id:id, type:'menu', key:autoKey, label:vals.label, order: item.order}).then(function(){
         rrkCategories.syncToLocal().then(function(){
           loadMenuCategories();
           renderMenuEditor();
