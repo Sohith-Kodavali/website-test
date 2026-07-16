@@ -181,14 +181,24 @@ window.rrkCategories = {
   syncToLocal: () => {
     return window.rrkCategories.list().then(function(items) {
       var firestoreCats = items.filter(function(c){return c.type==='menu';});
-      var defaultCats = (typeof getMenuCategories === 'function') ? getMenuCategoriesBase() : [];
-      // Merge: Firestore cats take priority over defaults with same key
-      var merged = {};
-      defaultCats.forEach(function(c) { merged[c.key] = c; });
-      firestoreCats.forEach(function(c) { merged[c.key] = c; });
-      var result = Object.values(merged).sort(function(a,b) { return (a.order||0) - (b.order||0); });
-      localStorage.setItem('rrk_menu_cats', JSON.stringify(result));
-      return items;
+      var defaultCats = (typeof getMenuCategoriesBase === 'function') ? getMenuCategoriesBase() : [];
+      // Auto-seed any missing defaults into Firestore so they're editable
+      var missingDefaults = defaultCats.filter(function(dc) {
+        return !firestoreCats.some(function(fc) { return fc.key === dc.key; });
+      });
+      var seedPromise = Promise.resolve();
+      if (missingDefaults.length > 0) {
+        seedPromise = Promise.all(missingDefaults.map(function(c) {
+          return addDoc('categories', { type: 'menu', key: c.key, label: c.label, order: c.order });
+        }));
+      }
+      return seedPromise.then(function() {
+        return window.rrkCategories.list();
+      }).then(function(allItems) {
+        var allCats = allItems.filter(function(c){return c.type==='menu';});
+        localStorage.setItem('rrk_menu_cats', JSON.stringify(allCats));
+        return allItems;
+      });
     });
   }
 };

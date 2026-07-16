@@ -148,29 +148,20 @@ var adminActiveMenuCat = 'all';
 var adminMenuCategories = [];
 
 function loadMenuCategories() {
-  var defaultCats = (typeof getMenuCategoriesBase === 'function') ? getMenuCategoriesBase() : [];
   try {
     var stored = localStorage.getItem('rrk_menu_cats');
     if (stored) {
-      var storedCats = JSON.parse(stored);
-      // Merge Firestore/stored cats with defaults — stored take priority by key
-      var merged = {};
-      defaultCats.forEach(function(c) { merged[c.key] = c; });
-      storedCats.forEach(function(c) { merged[c.key] = c; });
-      adminMenuCategories = Object.values(merged).sort(function(a,b) { return (a.order||0) - (b.order||0); });
-      return;
+      var parsed = JSON.parse(stored);
+      if (parsed.length > 0) { adminMenuCategories = parsed; return; }
     }
   } catch(e) {}
-  adminMenuCategories = defaultCats;
-  if (adminMenuCategories.length === 0) {
-    adminMenuCategories = [
-      {key:'starters',label:'🍗 Starters',order:0},{key:'kaju-pakodi',label:'🥜 Kaju Pakodi',order:1},
-      {key:'manchuria',label:'🥘 Manchuria',order:2},{key:'biryani',label:'🍚 Biryani',order:3},
-      {key:'fried-rice',label:'🍛 Fried Rice',order:4},{key:'noodles',label:'🍜 Noodles',order:5},
-      {key:'roti-curry',label:'🍲 Roti & Curry',order:6},{key:'breads',label:'🍞 Breads',order:7},
-      {key:'ice-creams',label:'🍦 Ice Creams',order:8}
-    ];
-  }
+  adminMenuCategories = (typeof getMenuCategoriesBase === 'function') ? getMenuCategoriesBase() : [
+    {key:'starters',label:'🍗 Starters',order:0},{key:'kaju-pakodi',label:'🥜 Kaju Pakodi',order:1},
+    {key:'manchuria',label:'🥘 Manchuria',order:2},{key:'biryani',label:'🍚 Biryani',order:3},
+    {key:'fried-rice',label:'🍛 Fried Rice',order:4},{key:'noodles',label:'🍜 Noodles',order:5},
+    {key:'roti-curry',label:'🍲 Roti & Curry',order:6},{key:'breads',label:'🍞 Breads',order:7},
+    {key:'ice-creams',label:'🍦 Ice Creams',order:8}
+  ];
 }
 
 function renderMenuEditor() {
@@ -284,24 +275,20 @@ function renderCategoriesInline() {
 function renderCategoryListInline(items) {
   if (!items || items.length === 0) return '<p class="muted" style="padding:12px">No categories.</p>';
   return items.map(function(c){
-    if (c.id) {
-      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
-        '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
-        '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
-    } else {
-      return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+' <em style="color:var(--muted)">(default)</em></span></div></div>';
-    }
+    return '<div class="cms-item"><div><b>'+c.label+'</b><span>Key: '+c.key+' · Order: '+(c.order||0)+'</span></div>'+
+      '<div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editCategoryDocInline(\''+c.id+'\')">Edit</button>'+
+      '<button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteCategoryDocInline(\''+c.id+'\')">Delete</button></div></div>';
   }).join('');
 }
 
 function addCategoryDocInline() {
   adminHaptic('add');
   showItemEditor('New Menu Category', [
-    { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: '' },
     { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' },
     { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: '0' }
   ], function(vals){
-    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
+    var autoKey = vals.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'new-cat';
+    rrkCategories.save({ type: 'menu', key: autoKey, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
       rrkCategories.syncToLocal().then(function(){
         loadMenuCategories();
         renderMenuEditor();
@@ -316,11 +303,11 @@ function editCategoryDocInline(id) {
   rrkCategories.list().then(function(items){
     var item = items.find(function(c){return c.id===id;}); if(!item) return;
     showItemEditor('Edit Category', [
-      { key: 'key', label: 'Key', type: 'text', val: item.key||'' },
       { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' },
       { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: item.order||0 }
     ], function(vals){
-      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
+      var autoKey = vals.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || item.key;
+      rrkCategories.save({id:id, type:'menu', key:autoKey, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
         rrkCategories.syncToLocal().then(function(){
           loadMenuCategories();
           renderMenuEditor();
