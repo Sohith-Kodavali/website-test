@@ -30,11 +30,7 @@ function getClosedMessage(D) {
   return sh.closedMessage || 'Restaurant Closed';
 }
 
-function getMenuCategories() {
-  try {
-    var stored = localStorage.getItem('rrk_menu_cats');
-    if (stored) { var parsed = JSON.parse(stored); if (parsed.length > 0) return parsed; }
-  } catch(e) {}
+function getMenuCategoriesBase() {
   return [
     {key:'starters',label:'🍗 Starters',order:0},{key:'kaju-pakodi',label:'🥜 Kaju Pakodi',order:1},
     {key:'manchuria',label:'🥘 Manchuria',order:2},{key:'biryani',label:'🍚 Biryani',order:3},
@@ -42,6 +38,14 @@ function getMenuCategories() {
     {key:'roti-curry',label:'🍲 Roti & Curry',order:6},{key:'breads',label:'🍞 Breads',order:7},
     {key:'ice-creams',label:'🍦 Ice Creams',order:8}
   ];
+}
+
+function getMenuCategories() {
+  try {
+    var stored = localStorage.getItem('rrk_menu_cats');
+    if (stored) { var parsed = JSON.parse(stored); if (parsed.length > 0) return parsed; }
+  } catch(e) {}
+  return getMenuCategoriesBase();
 }
 
 function getCraftCategories() {

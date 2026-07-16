@@ -148,11 +148,21 @@ var adminActiveMenuCat = 'all';
 var adminMenuCategories = [];
 
 function loadMenuCategories() {
+  var defaultCats = (typeof getMenuCategoriesBase === 'function') ? getMenuCategoriesBase() : [];
   try {
     var stored = localStorage.getItem('rrk_menu_cats');
-    if (stored) adminMenuCategories = JSON.parse(stored);
+    if (stored) {
+      var storedCats = JSON.parse(stored);
+      // Merge Firestore/stored cats with defaults — stored take priority by key
+      var merged = {};
+      defaultCats.forEach(function(c) { merged[c.key] = c; });
+      storedCats.forEach(function(c) { merged[c.key] = c; });
+      adminMenuCategories = Object.values(merged).sort(function(a,b) { return (a.order||0) - (b.order||0); });
+      return;
+    }
   } catch(e) {}
-  if (!adminMenuCategories || adminMenuCategories.length === 0) {
+  adminMenuCategories = defaultCats;
+  if (adminMenuCategories.length === 0) {
     adminMenuCategories = [
       {key:'starters',label:'🍗 Starters',order:0},{key:'kaju-pakodi',label:'🥜 Kaju Pakodi',order:1},
       {key:'manchuria',label:'🥘 Manchuria',order:2},{key:'biryani',label:'🍚 Biryani',order:3},

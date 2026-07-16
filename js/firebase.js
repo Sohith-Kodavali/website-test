@@ -179,9 +179,15 @@ window.rrkCategories = {
   remove: (id) => deleteDoc('categories', id),
   // Export to localStorage so public pages can use without Firebase
   syncToLocal: () => {
-    return window.rrkCategories.list().then(items => {
-      var menu = items.filter(function(c){return c.type==='menu';});
-      localStorage.setItem('rrk_menu_cats', JSON.stringify(menu));
+    return window.rrkCategories.list().then(function(items) {
+      var firestoreCats = items.filter(function(c){return c.type==='menu';});
+      var defaultCats = (typeof getMenuCategories === 'function') ? getMenuCategoriesBase() : [];
+      // Merge: Firestore cats take priority over defaults with same key
+      var merged = {};
+      defaultCats.forEach(function(c) { merged[c.key] = c; });
+      firestoreCats.forEach(function(c) { merged[c.key] = c; });
+      var result = Object.values(merged).sort(function(a,b) { return (a.order||0) - (b.order||0); });
+      localStorage.setItem('rrk_menu_cats', JSON.stringify(result));
       return items;
     });
   }
@@ -232,7 +238,7 @@ function seedOccasionsToFirestore() {
 
 function seedCategoriesToFirestore() {
   return seedOnce('rrk_cats_seeded', function() {
-    var cats = getMenuCategories();
+    var cats = (typeof getMenuCategoriesBase === 'function') ? getMenuCategoriesBase() : getMenuCategories();
     return Promise.all(cats.map(function(c) {
       return addDoc('categories', { type: 'menu', key: c.key, label: c.label, order: c.order });
     }));
