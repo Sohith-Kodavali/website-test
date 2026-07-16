@@ -436,6 +436,8 @@ function changeQty(name, delta) {
 }
 function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); playHaptic('remove'); }
 function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
+function cartServiceCharge() { return Math.round(cartTotal() * 0.05); }
+function cartGrandTotal() { return cartTotal() + cartServiceCharge(); }
 function renderCart() {
   var wrap = document.getElementById('cartItems');
   var totalEl = document.getElementById('cartTotal');
@@ -456,7 +458,7 @@ function renderCart() {
       var barCount = bar.querySelector('.cart-bar__count');
       var barTotal = bar.querySelector('.cart-bar__total');
       if (barCount) barCount.textContent = count;
-      if (barTotal) barTotal.textContent = '\u20B9' + cartTotal();
+      if (barTotal) barTotal.textContent = '\u20B9' + cartGrandTotal();
     } else {
       bar.classList.remove('open');
     }
@@ -468,7 +470,7 @@ function renderCart() {
   } else {
     wrap.innerHTML = cart.map(function(i) { var safeName = typeof escHtml === 'function' ? escHtml(i.name) : i.name; return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + safeName.replace(/'/g,"\\'") + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
   }
-  if (totalEl) totalEl.textContent = '\u20B9' + cartTotal();
+  if (totalEl) totalEl.innerHTML = '<span>Total</span><span>&#8377;' + cartGrandTotal() + '</span><span class="cart-service-note" style="display:block;font-size:10px;font-weight:400;color:var(--muted);text-align:right;margin-top:2px">incl. 5% service charge</span>';
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
 }
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
@@ -495,7 +497,7 @@ function openCheckout() {
   if (!modal) return;
   document.getElementById('orderModalTitle').textContent = currentOrderMode === 'Delivery' ? 'Delivery Order' : 'Takeaway Order';
   var sub = document.getElementById('orderModalSub');
-  sub.textContent = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · \u20B9' + cartTotal();
+  sub.textContent = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · \u20B9' + cartGrandTotal();
   var addrGroup = document.getElementById('orderAddressGroup');
   var addrInput = document.getElementById('orderAddress');
   if (currentOrderMode === 'Delivery') {
@@ -550,7 +552,10 @@ function placeOrder(e) {
 
   var msg = '*New RRK Food Court Order*\n(' + mode + ')\n\n';
   cart.forEach(function(i) { msg += i.qty + ' x ' + i.name + ' - \u20B9' + (i.price * i.qty) + '\n'; });
-  msg += '\n*Total: \u20B9' + cartTotal() + '*';
+  var sc = cartServiceCharge();
+  msg += '\n*Subtotal: \u20B9' + cartTotal() + '*';
+  if (sc > 0) msg += '\n*Service Charge (5%): \u20B9' + sc + '*';
+  msg += '\n*Grand Total: \u20B9' + cartGrandTotal() + '*';
   msg += '\n\n*Phone:* ' + phone;
   if (mode === 'Delivery') {
     if (currentLocation) {
@@ -566,7 +571,9 @@ function placeOrder(e) {
     type: CART_PAGE === 'raw' ? 'raw' : 'online',
     status: 'pending',
     items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '),
-    total: cartTotal(),
+    subtotal: cartTotal(),
+    serviceCharge: cartServiceCharge(),
+    total: cartGrandTotal(),
     mode: mode,
     phone: phone,
     address: address,
