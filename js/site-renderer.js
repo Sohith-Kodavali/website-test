@@ -60,71 +60,71 @@ const SITE_DATA = {
   heroBadge: { main: '20% OFF', sub: 'Today Only' },
   heroStats: [{count:4.9,suffix:'★',duration:2000,label:'2,400+ reviews'},{count:30,suffix:' min',duration:1500,label:'Fast delivery'},{count:100,suffix:'%',duration:1600,label:'Fresh daily'}],
   menu: [
-    {name:'Chicken 65',category:'starters',diet:'nonveg',description:'',price:'150',craftPrice:'150',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chilli Chicken',category:'starters',diet:'nonveg',description:'',price:'140',craftPrice:'140',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Wings & Lollipops (250g)',category:'starters',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Wings & Lollipops (500g)',category:'starters',diet:'nonveg',description:'',price:'300',craftPrice:'300',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Leg Piece (1 pc)',category:'starters',diet:'nonveg',description:'',price:'60',craftPrice:'60',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Leg Piece (2 pcs)',category:'starters',diet:'nonveg',description:'',price:'100',craftPrice:'100',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Leg Piece (4 pcs)',category:'starters',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Joint (1 pc)',category:'starters',diet:'nonveg',description:'',price:'60',craftPrice:'60',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Bone) 150g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'80',craftPrice:'80',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Bone) 250g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'130',craftPrice:'130',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Bone) 500g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'260',craftPrice:'260',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Boneless) 150g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'100',craftPrice:'100',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Boneless) 250g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'170',craftPrice:'170',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Pakodi (Boneless) 500g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'320',craftPrice:'320',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Manchuria',category:'manchuria',diet:'nonveg',description:'',price:'180',craftPrice:'180',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Veg Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftPrice:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Mushroom Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftPrice:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Baby Corn Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftPrice:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Fry Piece Biryani',category:'biryani',diet:'nonveg',description:'',price:'250',craftPrice:'250',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Dum Biryani',category:'biryani',diet:'nonveg',description:'',price:'250',craftPrice:'250',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Joint Biryani',category:'biryani',diet:'nonveg',description:'',price:'300',craftPrice:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kabab Biryani (2 pcs)',category:'biryani',diet:'nonveg',description:'',price:'300',craftPrice:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'SP Biryani (Butter Chicken)',category:'biryani',diet:'nonveg',description:'',price:'300',craftPrice:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Mini Biryani',category:'biryani',diet:'nonveg',description:'',price:'150',craftPrice:'150',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Family Pack (4 People)',category:'biryani',diet:'nonveg',description:'',price:'400',craftPrice:'400',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Extra Biryani Rice',category:'biryani',diet:'nonveg',description:'',price:'70',craftPrice:'70',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Fried Rice (Full)',category:'fried-rice',diet:'nonveg',description:'',price:'180',craftPrice:'180',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Fried Rice (Half)',category:'fried-rice',diet:'nonveg',description:'',price:'90',craftPrice:'90',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Egg Fried Rice (Full)',category:'fried-rice',diet:'nonveg',description:'',price:'150',craftPrice:'150',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Egg Fried Rice (Half)',category:'fried-rice',diet:'nonveg',description:'',price:'80',craftPrice:'80',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Veg Fried Rice',category:'fried-rice',diet:'veg',description:'',price:'120',craftPrice:'120',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Prawns Fried Rice',category:'fried-rice',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'SP Fried Rice',category:'fried-rice',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Plain White Rice',category:'fried-rice',diet:'veg',description:'',price:'40',craftPrice:'40',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Jeera Rice',category:'fried-rice',diet:'veg',description:'',price:'100',craftPrice:'100',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Curd Rice',category:'fried-rice',diet:'veg',description:'',price:'60',craftPrice:'60',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Noodles (Full)',category:'noodles',diet:'nonveg',description:'',price:'150',craftPrice:'150',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chicken Noodles (Half)',category:'noodles',diet:'nonveg',description:'',price:'80',craftPrice:'80',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Egg Noodles',category:'noodles',diet:'nonveg',description:'',price:'120',craftPrice:'120',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Veg Noodles',category:'noodles',diet:'veg',description:'',price:'100',craftPrice:'100',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'SP Noodles',category:'noodles',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Gongura Chicken (Bone)',category:'roti-curry',diet:'nonveg',description:'',price:'150',craftPrice:'150',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Mutton Fry',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Mutton Curry',category:'roti-curry',diet:'nonveg',description:'',price:'180',craftPrice:'180',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Gongura Mutton',category:'roti-curry',diet:'nonveg',description:'',price:'180',craftPrice:'180',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Prawns Fry',category:'roti-curry',diet:'nonveg',description:'',price:'250',craftPrice:'250',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Prawns Curry',category:'roti-curry',diet:'nonveg',description:'',price:'220',craftPrice:'220',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Paneer Butter Masala',category:'roti-curry',diet:'veg',description:'',price:'200',craftPrice:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Tomato',category:'roti-curry',diet:'veg',description:'',price:'200',craftPrice:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Plain Palak',category:'roti-curry',diet:'veg',description:'',price:'80',craftPrice:'80',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Palak Paneer',category:'roti-curry',diet:'veg',description:'',price:'150',craftPrice:'150',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Butter Chicken',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Chicken',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftPrice:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Kaju Egg Curry',category:'roti-curry',diet:'nonveg',description:'',price:'60',craftPrice:'60',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Chepala Pulusu',category:'roti-curry',diet:'nonveg',description:'',price:'120',craftPrice:'120',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Fish Fry',category:'roti-curry',diet:'nonveg',description:'',price:'30',craftPrice:'30',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Mixed Vegetable Curry',category:'roti-curry',diet:'veg',description:'',price:'120',craftPrice:'120',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Pulka',category:'breads',diet:'veg',description:'',price:'12',craftPrice:'12',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Parotta',category:'breads',diet:'veg',description:'',price:'20',craftPrice:'20',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Plain Roti',category:'breads',diet:'veg',description:'',price:'30',craftPrice:'30',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Butter Roti',category:'breads',diet:'veg',description:'',price:'40',craftPrice:'40',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Plain Naan',category:'breads',diet:'veg',description:'',price:'45',craftPrice:'45',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Butter Naan',category:'breads',diet:'veg',description:'',price:'50',craftPrice:'50',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Garlic Naan',category:'breads',diet:'veg',description:'',price:'55',craftPrice:'55',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
-    {name:'Ice Cream (Various)',category:'ice-creams',diet:'veg',description:'Chocolate, Butterscotch, Vanilla, Chocochips, Oreo, American Nuts, Black Currant, Belgian Chocolate, Strawberry, Gud Bud, Sundae, Sapota, Raspberry, Frostics, Chocobars, Kulfi Sticks. Cones, cups & family packs available.',price:'0',craftPrice:'0',craftCategory:'ice-creams',craftEnabled:true,image:'',special:'0',special_tag:''}
+    {name:'Chicken 65',category:'starters',diet:'nonveg',description:'',price:'150',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chilli Chicken',category:'starters',diet:'nonveg',description:'',price:'140',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Wings & Lollipops (250g)',category:'starters',diet:'nonveg',description:'',price:'200',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Wings & Lollipops (500g)',category:'starters',diet:'nonveg',description:'',price:'300',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Leg Piece (1 pc)',category:'starters',diet:'nonveg',description:'',price:'60',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Leg Piece (2 pcs)',category:'starters',diet:'nonveg',description:'',price:'100',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Leg Piece (4 pcs)',category:'starters',diet:'nonveg',description:'',price:'200',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Joint (1 pc)',category:'starters',diet:'nonveg',description:'',price:'60',craftCategory:'starters',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Bone) 150g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'80',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Bone) 250g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'130',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Bone) 500g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'260',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Boneless) 150g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'100',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Boneless) 250g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'170',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Pakodi (Boneless) 500g',category:'kaju-pakodi',diet:'nonveg',description:'',price:'320',craftCategory:'kaju-pakodi',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Manchuria',category:'manchuria',diet:'nonveg',description:'',price:'180',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Veg Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Mushroom Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Baby Corn Manchuria',category:'manchuria',diet:'veg',description:'',price:'150',craftCategory:'manchuria',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Fry Piece Biryani',category:'biryani',diet:'nonveg',description:'',price:'250',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Dum Biryani',category:'biryani',diet:'nonveg',description:'',price:'250',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Joint Biryani',category:'biryani',diet:'nonveg',description:'',price:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kabab Biryani (2 pcs)',category:'biryani',diet:'nonveg',description:'',price:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'SP Biryani (Butter Chicken)',category:'biryani',diet:'nonveg',description:'',price:'300',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Mini Biryani',category:'biryani',diet:'nonveg',description:'',price:'150',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Family Pack (4 People)',category:'biryani',diet:'nonveg',description:'',price:'400',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Extra Biryani Rice',category:'biryani',diet:'nonveg',description:'',price:'70',craftCategory:'biryani',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Fried Rice (Full)',category:'fried-rice',diet:'nonveg',description:'',price:'180',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Fried Rice (Half)',category:'fried-rice',diet:'nonveg',description:'',price:'90',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Egg Fried Rice (Full)',category:'fried-rice',diet:'nonveg',description:'',price:'150',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Egg Fried Rice (Half)',category:'fried-rice',diet:'nonveg',description:'',price:'80',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Veg Fried Rice',category:'fried-rice',diet:'veg',description:'',price:'120',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Prawns Fried Rice',category:'fried-rice',diet:'nonveg',description:'',price:'200',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'SP Fried Rice',category:'fried-rice',diet:'nonveg',description:'',price:'200',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Plain White Rice',category:'fried-rice',diet:'veg',description:'',price:'40',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Jeera Rice',category:'fried-rice',diet:'veg',description:'',price:'100',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Curd Rice',category:'fried-rice',diet:'veg',description:'',price:'60',craftCategory:'fried-rice',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Noodles (Full)',category:'noodles',diet:'nonveg',description:'',price:'150',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chicken Noodles (Half)',category:'noodles',diet:'nonveg',description:'',price:'80',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Egg Noodles',category:'noodles',diet:'nonveg',description:'',price:'120',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Veg Noodles',category:'noodles',diet:'veg',description:'',price:'100',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'SP Noodles',category:'noodles',diet:'nonveg',description:'',price:'200',craftCategory:'noodles',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Gongura Chicken (Bone)',category:'roti-curry',diet:'nonveg',description:'',price:'150',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Mutton Fry',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Mutton Curry',category:'roti-curry',diet:'nonveg',description:'',price:'180',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Gongura Mutton',category:'roti-curry',diet:'nonveg',description:'',price:'180',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Prawns Fry',category:'roti-curry',diet:'nonveg',description:'',price:'250',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Prawns Curry',category:'roti-curry',diet:'nonveg',description:'',price:'220',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Paneer Butter Masala',category:'roti-curry',diet:'veg',description:'',price:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Tomato',category:'roti-curry',diet:'veg',description:'',price:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Plain Palak',category:'roti-curry',diet:'veg',description:'',price:'80',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Palak Paneer',category:'roti-curry',diet:'veg',description:'',price:'150',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Butter Chicken',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Chicken',category:'roti-curry',diet:'nonveg',description:'',price:'200',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Kaju Egg Curry',category:'roti-curry',diet:'nonveg',description:'',price:'60',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Chepala Pulusu',category:'roti-curry',diet:'nonveg',description:'',price:'120',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Fish Fry',category:'roti-curry',diet:'nonveg',description:'',price:'30',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Mixed Vegetable Curry',category:'roti-curry',diet:'veg',description:'',price:'120',craftCategory:'roti-curry',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Pulka',category:'breads',diet:'veg',description:'',price:'12',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Parotta',category:'breads',diet:'veg',description:'',price:'20',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Plain Roti',category:'breads',diet:'veg',description:'',price:'30',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Butter Roti',category:'breads',diet:'veg',description:'',price:'40',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Plain Naan',category:'breads',diet:'veg',description:'',price:'45',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Butter Naan',category:'breads',diet:'veg',description:'',price:'50',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Garlic Naan',category:'breads',diet:'veg',description:'',price:'55',craftCategory:'breads',craftEnabled:true,image:'',special:'0',special_tag:''},
+    {name:'Ice Cream (Various)',category:'ice-creams',diet:'veg',description:'Chocolate, Butterscotch, Vanilla, Chocochips, Oreo, American Nuts, Black Currant, Belgian Chocolate, Strawberry, Gud Bud, Sundae, Sapota, Raspberry, Frostics, Chocobars, Kulfi Sticks. Cones, cups & family packs available.',price:'50',craftCategory:'ice-creams',craftEnabled:true,image:'',special:'0',special_tag:''}
   ],
   raw: [
     {name:'Boneless',image:'7.jpeg',price:'320',weight:'1 kg',tag:'Fresh Today'},
@@ -135,11 +135,6 @@ const SITE_DATA = {
     {name:'Leg Piece',image:'22.jpeg',price:'290',weight:'1 kg',tag:'Fresh Today'},
     {name:'Breast',image:'23.jpeg',price:'330',weight:'1 kg',tag:'Fresh Today'}
   ],
-  combos: [
-    {name:'Party Starter Combo',save_badge:'Save ₹180',description:'Biryani x2 + Chicken 65 + Lollipop + 4 drinks.',price:'1299'},
-    {name:'Family Feast',save_badge:'Save ₹250',description:'Family pack + grilled chicken + desserts + drinks.',price:'1599'},
-    {name:'Grand Celebration',save_badge:'Save ₹320',description:'Serves 10 · biryani, starters, mains & sweets.',price:'2499'}
-  ],
   occasions: [{emoji:'🎂',label:'Birthday'},{emoji:'💼',label:'Office'},{emoji:'💍',label:'Wedding'},{emoji:'👪',label:'Family'},{emoji:'🎊',label:'Festival'}],
   craftOccasions: [
     {name:'Birthday Party',couponType:'bday',offerPercent:0,message:'🎁 Free custom welcome drinks for all guests!'},
@@ -148,14 +143,6 @@ const SITE_DATA = {
     {name:'Casual House Party',couponType:'house',offerPercent:0,message:'🏠 Extra starter item added free'}
   ],
   serviceHours: {openNow:true,openTime:'11:00',closeTime:'23:00',closedMessage:'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours: 11:00 AM – 11:00 PM.'},
-  comboDefs: {
-    value: {label:'VALUE COMBO',tag:'Budget-Friendly',pricePer:250,badge:'',items:[
-      {cat:'starters',idx:0},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'breads',idx:0},{cat:'desserts',idx:0}
-    ]},
-    premium: {label:'PREMIUM COMBO',tag:'Most Popular',pricePer:500,badge:'Best Value',items:[
-      {cat:'starters',idx:0},{cat:'starters',idx:1},{cat:'mains',idx:0},{cat:'mains',idx:1},{cat:'mains',idx:2},{cat:'breads',idx:0},{cat:'desserts',idx:0}
-    ]}
-  },
   craftConfig: {peopleMin:10,peopleMax:500,peopleDefault:50,guestMin:10,budgetMin:100,budgetMax:2000,budgetStep:50,budgetDefault:300},
   craftPreview: {eyebrow:'Signature Feature',headline:'Craft My Plate',desc:'Plan your catering · 20+ guests · custom combos & live pricing.',buttonText:'Start Crafting',chips:[{emoji:'👥',text:'20+ Guests'},{emoji:'📦',text:'2 Combos'},{emoji:'💰',text:'Best Value'}],comboText:'Catering from <b>₹250/person</b>'},
   about: {eyebrow:'Our Story',headlineL1:'Rooted in flavour,',headlineL2:'refined for you',body:'RRK Food Court started in the heart of Eluru with one belief: premium chicken should be fresh, hygienic and honestly priced.',image:'6.jpeg',buttonText:'Visit Us'},
@@ -201,7 +188,7 @@ function deriveCraftMenu(D) {
     if (m.craftEnabled && cat && cats[cat]) {
       cats[cat].push({
         name: m.name,
-        price: parseInt(m.craftPrice) || 0,
+        price: parseInt(m.price) || 0,
         diet: m.diet || 'nonveg',
         image: m.image || ''
       });
@@ -225,15 +212,13 @@ function loadFromFirestore(page) {
   Promise.all([
     rrkMenu.list().catch(function() { return null; }),
     rrkRaw.list().catch(function() { return null; }),
-    rrkCombos.list().catch(function() { return null; }),
     rrkOccasions.list().catch(function() { return null; }),
     (typeof rrkSettings !== 'undefined' ? rrkSettings.get().catch(function() { return {}; }) : Promise.resolve({}))
   ]).then(function(results) {
-    var menu = results[0], raw = results[1], combos = results[2], occasions = results[3], settings = results[4] || {};
+    var menu = results[0], raw = results[1], occasions = results[2], settings = results[3] || {};
     var data = JSON.parse(JSON.stringify(SITE_DATA));
     if (menu && menu.length > 0) data.menu = mergeFirestoreMenu(menu);
     if (raw && raw.length > 0) data.raw = mergeFirestoreRaw(raw);
-    if (combos && combos.length > 0) data.combos = combos;
     if (occasions && occasions.length > 0) {
       data.occasions = occasions.filter(function(o) { return o.type !== 'craft'; }).map(function(o) { return {emoji: o.emoji||'🎉', label: o.label||'Event'}; });
       var craftOccs = occasions.filter(function(o) { return o.type === 'craft'; }).map(function(o) { return {name: o.label, couponType: o.couponType||'', offerPercent: Number(o.offerPercent)||0, message: o.message||''}; });
@@ -273,7 +258,7 @@ function mergeFirestoreMenu(menu) {
     return {
       name: escHtml(m.name || ''), category: m.category || 'chicken', diet: m.diet || 'nonveg',
       description: escHtml(m.description || ''), price: (m.price || 0).toString(),
-      craftPrice: (m.craftPrice || 0).toString(), craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
+      craftCategory: m.craftCategory || '', craftEnabled: m.craftEnabled || false,
       image: m.image || '', special: m.special || '0', special_tag: escHtml(m.special_tag || ''),
       today_special: m.today_special || '0'
     };
@@ -326,7 +311,7 @@ function renderIndex(D) {
   h.innerHTML = '<section class="hero"><div class="container hero__inner"><div class="hero__copy reveal reveal-slide-left"><span class="eyebrow">'+D.hero.eyebrow+'</span><h1 class="display mob-full">'+D.hero.headlineL1+'<br/>Crafted to <span class="gold">'+D.hero.headlineGold+'</span></h1><p class="lead">'+D.hero.lead+'</p><div class="hero__cta"><a href="menu.html" class="btn btn--primary btn--lg">🍗 Order Now</a><a href="craft-my-plate.html" class="btn btn--gold-outline btn--lg mob-nowrap">🍽️ Craft My Plate</a></div><div class="hero__stats">'+D.heroStats.map(function(s){return'<div><strong data-count="'+s.count+'" data-suffix="'+s.suffix+'" data-duration="'+s.duration+'">'+s.count+s.suffix+'</strong><span>'+s.label+'</span></div>'}).join('')+'</div></div><div class="hero__media reveal reveal-slide-right"><div class="hero__imgcard"><div class="img-ph img-ph--hero"><img src="'+D.hero.image+'" alt="Signature Grilled Chicken" /></div><div class="badge-offer">'+D.heroBadge.main+'<br/><small>'+D.heroBadge.sub+'</small></div><div class="float-card"><span class="dot"></span> Freshly prepared</div></div></div></div><div class="hero__glow"></div></section>';
 
   // Today's Special section (separate)
-  var todayItems = D.menu.filter(function(m){return m.today_special=='1'}).slice(0,2);
+  var todayItems = D.menu.filter(function(m){return m.today_special=='1' || m.today_special===true;}).slice(0,2);
   if (todayItems.length > 0) {
     document.getElementById('render-today-special').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Today\'s Special</span><h2>🔥 Today\'s Special</h2></div><div class="grid grid--2">'+todayItems.map(function(m,i){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><div class="steam" aria-hidden="true"><div class="steam-vapor"></div><div class="steam-vapor"></div><div class="steam-vapor"></div></div><span class="tag tag--offer">Today Only!</span><div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--block" onclick="addToCartAndGoToMenu(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">Order Now</button></div></article>'}).join('')+'</div></div></section>';
   } else {
@@ -347,7 +332,7 @@ function renderIndex(D) {
 
   document.getElementById('render-contact').innerHTML = '<section class="section" id="contact"><div class="container split"><div class="reveal reveal-slide-left"><iframe class="map-embed" title="RRK Food Court Location" src="'+D.contact.mapsUrl+'" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><div class="contact-card reveal reveal-slide-right"><h3>Visit &amp; Order</h3><ul class="contact-list"><li><span>📞 Phone</span><b>'+D.contact.phone+'</b></li><li><span>💬 WhatsApp</span><b>'+D.contact.whatsapp+'</b></li><li><span>📍 Address</span><b>'+D.contact.address+'</b></li><li><span>🕒 Hours</span><b>'+D.contact.hours+'</b></li></ul><a href="https://wa.me/'+(D.contact.phoneRaw||D.whatsapp)+'" class="btn btn--wa btn--block" target="_blank" rel="noopener">Chat on WhatsApp</a></div></div></section>';
 
-  document.getElementById('render-login-modal').innerHTML = '<div class="modal__backdrop" data-close></div><div class="modal__card glass"><button class="modal__x" data-close aria-label="Close">&times;</button><span class="eyebrow">'+D.loginModal.eyebrow+'</span><h3>'+D.loginModal.headline+'</h3><p class="muted">'+D.loginModal.desc+'</p><form id="loginForm" class="form"><input type="text" placeholder="Full Name" required /><input type="tel" placeholder="Phone Number" pattern="[0-9]{10}" required /><input type="text" id="loginDob" placeholder="Date of Birth" onfocus="this.type=\'date\'" required /><button type="submit" class="btn btn--primary btn--block btn--lg">Continue</button></form><p class="login-benefits-label">Login & get exciting offers such as:</p><ul class="benefits">'+D.loginModal.benefits.map(function(b){return'<li>'+b+'</li>'}).join('')+'</ul><p class="tiny muted">'+D.loginModal.privacy+'</p></div>';
+  document.getElementById('render-login-modal').innerHTML = '<div class="modal__backdrop" data-close></div><div class="modal__card glass"><button class="modal__x" data-close aria-label="Close">&times;</button><span class="eyebrow">'+D.loginModal.eyebrow+'</span><h3>'+D.loginModal.headline+'</h3><p class="muted">'+D.loginModal.desc+'</p><form id="loginForm" class="form"><input type="text" placeholder="Full Name" required /><input type="tel" placeholder="Phone Number" pattern="[0-9]{10}" required /><input type="text" id="loginDob" placeholder="Date of Birth (optional)" onfocus="this.type=\'date\'" /><button type="submit" class="btn btn--primary btn--block btn--lg">Continue</button></form><p class="login-benefits-label">Login & get exciting offers such as:</p><ul class="benefits">'+D.loginModal.benefits.map(function(b){return'<li>'+b+'</li>'}).join('')+'</ul><p class="tiny muted">'+D.loginModal.privacy+'</p></div>';
 }
 
 function renderSpecialsRow(D) {
@@ -357,7 +342,7 @@ function renderSpecialsRow(D) {
 }
 
 function renderTodaysSpecialsRow(D) {
-  var todayItems = D.menu.filter(function(m){return m.today_special=='1'}).slice(0,2);
+  var todayItems = D.menu.filter(function(m){return m.today_special=='1' || m.today_special===true;}).slice(0,2);
   if (todayItems.length === 0) return '';
   return '<div class="menu-specials-label">🔥 Today\'s Special</div><div class="specials-row">'+todayItems.map(function(m){return'<div class="special-card" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')"><div class="special-card__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+'<span class="menu-badge menu-badge--best">Today Only!</span></div><div class="special-card__info"><span class="special-card__name">'+m.name+'</span><span class="special-card__price">₹'+m.price+'</span></div></div>'}).join('')+'</div>';
 }
@@ -466,7 +451,7 @@ function renderCraftPage(D) {
       }).join('')+
     '</div>'+
     '<div class="cp-summary">'+
-      '<div class="cp-stats"><span>Per Plate: <strong>₹<span id="cpPerPlate">0</span></strong></span><span>Total Selected: <strong id="cpItemCount">0</strong></span></div>'+
+      '<div class="cp-stats"><span>Per Plate: <strong>₹<span id="cpPerPlate">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span><span>Est. Overall: <strong>₹<span id="cpOverallBudget">0</span></strong></span></div>'+
       '<div class="cp-budget-bar" id="cpBudgetBar"><div class="cp-budget-bar__track"><div class="cp-budget-bar__fill" id="cpBudgetFill"></div></div><span class="cp-budget-bar__label" id="cpBudgetLabel"></span></div>'+
       '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 3 items to build your custom menu.</div>'+
     '</div>'+

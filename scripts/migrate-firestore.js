@@ -32,7 +32,7 @@ if (!fs.existsSync(EXPORT_FILE)) {
 
 const data = JSON.parse(fs.readFileSync(EXPORT_FILE, 'utf8'));
 
-const COLLECTION_ORDER = ['settings', 'categories', 'customers', 'menu', 'raw', 'combos', 'occasions', 'orders'];
+const COLLECTION_ORDER = ['settings', 'categories', 'customers', 'menu', 'raw', 'occasions', 'orders'];
 
 async function migrate() {
   console.log(`\nStarting Firestore migration to project: ${serviceAccount.project_id}`);

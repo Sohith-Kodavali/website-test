@@ -104,7 +104,6 @@ function loadAdminApp() {
   renderCraftEditor();
   renderRawEditor();
   renderOrdersEditor();
-  renderComboEditor();
   renderOccasionEditor();
   renderCustomersEditor();
   renderContactEditor();
@@ -126,18 +125,16 @@ function showTab(tabId) {
 
 function seedAdminData() {
   adminHaptic('click');
-  if (!confirm('This will add the default menu, raw items, combos, occasions and categories to Firestore once. Existing items will not be overwritten. Continue?')) return;
+  if (!confirm('This will add the default menu, raw items, occasions and categories to Firestore once. Existing items will not be overwritten. Continue?')) return;
   Promise.all([
     typeof seedCategoriesToFirestore === 'function' ? seedCategoriesToFirestore() : Promise.resolve(),
     typeof seedMenuToFirestore === 'function' ? seedMenuToFirestore() : Promise.resolve(),
     typeof seedRawToFirestore === 'function' ? seedRawToFirestore() : Promise.resolve(),
-    typeof seedCombosToFirestore === 'function' ? seedCombosToFirestore() : Promise.resolve(),
     typeof seedOccasionsToFirestore === 'function' ? seedOccasionsToFirestore() : Promise.resolve()
   ]).then(function() {
     alert('Default data seeded successfully. Reloading editors.');
     renderMenuEditor();
     renderRawEditor();
-    renderComboEditor();
     renderOccasionEditor();
     if (typeof rrkCategories !== 'undefined') rrkCategories.syncToLocal();
   }).catch(function(e) {
@@ -228,9 +225,9 @@ function menuFields(item) {
     { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
     { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
     { key: 'craftEnabled', label: 'Show in Craft My Plate?', type: 'toggle', val: item.craftEnabled?'1':'0' },
-    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
     { key: 'special', label: 'Chef\'s Pick? (Appears in "Chef\'s Picks" section)', type: 'select', val: item.special||'0', optionsHtml: '<option value="1"'+(item.special==='1'?' selected':'')+'>Yes</option><option value="0"'+(item.special!=='1'?' selected':'')+'>No</option>' },
+    { key: 'today_special', label: 'Today\'s Special? (Appears in "Today\'s Special" section)', type: 'select', val: item.today_special||'0', optionsHtml: '<option value="1"'+(item.today_special==='1'?' selected':'')+'>Yes</option><option value="0"'+(item.today_special!=='1'?' selected':'')+'>No</option>' },
     { key: 'special_tag', label: 'Special Badge Text', type: 'text', val: item.special_tag||'' }
   ];
 }
@@ -242,6 +239,7 @@ function editMenuDoc(id) {
     showItemEditor('Menu Item', menuFields(item), (vals) => {
       vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
       vals.craftCategory = vals.category;
+      delete vals.craftPrice;
       rrkMenu.save({ id, ...vals }).then(() => renderMenuEditor());
     });
   });
@@ -253,6 +251,7 @@ function addMenuDoc() {
   showItemEditor('New Menu Item', menuFields(item), (vals) => {
     vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true' || vals.craftEnabled === true;
     vals.craftCategory = vals.category;
+    delete vals.craftPrice;
     rrkMenu.save(vals).then(() => renderMenuEditor());
   });
 }
@@ -287,9 +286,10 @@ function addCategoryDocInline() {
   adminHaptic('add');
   showItemEditor('New Menu Category', [
     { key: 'key', label: 'Key (short id, e.g. "chicken")', type: 'text', val: '' },
-    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' }
+    { key: 'label', label: 'Display Name (e.g. "🐔 Chicken")', type: 'text', val: '' },
+    { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: '0' }
   ], function(vals){
-    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label }).then(function(){
+    rrkCategories.save({ type: 'menu', key: vals.key, label: vals.label, order: parseInt(vals.order)||0 }).then(function(){
       rrkCategories.syncToLocal().then(function(){
         loadMenuCategories();
         renderMenuEditor();
@@ -305,9 +305,10 @@ function editCategoryDocInline(id) {
     var item = items.find(function(c){return c.id===id;}); if(!item) return;
     showItemEditor('Edit Category', [
       { key: 'key', label: 'Key', type: 'text', val: item.key||'' },
-      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' }
+      { key: 'label', label: 'Display Name', type: 'text', val: item.label||'' },
+      { key: 'order', label: 'Sort Order (lower = first)', type: 'number', val: item.order||0 }
     ], function(vals){
-      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label}).then(function(){
+      rrkCategories.save({id:id, type:'menu', key:vals.key, label:vals.label, order:parseInt(vals.order)||0}).then(function(){
         rrkCategories.syncToLocal().then(function(){
           loadMenuCategories();
           renderMenuEditor();
@@ -342,14 +343,13 @@ function loadCraftCategories() {
 function renderCraftEditor() {
   var el = document.getElementById('cms-craft'); if (!el) return;
   loadCraftCategories();
-  el.innerHTML = '<h3 style="margin-bottom:16px">Craft My Plate — Item Settings</h3><p class="muted">Loading...</p>';
+  el.innerHTML = '<h3 style="margin-bottom:16px">Craft My Plate — Enable/Disable Items</h3><p class="muted">Loading...</p>';
   rrkMenu.list().then(function(items) {
     window.__adminCraftItems = items;
     var catBtns = '<button class="cms-cat-btn active" onclick="filterAdminCraft(\'all\',this)">All</button>'+
       adminCraftCategories.map(function(c){return'<button class="cms-cat-btn" onclick="filterAdminCraft(\''+c.key+'\',this)">'+c.label+'</button>'}).join('');
-    el.innerHTML = '<h3 style="margin-bottom:8px">Craft My Plate — Item Settings</h3>'+
-      '<p class="muted" style="margin-bottom:8px">Each menu item can have two prices: online order (per item) and craft catering (per person).</p>'+
-      '<p class="muted" style="margin-bottom:16px">Enable items for Craft My Plate and set their per-person price and category.</p>'+
+    el.innerHTML = '<h3 style="margin-bottom:8px">Craft My Plate — Enable/Disable Items</h3>'+
+      '<p class="muted" style="margin-bottom:16px">Toggle which menu items appear in Craft My Plate. Menu prices are used.</p>'+
       '<div class="cms-cats">'+catBtns+'</div>'+
       '<div class="cms-list" id="cms-craft-list"></div>';
     renderAdminCraftList(items, adminActiveCraftCat);
@@ -363,9 +363,12 @@ function renderAdminCraftList(items, cat) {
   if (filtered.length === 0) { listEl.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No items in this category.</p>'; return; }
   listEl.innerHTML = filtered.map(function(m){
     var catLabel = (adminCraftCategories.find(function(c){return c.key===m.category;}) || {}).label || (m.category||'—');
+    var statusBadge = m.craftEnabled
+      ? '<span style="display:inline-block;background:#2E7D32;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px">Enabled</span>'
+      : '<span style="display:inline-block;background:#888;color:#fff;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-left:6px">Disabled</span>';
     return '<div class="cms-item" style="flex-wrap:nowrap">'+
-      '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+'</b><span>Online: ₹'+(m.price||0)+' · Craft: '+(m.craftEnabled?'₹'+(m.craftPrice||0)+'/person · '+catLabel:'Disabled')+'</span></div></div>'+
-      '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Craft Settings</button>'+
+      '<div class="cms-item-info"><img src="'+(m.image||'')+'" alt="'+m.name+'" class="cms-item-img"><div><b>'+m.name+statusBadge+'</b><span>Menu Price: ₹'+(m.price||0)+' · '+catLabel+'</span></div></div>'+
+      '<button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;white-space:nowrap" onclick="editCraftItem(\''+m.id+'\')">Toggle</button>'+
     '</div>';
   }).join('');
 }
@@ -380,8 +383,7 @@ function filterAdminCraft(cat, btn) {
 
 function craftFields(item) {
   return [
-    { key: 'craftEnabled', label: 'Enable for Craft My Plate?', type: 'toggle', val: item.craftEnabled?'1':'0' },
-    { key: 'craftPrice', label: 'Craft Price (per person, ₹)', type: 'number', val: item.craftPrice||0 }
+    { key: 'craftEnabled', label: 'Show in Craft My Plate?', type: 'toggle', val: item.craftEnabled?'1':'0' }
   ];
 }
 
@@ -391,7 +393,7 @@ function editCraftItem(id) {
     var item = items.find(function(m) { return m.id === id; }); if (!item) return;
     showItemEditor('Craft Settings: '+item.name, craftFields(item), function(vals) {
       vals.craftEnabled = vals.craftEnabled === '1' || vals.craftEnabled === 'true';
-      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftPrice: vals.craftPrice, craftCategory: item.category }).then(function() { refreshCraftEditor(); });
+      rrkMenu.save({ id: id, craftEnabled: vals.craftEnabled, craftCategory: item.category }).then(function() { refreshCraftEditor(); });
     });
   });
 }
@@ -430,7 +432,8 @@ function rawFields(item) {
     { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
-    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' }
+    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
+    { key: 'show_home', label: 'Show on Home Page?', type: 'toggle', val: item.show_home !== '0' && item.show_home !== false ? '1' : '0' }
   ];
 }
 
@@ -524,7 +527,14 @@ function renderAdminOrdersList(orders, type, hasMore) {
         actions += ' <button class="btn" style="padding:3px 8px;font-size:11px;background:#25D366;color:#fff;border:none" onclick="notifyCustomerWhatsApp(\''+o.id+'\')" title="Notify customer via WhatsApp">💬</button>';
       }
       actions += '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteOrderDoc(\''+o.id+'\')">🗑</button>';
-      return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td>'+(o.phone||'—')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+((o.items||'').substring(0,40))+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
+      var itemsDisplay = '';
+      if (o.items) {
+        var itemArr = o.items.split(',').filter(Boolean);
+        itemsDisplay = itemArr.slice(0, 3).map(function(it) { return it.trim(); }).join(', ');
+        if (itemArr.length > 3) itemsDisplay += ' +' + (itemArr.length - 3) + ' more';
+        if (o.type === 'craft' && o.guests) itemsDisplay += '<br><small>👥 ' + o.guests + ' guests</small>';
+      }
+      return '<tr><td>'+date+'<br><small>'+time+'</small></td><td>'+typeLabel+'<br><small>'+extra+'</small></td><td>'+(o.phone||'—')+'</td><td style="max-width:220px;word-wrap:break-word">'+itemsDisplay+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td>'+statusBadge(o.status)+'</td><td style="white-space:nowrap">'+actions+'</td></tr>';
     }).join('')+
   '</tbody></table></div>'+
   (hasMore ? '<div style="text-align:center;margin-top:16px"><button class="btn btn--gold-outline" onclick="loadOrdersPage()">Load More Orders</button></div>' : '');
@@ -562,6 +572,9 @@ function updateOrderStatus(id, status) {
 function notifyCustomerWhatsApp(id) {
   var order = (window.__adminOrders || []).find(function(o) { return o.id === id; });
   if (!order || !order.phone) { alert('No phone number found for this order.'); return; }
+  // Normalize phone number — prepend India country code if it's a 10-digit number without one
+  var phone = order.phone.replace(/[\s+\-]/g, '');
+  if (/^[6-9]\d{9}$/.test(phone)) phone = '91' + phone;
   var statusLabel = {pending:'Pending', accepted:'Accepted ✅', completed:'Completed 🎉', cancelled:'Cancelled ❌'}[order.status] || order.status;
   var msg = 'Hi! Your order at *RRK Food Court* has been updated.\n\n';
   msg += '📋 Order: '+order.id.substring(0,6)+'\n';
@@ -574,12 +587,12 @@ function notifyCustomerWhatsApp(id) {
   if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
       wa = s.whatsapp || '919999999999';
-      window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+      window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
     }).catch(function() {
-      window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+      window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
     });
   } else {
-    window.open('https://wa.me/'+order.phone+'?text='+encodeURIComponent(msg), '_blank');
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
   }
 }
 
@@ -591,47 +604,6 @@ function deleteOrderDoc(id) {
     window.__adminOrders = (window.__adminOrders || []).filter(function(o) { return o.id !== id; });
     renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
   }).catch(function(e) { alert('Failed: '+e.message); });
-}
-
-// ============ COMBOS ============
-function renderComboEditor() {
-  const el = document.getElementById('cms-combos'); if (!el) return;
-  el.innerHTML = '<h3 style="margin-bottom:20px">Craft Combos</h3><p class="muted">Loading...</p>';
-  rrkCombos.list().then(items => {
-    el.innerHTML = `<h3 style="margin-bottom:20px">Craft Combos (${items.length})</h3>
-      <div class="cms-list">${items.map(c =>`
-        <div class="cms-item"><div><b>${c.name}</b><span>${c.save_badge||''} · ₹${c.price||0} · ${c.description||''}</span></div>
-        <div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editComboDoc('${c.id}')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteComboDoc('${c.id}')">Delete</button></div></div>`
-      ).join('')}</div><button class="btn btn--primary" style="margin-top:16px" onclick="addComboDoc()">+ Add Combo</button>`;
-  });
-}
-
-function comboFields(item) {
-  return [
-    { key: 'name', label: 'Name', type: 'text', val: item.name||'' },
-    { key: 'save_badge', label: 'Save Badge', type: 'text', val: item.save_badge||'' },
-    { key: 'description', label: 'Description', type: 'text', val: item.description||'' },
-    { key: 'price', label: 'Price', type: 'number', val: item.price||0 }
-  ];
-}
-
-function editComboDoc(id) {
-  adminHaptic('click');
-  rrkCombos.list().then(items => {
-    const item = items.find(c => c.id === id); if (!item) return;
-    showItemEditor('Combo', comboFields(item), (vals) => rrkCombos.save({ id, ...vals }).then(() => renderComboEditor()));
-  });
-}
-
-function addComboDoc() {
-  adminHaptic('add');
-  showItemEditor('New Combo', comboFields({}), (vals) => rrkCombos.save(vals).then(() => renderComboEditor()));
-}
-
-function deleteComboDoc(id) {
-  adminHaptic('remove');
-  if (!confirm('Delete?')) return;
-  rrkCombos.remove(id).then(() => renderComboEditor());
 }
 
 // ============ OCCASIONS ============
@@ -678,21 +650,124 @@ function deleteOccasionDoc(id) {
 }
 
 // ============ CUSTOMERS ============
+var adminCustomerSearchQuery = '';
+
 function renderCustomersEditor() {
   const el = document.getElementById('cms-customers'); if (!el) return;
   el.innerHTML = `<h3 style="margin-bottom:16px">Registered Customers</h3>
-    <div style="display:flex;gap:10px;margin-bottom:16px">
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" id="customerSearchInput" placeholder="Search by name or phone..." style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;background:#fff" oninput="onCustomerSearch(this.value)" onfocus="adminHaptic('click')" />
       <button class="btn btn--gold-outline" style="font-size:12px" onclick="adminHaptic('click');renderCustomersEditor()">🔄 Refresh</button>
       <button class="btn btn--primary" style="font-size:12px" onclick="adminHaptic('click');downloadCustomersPDF()">📥 Download PDF</button>
     </div>
     <div id="customers-list"><p class="muted">Loading...</p></div>`;
   rrkCustomers.list().then(data => {
-    const list = document.getElementById('customers-list');
-    if (!data || data.length === 0) { list.innerHTML='<p class="muted">No customers yet. Customer sign-ups from the login popup will appear here.</p>'; return; }
-    list.innerHTML = `<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Phone</th><th>DOB</th><th>Registered</th><th>Action</th></tr></thead><tbody>
-      ${data.map(c=>`<tr><td>${c.name}</td><td>${c.phone}</td><td>${c.dob||'—'}</td><td>${c.created_at?.substr(0,10)||''}</td>
-      <td><button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteCustomerDoc('${c.id}')">Delete</button></td></tr>`).join('')}</tbody></table></div>`;
+    window.__adminCustomers = data || [];
+    renderAdminCustomersList(window.__adminCustomers, adminCustomerSearchQuery);
   }).catch(function() { adminError('customers-list', 'Could not load customers.'); });
+}
+
+function onCustomerSearch(query) {
+  adminCustomerSearchQuery = (query || '').toLowerCase().trim();
+  renderAdminCustomersList(window.__adminCustomers || [], adminCustomerSearchQuery);
+}
+
+function isBirthdayWindow(dobStr) {
+  if (!dobStr) return false;
+  var parts = dobStr.split('-');
+  if (parts.length < 2) return false;
+  var dobMonth = parseInt(parts[1]);
+  var dobDay = parseInt(parts[2]);
+  if (isNaN(dobMonth) || isNaN(dobDay)) return false;
+  var now = new Date();
+  var nowMonth = now.getMonth() + 1;
+  var nowDay = now.getDate();
+  // Convert both to day-of-year and handle year wrap
+  var dobDoy = dobMonth * 100 + dobDay;
+  var nowDoy = nowMonth * 100 + nowDay;
+  // Check within 5 days before or after
+  for (var d = -5; d <= 5; d++) {
+    var checkDoy = dobDoy + d;
+    // Handle year wrap
+    if (checkDoy < 101) checkDoy += 1200;
+    if (checkDoy > 1231) checkDoy -= 1200;
+    var checkAdj = checkDoy > 1200 ? checkDoy - 1200 : checkDoy;
+    var nowAdj = nowDoy > 1200 ? nowDoy - 1200 : nowDoy;
+    // Simple overlap check
+    if (checkDoy >= 100) {
+      if (nowDoy >= 100 && checkDoy === nowDoy) return true;
+      if (nowDoy <= 31 && checkDoy >= 1200) {
+        if (checkDoy - 1200 === nowDoy) return true;
+      }
+    }
+  }
+  // More robust: compare month+day
+  if (dobMonth === nowMonth && Math.abs(nowDay - dobDay) <= 5) return true;
+  // Handle month boundary
+  if (nowMonth === 12 && dobMonth === 1) {
+    var daysInDec = 31;
+    if ((daysInDec - nowDay) + dobDay <= 5) return true;
+  }
+  if (nowMonth === 1 && dobMonth === 12) {
+    var daysInDec2 = 31;
+    if ((daysInDec2 - dobDay) + nowDay <= 5) return true;
+  }
+  return false;
+}
+
+function hasClaimedThisYear(claims) {
+  if (!claims || !Array.isArray(claims) || claims.length === 0) return false;
+  var thisYear = new Date().getFullYear();
+  return claims.some(function(c) { return c.year === thisYear; });
+}
+
+function getClaimHistoryHtml(claims) {
+  if (!claims || !Array.isArray(claims) || claims.length === 0) return '<p class="muted" style="font-size:12px;margin-top:4px">No previous claims.</p>';
+  return '<div style="margin-top:6px"><p class="muted" style="font-size:11px;margin-bottom:4px">Claim History:</p>'+
+    claims.map(function(c) {
+      return '<span style="display:inline-block;background:#D4AF37;color:#5a4300;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-right:4px;margin-bottom:4px">🎂 ' + c.year + ' — ' + (c.date||'') + '</span>';
+    }).join('') + '</div>';
+}
+
+function renderAdminCustomersList(customers, query) {
+  var list = document.getElementById('customers-list');
+  if (!list) return;
+  if (!customers || customers.length === 0) { list.innerHTML='<p class="muted">No customers yet. Customer sign-ups from the login popup will appear here.</p>'; return; }
+  var filtered = customers;
+  if (query) {
+    filtered = customers.filter(function(c) {
+      return (c.name||'').toLowerCase().indexOf(query) !== -1 || (c.phone||'').toLowerCase().indexOf(query) !== -1;
+    });
+  }
+  if (filtered.length === 0) { list.innerHTML='<p class="muted" style="padding:12px">No customers match "' + esc(query) + '".</p>'; return; }
+  list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Phone</th><th>DOB</th><th>Registered</th><th>Birthday Offer</th><th>Action</th></tr></thead><tbody>'+
+    filtered.map(function(c) {
+      var inWindow = isBirthdayWindow(c.dob);
+      var alreadyClaimed = hasClaimedThisYear(c.birthday_claims);
+      var claimHistory = getClaimHistoryHtml(c.birthday_claims);
+      var bdayCell = '';
+      if (!c.dob) {
+        bdayCell = '<span class="muted" style="font-size:11px">No DOB</span>';
+      } else if (inWindow && !alreadyClaimed) {
+        bdayCell = '<button class="btn" style="padding:4px 10px;font-size:11px;background:#D4AF37;color:#5a4300;border:none;border-radius:6px;font-weight:700" onclick="claimBirthdayOffer(\''+c.id+'\')">🎂 Claim Offer</button>';
+      } else if (alreadyClaimed) {
+        bdayCell = '<span style="display:inline-block;background:#2E7D32;color:#fff;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700">✅ Claimed</span>';
+      } else {
+        bdayCell = '<span class="muted" style="font-size:11px">Outside window</span>';
+      }
+      bdayCell += claimHistory;
+      return '<tr><td><b>'+(c.name||'')+'</b></td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'—')+'</td><td>'+(c.created_at||'').substring(0,10)+'</td><td style="min-width:160px">'+bdayCell+'</td>'+
+      '<td><button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteCustomerDoc(\''+c.id+'\')">Delete</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+function claimBirthdayOffer(customerId) {
+  adminHaptic('confirm');
+  if (!confirm('Mark this birthday offer as claimed? Customer can only claim once per year.')) return;
+  if (typeof rrkCustomers === 'undefined' || !rrkCustomers.claimBirthday) return;
+  rrkCustomers.claimBirthday(customerId).then(function() {
+    renderCustomersEditor();
+  });
 }
 
 function deleteCustomerDoc(id) {
@@ -762,7 +837,7 @@ function renderSettingsEditor() {
   rrkSettings.get().then(s => {
     el.innerHTML = `<h3 style="margin-bottom:16px">Global Settings</h3>
       ${field('brand_name','Brand Name','text',s.brand_name||'RRK Food Court')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919999999999')}
-      ${field('admin_pass','Admin Password','text',s.admin_pass||'admin1234')}
+      <div class="admin-field"><label>Admin Password</label><input type="password" id="field-admin_pass" placeholder="Leave blank to keep current" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:Inter,sans-serif;font-size:14px;background:#fff" /></div>
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
       <h3 style="margin-bottom:12px">Service Hours</h3>
@@ -815,7 +890,12 @@ function field(key, label, type, val, opts) {
   }
   if (type === 'toggle') {
     var on = val === '1' || val === true || val === 'true';
-    return '<div class="admin-field"><label>'+label+'</label><p class="muted" style="font-size:11px;margin-bottom:4px">Currently: <b>'+(on?'Open':'Closed')+'</b></p><div class="admin-toggle" id="field-'+key+'-wrap"><button type="button" class="admin-toggle-btn '+(on?'active':'')+'" data-val="1" onclick="setToggle(\''+key+'\',1)">Open</button><button type="button" class="admin-toggle-btn '+(!on?'active':'')+'" data-val="0" onclick="setToggle(\''+key+'\',0)">Closed</button><input type="hidden" id="field-'+key+'" value="'+(on?'1':'0')+'" /></div></div>';
+    var toggleLabels = ['No', 'Yes'];
+    // Use context-appropriate labels for known fields
+    if (key === 'craftEnabled') toggleLabels = ['Disabled', 'Enabled'];
+    if (key === 'show_home') toggleLabels = ['Hidden', 'Shown'];
+    if (key === 'service_open_now') toggleLabels = ['Closed', 'Open'];
+    return '<div class="admin-field"><label>'+label+'</label><p class="muted" style="font-size:11px;margin-bottom:4px">Currently: <b>'+(on?toggleLabels[1]:toggleLabels[0])+'</b></p><div class="admin-toggle" id="field-'+key+'-wrap"><button type="button" class="admin-toggle-btn '+(on?'active':'')+'" data-val="1" onclick="setToggle(\''+key+'\',1)">'+toggleLabels[1]+'</button><button type="button" class="admin-toggle-btn '+(!on?'active':'')+'" data-val="0" onclick="setToggle(\''+key+'\',0)">'+toggleLabels[0]+'</button><input type="hidden" id="field-'+key+'" value="'+(on?'1':'0')+'" /></div></div>';
   }
   return '<div class="admin-field"><label>'+label+'</label><input type="'+type+'" id="field-'+key+'" value="'+esc(val)+'" /></div>';
 }
@@ -857,9 +937,15 @@ function downloadCustomersPDF() {
     var html = '<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;padding:20px}h2{color:#C1121F}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left}th{background:#C1121F;color:#fff}</style></head><body>'+
       '<h2>RRK Food Court - Customers Report</h2>'+
       '<p>Generated: '+new Date().toLocaleString()+' | Total Customers: '+customers.length+'</p>'+
-      '<table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Date of Birth</th><th>Registered</th></tr></thead><tbody>'+
+      '<table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Date of Birth</th><th>Birthday Claims</th><th>Registered</th></tr></thead><tbody>'+
       customers.map(function(c,i){
-        return '<tr><td>'+(i+1)+'</td><td>'+(c.name||'').replace(/</g,'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'')+'</td><td>'+((c.created_at||'').substring(0,10))+'</td></tr>';
+        var claimsText = '';
+        if (c.birthday_claims && c.birthday_claims.length > 0) {
+          claimsText = c.birthday_claims.map(function(cl) { return cl.year + ' (' + cl.date + ')'; }).join(', ');
+        } else {
+          claimsText = 'None';
+        }
+        return '<tr><td>'+(i+1)+'</td><td>'+(c.name||'').replace(/</g,'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'')+'</td><td>'+claimsText+'</td><td>'+((c.created_at||'').substring(0,10))+'</td></tr>';
       }).join('')+
       '</tbody></table></body></html>';
     var blob = new Blob([html], {type:'text/html'});
@@ -882,9 +968,27 @@ function showItemEditor(title, fields, onSave) {
   modal.innerHTML = '<div class="admin-modal__card"><h3>'+title+'</h3>'+fieldsHtml+
     '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn--primary btn--block" id="am-save">Save</button><button class="btn btn--gold-outline btn--block" id="am-cancel">Cancel</button></div></div>';
   document.body.appendChild(modal);
+  modal.addEventListener('click', function(ev) { if (ev.target === modal) { adminHaptic('close'); modal.remove(); } });
   modal.querySelector('#am-save').onclick = () => {
     adminHaptic('confirm');
-    const vals = {}; fields.forEach(f => { vals[f.key] = document.getElementById('field-'+f.key).value; });
+    var vals = {}; var errors = [];
+    fields.forEach(function(f) {
+      var el = document.getElementById('field-'+f.key);
+      vals[f.key] = el ? el.value : '';
+      // Basic validation
+      if (f.type === 'number' && vals[f.key] !== '') {
+        if (isNaN(parseFloat(vals[f.key]))) errors.push(f.label + ' must be a number.');
+      }
+      if (f.label.indexOf('Price') !== -1 || f.key === 'price') {
+        if (vals[f.key] !== '' && (isNaN(parseFloat(vals[f.key])) || parseFloat(vals[f.key]) < 0)) {
+          errors.push(f.label + ' must be a positive number.');
+        }
+      }
+    });
+    if (errors.length > 0) {
+      alert('Please fix the following:\n- ' + errors.join('\n- '));
+      return;
+    }
     modal.remove(); onSave(vals);
   };
   modal.querySelector('#am-cancel').onclick = () => { adminHaptic('close'); modal.remove(); };

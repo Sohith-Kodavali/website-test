@@ -34,7 +34,7 @@ var CpApp = (function() {
       if (m.craftEnabled && cat && cats[cat]) {
         cats[cat].push({
           name: m.name,
-          price: parseInt(m.craftPrice) || 0,
+          price: parseInt(m.price) || 0,
           diet: m.diet || 'nonveg'
         });
       }
@@ -105,6 +105,7 @@ var CpApp = (function() {
       if (step3) step3.classList.add('cp-step-unlocked');
       if (step4) step4.style.display = 'block';
       highlightByBudget();
+      updateSandboxStats();
       updateCheckoutBar();
     }
   }
@@ -192,9 +193,11 @@ var CpApp = (function() {
     });
     var perPlateEl = document.getElementById('cpPerPlate');
     var itemCountEl = document.getElementById('cpItemCount');
+    var overallEl = document.getElementById('cpOverallBudget');
     var warningEl = document.getElementById('cpWarning');
     if (perPlateEl) perPlateEl.textContent = perPlate.toLocaleString('en-IN');
     if (itemCountEl) itemCountEl.textContent = totalItems;
+    if (overallEl && state.guestsValid) overallEl.textContent = (perPlate * state.guests).toLocaleString('en-IN');
     if (warningEl) warningEl.style.display = (totalItems < 3) ? 'block' : 'none';
     updateBudgetBar(perPlate);
   }
@@ -471,7 +474,7 @@ var CpApp = (function() {
     };
     if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
       rrkOrders.save(orderData).then(function() {
-        console.log('Craft order saved to Firestore: ₹' + orderData.total, orderData.guests + ' guests');
+        // Craft order saved
       }).catch(function(e) { console.warn('Craft order save failed', e); });
     }
 

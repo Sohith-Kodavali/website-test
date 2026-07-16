@@ -17,7 +17,7 @@ function getAudioCtx() {
     if (!ctx) return;
     unlocked = true;
     if (ctx.state === 'suspended') {
-      ctx.resume().then(function() { console.log('Audio unlocked'); });
+      ctx.resume().then(function() { /* Audio unlocked */ });
     }
     // Play a silent buffer to fully prime the pipeline
     var buf = ctx.createBuffer(1,1,22050);
@@ -377,7 +377,7 @@ if (modal) {
       // Also save to Firestore so admin can see registered customers
       if (typeof rrkCustomers !== 'undefined' && rrkCustomers.register) {
         rrkCustomers.register({ name: name, phone: phone, dob: dob }).then(function() {
-          console.log('Customer saved to Firestore:', name, phone);
+          // Customer saved to Firestore
         }).catch(function(err) {
           console.warn('Customer Firestore save failed:', err);
         });
@@ -405,9 +405,10 @@ function getCart() { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); 
 function saveCart(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); renderCart(); }
 function addToCart(name, price) {
   var cart = getCart();
+  var p = parseInt(price) || 0;
   var item = cart.find(function(i) { return i.name === name; });
   if (item) item.qty++;
-  else cart.push({ name: name, price: price, qty: 1 });
+  else cart.push({ name: name, price: p, qty: 1 });
   saveCart(cart);
   playHaptic('add');
   showToast('Added to cart · ' + cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items');
@@ -416,9 +417,10 @@ function addToCart(name, price) {
 function addToCartAndGoToMenu(name, price) {
   var foodCartKey = 'rrk_cart_food';
   var cart = JSON.parse(localStorage.getItem(foodCartKey) || '[]');
+  var p = parseInt(price) || 0;
   var item = cart.find(function(i) { return i.name === name; });
   if (item) item.qty++;
-  else cart.push({ name: name, price: price, qty: 1 });
+  else cart.push({ name: name, price: p, qty: 1 });
   localStorage.setItem(foodCartKey, JSON.stringify(cart));
   if (typeof playHaptic === 'function') playHaptic('add');
   window.location.href = 'menu.html';
@@ -464,7 +466,7 @@ function renderCart() {
   if (cart.length === 0) {
     wrap.innerHTML = '<div class="cart-empty"><div class="cart-empty__ic">&#x1f6cd;&#xfe0f;</div><p>Your plate is empty</p><span>Add something delicious!</span></div>';
   } else {
-    wrap.innerHTML = cart.map(function(i) { return '<div class="cart-row"><div><b>' + i.name + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + i.name + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + i.name + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + i.name + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
+    wrap.innerHTML = cart.map(function(i) { var safeName = typeof escHtml === 'function' ? escHtml(i.name) : i.name; return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + safeName.replace(/'/g,"\\'") + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + safeName.replace(/'/g,"\\'") + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>'; }).join('');
   }
   if (totalEl) totalEl.textContent = '\u20B9' + cartTotal();
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
@@ -578,7 +580,7 @@ function placeOrder(e) {
 
   if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
     rrkOrders.save(orderData).then(function() {
-      console.log('Order saved to Firestore:', orderData.type, '₹' + orderData.total);
+      // Order saved successfully
     }).catch(function(e) { console.warn('Order save failed', e); });
   }
 

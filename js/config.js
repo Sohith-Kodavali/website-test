@@ -18,13 +18,15 @@ function getWhatsappLink() {
 }
 
 function loadRRKConfig() {
+  if (RRK_CONFIG._loading) return RRK_CONFIG._loading;
   if (typeof rrkSettings === 'undefined') { RRK_CONFIG.loaded = true; return Promise.resolve(RRK_CONFIG); }
-  return rrkSettings.get().then(function(settings) {
+  var p = rrkSettings.get().then(function(settings) {
     if (settings.whatsapp) RRK_CONFIG.whatsapp = settings.whatsapp;
     if (settings.contact_phone) { RRK_CONFIG.phone = settings.contact_phone.replace(/^\+/, '').replace(/\s/g, ''); RRK_CONFIG.phoneRaw = settings.contact_phone.replace(/[\s+]/g, ''); }
     if (settings.brand_name) RRK_CONFIG.brandName = settings.brand_name;
     if (settings.brand_tagline) RRK_CONFIG.tagline = settings.brand_tagline;
     RRK_CONFIG.loaded = true;
+    RRK_CONFIG._loading = null;
     // Update all WA links on page
     setTimeout(function() {
       document.querySelectorAll('.wa-link').forEach(function(el) {
@@ -37,8 +39,11 @@ function loadRRKConfig() {
     return RRK_CONFIG;
   }).catch(function() {
     RRK_CONFIG.loaded = true;
+    RRK_CONFIG._loading = null;
     return RRK_CONFIG;
   });
+  RRK_CONFIG._loading = p;
+  return p;
 }
 
 // Auto-load on script init

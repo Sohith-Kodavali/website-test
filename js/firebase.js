@@ -62,7 +62,19 @@ function queryDocs(collection, field, op, value) {
 window.rrkCustomers = {
   list: () => getCollection('customers'),
   register: (data) => addDoc('customers', { ...data, created_at: new Date().toISOString() }),
-  remove: (id) => deleteDoc('customers', id)
+  remove: (id) => deleteDoc('customers', id),
+  claimBirthday: (id) => {
+    return getDoc('customers', id).then(function(customer) {
+      if (!customer) throw new Error('Customer not found');
+      var thisYear = new Date().getFullYear();
+      var claims = customer.birthday_claims || [];
+      if (claims.some(function(c) { return c.year === thisYear; })) {
+        throw new Error('Already claimed this year');
+      }
+      claims.push({ year: thisYear, date: new Date().toISOString().substring(0, 10) });
+      return updateDoc('customers', id, { birthday_claims: claims });
+    });
+  }
 };
 
 // ============ ORDERS ============
@@ -107,16 +119,6 @@ window.rrkRaw = {
     return addDoc('raw', data);
   },
   remove: (id) => deleteDoc('raw', id)
-};
-
-// ============ COMBOS ============
-window.rrkCombos = {
-  list: () => getCollection('combos'),
-  save: (data) => {
-    if (data.id) return updateDoc('combos', data.id, data);
-    return addDoc('combos', data);
-  },
-  remove: (id) => deleteDoc('combos', id)
 };
 
 // ============ OCCASIONS ============
@@ -199,7 +201,7 @@ function seedMenuToFirestore() {
       return {
         name: m.name || '', category: m.category || '', diet: m.diet || 'nonveg',
         description: m.description || '', price: Number(m.price) || 0,
-        craftPrice: Number(m.craftPrice) || 0, craftCategory: m.craftCategory || m.category || '',
+        craftCategory: m.craftCategory || m.category || '',
         craftEnabled: m.craftEnabled !== false, image: m.image || '',
         special: m.special || '0', special_tag: m.special_tag || '', today_special: m.today_special || '0'
       };
@@ -221,17 +223,10 @@ function seedRawToFirestore() {
   });
 }
 
-function seedCombosToFirestore() {
-  return seedOnce('rrk_combos_seeded', function() {
-    if (typeof SITE_DATA === 'undefined' || !SITE_DATA.combos) return Promise.resolve();
-    return Promise.all(SITE_DATA.combos.map(function(c) { return addDoc('combos', c); }));
-  });
-}
-
 function seedOccasionsToFirestore() {
   return seedOnce('rrk_occasions_seeded', function() {
     if (typeof SITE_DATA === 'undefined' || !SITE_DATA.occasions) return Promise.resolve();
-    return Promise.all(SITE_DATA.occasions.map(function(o) { return addDoc('occasions', o); }));
+    return Promise.all(SITE_DATA.occasions.map(function(o) { return addDoc('occasions', { ...o, type: o.type || 'home' }); }));
   });
 }
 
@@ -248,7 +243,6 @@ function resetAllSeeds() {
   try {
     localStorage.removeItem('rrk_menu_seeded');
     localStorage.removeItem('rrk_raw_seeded');
-    localStorage.removeItem('rrk_combos_seeded');
     localStorage.removeItem('rrk_occasions_seeded');
     localStorage.removeItem('rrk_cats_seeded');
   } catch(e){}
@@ -259,7 +253,6 @@ function runAllSeeds() {
     seedCategoriesToFirestore(),
     seedMenuToFirestore(),
     seedRawToFirestore(),
-    seedCombosToFirestore(),
     seedOccasionsToFirestore()
   ]);
 }
