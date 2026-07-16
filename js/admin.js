@@ -430,8 +430,7 @@ function rawFields(item) {
     { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
-    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
-    { key: 'show_home', label: 'Show on Home Page?', type: 'toggle', val: item.show_home !== '0' && item.show_home !== false ? '1' : '0' }
+    { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' }
   ];
 }
 
