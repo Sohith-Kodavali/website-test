@@ -462,6 +462,7 @@ function renderCart() {
   if (!wrap) return;
   if (cart.length === 0) {
     wrap.innerHTML = '<div class="cart-empty"><div class="cart-empty__ic">&#x1f6cd;&#xfe0f;</div><p>Your plate is empty</p><span>Add something delicious!</span></div>';
+    if (totalEl) totalEl.innerHTML = '';
   } else {
     wrap.innerHTML = cart.map(function(i) {
       var safeName = typeof escHtml === 'function' ? escHtml(i.name) : i.name;
@@ -499,7 +500,7 @@ function openCheckout() {
   if (!modal) return;
   document.getElementById('orderModalTitle').textContent = currentOrderMode === 'Delivery' ? 'Delivery Order' : 'Takeaway Order';
   var sub = document.getElementById('orderModalSub');
-  sub.textContent = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · \u20B9' + cartGrandTotal();
+  sub.innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · Subtotal: ₹' + cartTotal() + ' + 5% service charge · Total: ₹' + cartGrandTotal();
   var addrGroup = document.getElementById('orderAddressGroup');
   var addrInput = document.getElementById('orderAddress');
   if (currentOrderMode === 'Delivery') {
@@ -590,13 +591,22 @@ function placeOrder(e) {
 
   saveCart([]);
   incrementOrderCount();
-  sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartTotal() + ' has been placed. We\'ll prepare it shortly.');
+  sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartGrandTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
 
   closeOrderModal();
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
-  window.open('https://wa.me/' + (window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999') + '?text=' + encodeURIComponent(msg), '_blank');
+  // Use a temporary anchor to avoid popup blockers
+  var waNumber = window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999';
+  var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
+  var a = document.createElement('a');
+  a.href = waUrl;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function checkout() {

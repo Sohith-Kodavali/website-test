@@ -489,7 +489,14 @@ var CpApp = (function() {
 
     setTimeout(function() {
       var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919999999999');
-      window.open('https://wa.me/' + wa + '?text=' + msg, '_blank');
+      var waUrl = 'https://wa.me/' + wa + '?text=' + msg;
+      var a = document.createElement('a');
+      a.href = waUrl;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }, 1200);
   }
 
