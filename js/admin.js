@@ -479,6 +479,7 @@ function renderOrdersEditor() {
       '<button class="cms-cat-btn" onclick="filterAdminOrders(\'online\',this)">Online Order</button>'+
       '<button class="cms-cat-btn" onclick="filterAdminOrders(\'craft\',this)">Craft My Plate</button>'+
       '<button class="cms-cat-btn" onclick="filterAdminOrders(\'raw\',this)">Raw Chicken</button>'+
+      '<button class="cms-cat-btn" onclick="filterAdminOrders(\'reservations\',this)">📅 Reservations</button>'+
     '</div>'+
     '<div id="orders-list"><p class="muted">Loading...</p></div>';
 
@@ -635,7 +636,58 @@ function filterAdminOrders(type, btn) {
   adminHaptic('click');
   document.querySelectorAll('#cms-orders .cms-cat-btn').forEach(function(b) { b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
-  renderAdminOrdersList(window.__adminOrders || [], type);
+  if (type === 'reservations') {
+    loadReservations();
+  } else {
+    renderAdminOrdersList(window.__adminOrders || [], type);
+  }
+}
+
+function loadReservations() {
+  var list = document.getElementById('orders-list');
+  if (!list) return;
+  list.innerHTML = '<p class="muted">Loading reservations...</p>';
+  if (typeof rrkReservations === 'undefined') {
+    list.innerHTML = '<p class="muted">Reservations not available.</p>';
+    return;
+  }
+  rrkReservations.list().then(function(data) {
+    var reservations = data || [];
+    if (reservations.length === 0) {
+      list.innerHTML = '<p class="muted" style="padding:20px;text-align:center">No reservations yet.</p>';
+      return;
+    }
+    list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Booking Date</th><th>Time</th><th>Actions</th></tr></thead><tbody>'+
+      reservations.map(function(r) {
+        var created = (r.created_at||'').substring(0,10);
+        return '<tr><td>'+created+'</td><td><b>'+(r.name||'')+'</b></td><td>'+(r.phone||'')+'</td><td>'+(r.date||'')+'</td><td>'+(r.time||'')+'</td>'+
+        '<td><button class="btn" style="padding:3px 8px;font-size:11px;background:#25D366;color:#fff;border:none;margin-right:4px" onclick="notifyReservationCustomer(\''+r.id+'\')">💬</button>'+
+        '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteReservationDoc(\''+r.id+'\')">🗑</button></td></tr>';
+      }).join('')+
+    '</tbody></table></div>';
+  }).catch(function() {
+    list.innerHTML = '<p class="muted">Failed to load reservations.</p>';
+  });
+}
+
+function notifyReservationCustomer(id) {
+  if (typeof rrkReservations === 'undefined') return;
+  rrkReservations.list().then(function(data) {
+    var r = (data || []).find(function(item) { return item.id === id; });
+    if (!r || !r.phone) { alert('No phone number found.'); return; }
+    var phone = r.phone.replace(/[\s+\-]/g, '');
+    if (/^[6-9]\d{9}$/.test(phone)) phone = '91' + phone;
+    var msg = 'Hi '+(r.name||'')+'! Your table reservation at *RRK Food Court* is confirmed.\n\n';
+    msg += '📅 Date: '+(r.date||'')+'\n🕒 Time: '+(r.time||'')+'\n\nThank you for choosing RRK! 🙏';
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
+  });
+}
+
+function deleteReservationDoc(id) {
+  adminHaptic('remove');
+  if (!confirm('Delete this reservation?')) return;
+  if (typeof rrkReservations === 'undefined') return;
+  rrkReservations.remove(id).then(function() { loadReservations(); });
 }
 
 function updateOrderStatus(id, status) {

@@ -579,10 +579,16 @@ function placeOrder(e) {
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  // Get WhatsApp number from config — wait for it if needed
+  // Use temporary anchor for WhatsApp redirect — avoids mobile popup blockers
   function doRedirect(waNum) {
     var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
-    window.open(waUrl, '_blank', 'noopener');
+    var a = document.createElement('a');
+    a.href = waUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
@@ -608,13 +614,12 @@ function checkout() {
 // ============================================
 function reserveTable(e) {
   e.preventDefault();
-  var table = document.getElementById('reserveTable').value;
   var name = document.getElementById('reserveName').value.trim();
   var phone = document.getElementById('reservePhone').value.trim();
   var date = document.getElementById('reserveDate').value;
   var time = document.getElementById('reserveTime').value;
 
-  if (!table || !name || !phone || !date || !time) {
+  if (!name || !phone || !date || !time) {
     alert('Please fill all fields.');
     return;
   }
@@ -622,25 +627,33 @@ function reserveTable(e) {
   var msg = '*Table Reservation Request*\n\n';
   msg += '👤 *Name:* ' + name + '\n';
   msg += '📞 *Phone:* ' + phone + '\n';
-  msg += '🪑 *Table:* ' + table + '\n';
   msg += '📅 *Date:* ' + date + '\n';
   msg += '🕒 *Time:* ' + time;
+
+  // Save reservation to Firestore for admin
+  if (typeof rrkReservations !== 'undefined' && rrkReservations.save) {
+    rrkReservations.save({
+      name: name, phone: phone, date: date, time: time,
+      status: 'pending', created_at: new Date().toISOString()
+    }).catch(function(e) { console.warn('Reservation save failed', e); });
+  }
 
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
   function doRedirect(waNum) {
-    window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
+    var a = document.createElement('a');
+    a.href = waUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
   if (waNumber) {
     doRedirect(waNumber);
-  } else if (typeof rrkSettings !== 'undefined') {
-    rrkSettings.get().then(function(s) {
-      doRedirect(s.whatsapp || '919866631761');
-    }).catch(function() {
-      doRedirect('919866631761');
-    });
   } else {
     doRedirect('919866631761');
   }

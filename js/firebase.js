@@ -101,6 +101,13 @@ window.rrkOrders = {
   updateStatus: (id, status) => updateDoc('orders', id, { status, updated_at: new Date().toISOString() })
 };
 
+// ============ RESERVATIONS ============
+window.rrkReservations = {
+  list: () => getCollection('reservations'),
+  save: (data) => addDoc('reservations', data),
+  remove: (id) => deleteDoc('reservations', id)
+};
+
 // ============ MENU ============
 window.rrkMenu = {
   list: () => getCollection('menu'),
