@@ -580,23 +580,31 @@ function placeOrder(e) {
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
   var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
-  function redirectToWhatsApp(waNum) {
-    var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
-    setTimeout(function() {
-      window.location.href = waUrl;
-    }, 300);
+  var waUrl = '';
+  function showOrderConfirmation() {
+    var modal = document.getElementById('orderModal');
+    if (!modal) return;
+    document.getElementById('orderModalTitle').textContent = 'Order Placed! 🎉';
+    document.getElementById('orderModalSub').innerHTML = 'Your order has been sent. Tap below to confirm on WhatsApp.';
+    var form = document.getElementById('orderForm');
+    form.innerHTML = '<div style="text-align:center;padding:8px 0"><a href="' + waUrl + '" class="btn btn--wa btn--block btn--lg" style="font-size:16px">💬 Open WhatsApp</a><p class="muted" style="margin-top:16px;font-size:12px">If WhatsApp doesn\'t open, <a href="' + waUrl + '" style="color:var(--red);font-weight:700">tap here</a></p></div>';
+    modal.classList.add('open');
   }
 
   if (waNumber) {
-    redirectToWhatsApp(waNumber);
+    waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
+    showOrderConfirmation();
   } else if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      redirectToWhatsApp(s.whatsapp || '919866631761');
+      waUrl = 'https://wa.me/' + (s.whatsapp || '919866631761') + '?text=' + encodeURIComponent(msg);
+      showOrderConfirmation();
     }).catch(function() {
-      redirectToWhatsApp('919866631761');
+      waUrl = 'https://wa.me/919866631761?text=' + encodeURIComponent(msg);
+      showOrderConfirmation();
     });
   } else {
-    redirectToWhatsApp('919866631761');
+    waUrl = 'https://wa.me/919866631761?text=' + encodeURIComponent(msg);
+    showOrderConfirmation();
   }
 }
 
