@@ -5,9 +5,9 @@
 // ============================================
 
 var RRK_CONFIG = {
-  whatsapp: '919999999999',
-  phone: '+91 99999 99999',
-  phoneRaw: '919999999999',
+  whatsapp: '919866631761',
+  phone: '+91 98666 31761',
+  phoneRaw: '919866631761',
   brandName: 'RRK Food Court',
   tagline: 'Eluru\'s premier food court destination.',
   loaded: false

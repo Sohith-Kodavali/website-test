@@ -5,6 +5,8 @@
 
 # communication
 - When presenting multiple options, wait for confirmation before implementing a choice. Confidence: 0.70
+- Use simple, non-technical explanations — the user is not a developer and gets confused by technical jargon; guide step-by-step with clear instructions and avoid assuming technical knowledge. Confidence: 0.75
+- When fixing bugs or making changes, flag any change that would alter the current user-facing behavior/UX before implementing it — the user wants to be notified before existing usage patterns are modified. Confidence: 0.65
 
 # backend
 - Use Firebase (Firestore) for backend — site data should live in Firestore and load from there on public pages, not just hardcoded defaults. Admin saves must sync to Firestore so changes persist across all devices. Confidence: 0.75
@@ -24,8 +26,10 @@ See [admin/taste.md](admin/taste.md)
 - Use "Order Online" instead of "Menu" for the menu page and navigation links. Confidence: 0.60
 
 # workflow
-- Push changes to the repository after making them, without needing to be asked. Confidence: 0.85
-- When asked to verify changes (especially during migrations or risky operations), do a slow, strict, thorough verification — check every feature, mobile UI rendering, backend loading, and edge cases; prioritize completeness over speed and use as many tokens as needed. Confidence: 0.70
+- Push changes to the repository after making them, without needing to be asked. Confidence: 0.90
+- When the project is deployed to Vercel, suggest checking the live Vercel URL instead of opening local files for verification. Confidence: 0.90
+- When asked to verify changes (especially during migrations or risky operations), do a slow, strict, thorough verification — check every feature, mobile UI rendering, backend loading, and edge cases; prioritize completeness over speed and use as many tokens as needed. Confidence: 0.75
+- For the RRK project in OpenCode, the user is logged into a specific GitHub account that should be used for all RRK-related commits — if the terminal is logged into a different account for other projects, switch back before working on RRK. Confidence: 0.70
 
 # architecture
 - Centralize the WhatsApp number in a single configuration source, designed to support admin portal management in the future. Confidence: 0.70
@@ -41,7 +45,15 @@ See [admin/taste.md](admin/taste.md)
 
 # firestore
 - Firestore requires a composite index for `orderBy` queries — when using `orderBy('created_at', 'desc')`, Firebase logs an index creation link in the browser console on first query; click it to create the index instantly. Confidence: 0.70
+- Avoid client-side caching of Firestore data — do not add in-memory promise caches, localStorage wrappers, or any caching layer between Firestore and the UI. All data should come fresh from the backend on every load. Client-side caching has caused persistent issues in this project. Confidence: 0.75
 
 # ux
 - Add haptic feedback (vibration) and sound effects to every interactive action across the site — not just cart and order placement. Confidence: 0.80
+
+# craft-my-plate
+- Birthday field in the login popup should be optional, not required. Confidence: 0.75
+- Craft My Plate should display an overall budget near the menu (since customers are selecting items for a whole event). The budget should reflect menu pricing, not separate craft pricing. Confidence: 0.70
+- Craft My Plate item prices are NOT per-person — each selected item's price should be added once to the overall budget (just sum the selected items), do not multiply by guest count. Confidence: 0.80
+- Customers must be able to add the same Craft My Plate item multiple times (allow quantity > 1 for each selected item). Confidence: 0.75
+- Minimum budget per person is ₹200. Confidence: 0.70
 

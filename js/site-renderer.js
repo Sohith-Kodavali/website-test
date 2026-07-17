@@ -53,7 +53,7 @@ function getCraftCategories() {
 }
 
 const SITE_DATA = {
-  whatsapp: '919999999999',
+  whatsapp: '919866631761',
   brand: { name: 'RRK Food Court', tagline: 'Eluru\'s premier food court destination.' },
   pageMeta: {
     menu: { eyebrow: 'Explore', headline: 'Our Menu' },
@@ -163,7 +163,7 @@ const SITE_DATA = {
     {image:'12.jpeg',caption:'Fresh cuts daily'},{image:'13.jpeg',caption:'Family feast'},
     {image:'14.jpeg',caption:'Tandoori special'},{image:'15.jpeg',caption:'Curry cuts ready'}
   ],
-  contact: {phone:'+91 99999 99999',phoneRaw:'919999999999',whatsapp:'+91 99999 99999',address:'Railway Track Rd, Ramachandra Rao Pet, Eluru, AP 534002',hours:'11:00 AM – 11:00 PM',mapsUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3820.8001938655!2d81.1007719!3d16.7106762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3615e01ad28f5d%3A0xf1c2f543e5e71e0a!2sRRK%20FOOD%20COURT!5e0!3m2!1sen!2sin!4v99999999999'},
+  contact: {phone:'+91 98666 31761',phoneRaw:'919866631761',whatsapp:'+91 98666 31761',address:'Railway Track Rd, Ramachandra Rao Pet, Eluru, AP 534002',hours:'11:00 AM – 11:00 PM',mapsUrl:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3820.8001938655!2d81.1007719!3d16.7106762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a3615e01ad28f5d%3A0xf1c2f543e5e71e0a!2sRRK%20FOOD%20COURT!5e0!3m2!1sen!2sin!4v99999999999'},
   social: {instagram:'#',facebook:'#',youtube:'#'},
   footer: {copyright:'© 2026 RRK Food Court. All rights reserved.'},
   loginModal: {eyebrow:'Welcome to RRK',headline:'Join the RRK Food Court Family',desc:'Unlock birthday offers, festival deals & exclusive combos.',benefits:['🎂 Birthday Offer','🎊 Festival Offers','🔑 Exclusive Deals','💬 WhatsApp Community'],privacy:'We respect your privacy.'}

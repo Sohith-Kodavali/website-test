@@ -672,10 +672,10 @@ function notifyCustomerWhatsApp(id) {
   msg += '💰 Total: ₹'+(order.total||0)+'\n';
   if (order.mode) msg += '🚚 Mode: '+order.mode+'\n';
   msg += '\nThank you for choosing RRK Food Court! 🙏';
-  var wa = '919999999999';
+  var wa = '919866631761';
   if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      wa = s.whatsapp || '919999999999';
+      wa = s.whatsapp || '919866631761';
       window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
     }).catch(function() {
       window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg), '_blank');
@@ -925,7 +925,7 @@ function renderSettingsEditor() {
   el.innerHTML = '<h3 style="margin-bottom:16px">Global Settings</h3><p class="muted">Loading...</p>';
   rrkSettings.get().then(s => {
     el.innerHTML = `<h3 style="margin-bottom:16px">Global Settings</h3>
-      ${field('brand_name','Brand Name','text',s.brand_name||'RRK Food Court')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919999999999')}
+      ${field('brand_name','Brand Name','text',s.brand_name||'RRK Food Court')}${field('whatsapp','WhatsApp Number','text',s.whatsapp||'919866631761')}
       <div class="admin-field"><label>Admin Password</label><input type="password" id="field-admin_pass" placeholder="Leave blank to keep current" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:Inter,sans-serif;font-size:14px;background:#fff" /></div>
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />

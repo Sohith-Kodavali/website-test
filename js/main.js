@@ -598,7 +598,7 @@ function placeOrder(e) {
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
   // Use a temporary anchor to avoid popup blockers
-  var waNumber = window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919999999999';
+  var waNumber = window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919866631761';
   var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
   var a = document.createElement('a');
   a.href = waUrl;

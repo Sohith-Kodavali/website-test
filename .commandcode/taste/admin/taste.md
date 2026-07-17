@@ -1,7 +1,11 @@
 # admin
-- Admin dashboard CMS should show only four tabs: Menu, Raw Chicken, Combos, and Occasions. Exclude everything else (hero, badge, stats, testimonials, instagram, about, why cards, contact, social, settings). Confidence: 0.90
+- Admin dashboard CMS should show only three tabs: Menu, Raw Chicken, and Occasions. Combos have been removed entirely. Exclude everything else (hero, badge, stats, testimonials, instagram, about, why cards, contact, social, settings). Confidence: 0.90
 - Admin authentication should use password-only login (no username field) — there is only a single admin user. Confidence: 0.85
 - Keep the "Add Category" section inline within the Menu tab, not as a separate section. Confidence: 0.70
-- Craft My Plate items should mirror Menu items — they share the same items but have separate pricing. No "add item" option for craft (only disable/enable existing items). Confidence: 0.70
+- Craft My Plate items should mirror Menu items — they share the same items AND the same pricing. No separate pricing for craft. No "add item" option for craft (only disable/enable existing items). Confidence: 0.85
 - When a new menu category is added via the inline category manager, it must immediately appear as a filter tab in the Menu panel (the category filter buttons like chicken, biryani, etc.). Adding the category to Firestore is not enough — the filter tabs must refresh to include the new category. Confidence: 0.70
 - Craft My Plate should use the same categories as the Menu for filtering — do not maintain separate craft-specific categories. The category tabs shown in Craft My Plate should mirror the menu category tabs. Confidence: 0.70
+- Combos feature has been removed entirely — remove combos from admin UI, backend/Firestore, and public-facing code. Confidence: 0.85
+- Admin customers panel needs: search bar (search by name or phone number), and a birthday offer claimed/unclaimed toggle per customer (visible only within 5 days of customer's birthday). Clicking a customer should show their birthday offer claim history. Confidence: 0.75
+- All menu categories (including the hardcoded defaults like Starters, Biryani, etc.) should be fully editable in the admin Manage Categories panel — treat them the same as custom categories with edit/delete buttons, not as read-only defaults. Confidence: 0.65
+- Remove the order input field from the add/edit category forms — auto-assign the next available order number instead to prevent merge/conflict issues when two categories share the same order value. Confidence: 0.70
