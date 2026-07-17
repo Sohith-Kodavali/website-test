@@ -1,0 +1,32 @@
+# RRK Food Court - Hostinger Deployment
+# ==========================================
+# Place this file in /public_html/
+# ==========================================
+
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Cache rules
+<FilesMatch "\.(html|json)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
+</FilesMatch>
+
+<FilesMatch "\.(css|js)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+</FilesMatch>
+
+<FilesMatch "\.(jpeg|jpg|png|svg|webp|ico)$">
+  Header set Cache-Control "public, max-age=604800, immutable"
+</FilesMatch>
+
+# Redirect www to non-www
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+# Custom 404
+ErrorDocument 404 /index.html
