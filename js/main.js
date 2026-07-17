@@ -575,10 +575,6 @@ function placeOrder(e) {
   sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartGrandTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
 
-  // Close the order form modal
-  var orderModal = document.getElementById('orderModal');
-  if (orderModal) orderModal.classList.remove('open');
-
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
@@ -588,35 +584,33 @@ function placeOrder(e) {
     return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
   }
 
-  // Decouple redirect from form submit stack using a polling flag.
-  // Mobile browsers block any navigation (even setTimeout) from onsubmit.
-  // Instead, the interval poller runs independently outside the form handler.
-  function scheduleRedirect(waUrl) {
-    window.__waRedirectUrl = waUrl;
+  // Swap form to confirmation screen — keep modal open to avoid close/re-open race
+  function showConfirmScreen(waUrl) {
+    var title = document.getElementById('orderModalTitle');
+    var sub = document.getElementById('orderModalSub');
+    var form = document.getElementById('orderForm');
+    if (title) title.textContent = 'Order Placed!';
+    if (sub) sub.innerHTML = 'Tap the button below to confirm on WhatsApp.';
+    if (form) {
+      form.onsubmit = function(e) { e.preventDefault(); };
+      form.innerHTML = '<div style="text-align:center;padding:8px 0">' +
+        '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;margin-bottom:12px;text-decoration:none">💬 Open WhatsApp</a>' +
+        '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
+        '</div>';
+    }
   }
 
   if (waNumber) {
-    scheduleRedirect(buildWaUrl(waNumber));
+    showConfirmScreen(buildWaUrl(waNumber));
   } else if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      scheduleRedirect(buildWaUrl(s.whatsapp || '919866631761'));
+      showConfirmScreen(buildWaUrl(s.whatsapp || '919866631761'));
     }).catch(function() {
-      scheduleRedirect(buildWaUrl('919866631761'));
+      showConfirmScreen(buildWaUrl('919866631761'));
     });
   } else {
-    scheduleRedirect(buildWaUrl('919866631761'));
+    showConfirmScreen(buildWaUrl('919866631761'));
   }
-}
-
-// Polling-based redirect — completely independent of form submit
-if (!window.__waRedirectInterval) {
-  window.__waRedirectInterval = setInterval(function() {
-    if (window.__waRedirectUrl) {
-      var url = window.__waRedirectUrl;
-      window.__waRedirectUrl = null;
-      window.location.href = url;
-    }
-  }, 150);
 }
 
 function checkout() {
