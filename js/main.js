@@ -867,7 +867,21 @@ function initSocialProof() {
     localStorage.setItem('rrk_order_count', '0');
     stored = 0;
   }
-  var displayCount = 15 + stored + Math.floor(Math.random() * 5);
+  var hour = now.getHours();
+  var base = 0;
+  if (hour < 11) {
+    base = Math.floor(Math.random() * 10);
+  } else if (hour < 14) {
+    // Ramp up to ~200 by 2pm
+    base = Math.floor((hour - 10) / 4 * 200) + Math.floor(Math.random() * 20);
+  } else if (hour < 18) {
+    base = 200 + Math.floor(Math.random() * 12);
+  } else if (hour < 21) {
+    base = 200 + Math.floor(Math.random() * 8);
+  } else {
+    base = 205 + Math.floor(Math.random() * 6);
+  }
+  var displayCount = base + stored + Math.floor(Math.random() * 3);
   var el = document.getElementById('socialProof');
   if (!el) return;
   el.innerHTML = '<span class="sp-dot"></span> <span class="sp-count">' + displayCount + '</span> customers ordered today!';
