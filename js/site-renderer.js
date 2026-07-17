@@ -467,10 +467,21 @@ function renderCraftPage(D) {
     '<div class="cp-guest-ok" id="cpGuestOk" style="display:none">✅ Great! Serving <strong id="cpGuestOkCount"></strong> guests · Overall Budget Target: ₹<strong id="cpGuestOkTarget">0</strong></div>'+
   '</section>';
 
-  // ===== STEP 3: Menu Builder (unlocked after valid guests) =====
+  // ===== STEP 3: Choose how to build — consult owner or pick from menu =====
   html += '<section class="cp-step-section reveal cp-step-locked" id="step3">'+
     '<div class="cp-step-head"><div class="cp-step-num">3</div><h3>Build Your Menu</h3></div>'+
-    '<p class="muted cp-step-desc">Select items for your catering. Each item has its own price. Pick at least 3 items.</p>'+
+    '<p class="muted cp-step-desc" style="margin-bottom:16px">Choose how you want to plan your catering menu.</p>'+
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">'+
+      '<button class="btn cp-option-btn active" id="cpOptionMenu" onclick="CpApp.selectBuildMode(\'menu\')" style="flex:1;min-width:140px">'+
+        '<div style="font-size:28px;margin-bottom:4px">🍽️</div>'+
+        '<strong>Select from Menu</strong><br><span style="font-size:11px;opacity:.7">Pick items yourself</span>'+
+      '</button>'+
+      '<button class="btn cp-option-btn" id="cpOptionConsult" onclick="CpApp.selectBuildMode(\'consult\')" style="flex:1;min-width:140px">'+
+        '<div style="font-size:28px;margin-bottom:4px">💬</div>'+
+        '<strong>Consult Owner</strong><br><span style="font-size:11px;opacity:.7">Discuss over WhatsApp</span>'+
+      '</button>'+
+    '</div>'+
+    '<div id="cpMenuBuilder" style="display:block">'+
     '<div class="cp-tabs" id="cpTabs">'+
       catKeys.map(function(cat, i) {
         return '<button class="cp-tab-btn'+(i===0?' active':'')+'" onclick="CpApp.switchTab(\''+cat+'\',event)">'+catLabels[cat]+'</button>';
@@ -491,6 +502,11 @@ function renderCraftPage(D) {
       '<div class="cp-stats"><span>Current Total: <strong>₹<span id="cpCurrentTotal">0</span></strong></span><span>Target: <strong>₹<span id="cpTargetBudget">0</span></strong></span><span>Items: <strong id="cpItemCount">0</strong></span></div>'+
       '<div class="cp-budget-bar" id="cpBudgetBar"><div class="cp-budget-bar__track"><div class="cp-budget-bar__fill" id="cpBudgetFill"></div></div><span class="cp-budget-bar__label" id="cpBudgetLabel"></span></div>'+
       '<div class="cp-warning" id="cpWarning" style="display:none">⚠️ Please select at least 3 items to build your custom menu.</div>'+
+    '</div>'+
+    '</div>'+
+    '<div id="cpConsultSection" style="display:none;text-align:center;padding:24px 0">'+
+      '<p style="font-size:16px;margin-bottom:20px">Your preferences will be sent to the owner for a personalized consultation.</p>'+
+      '<button class="btn btn--wa btn--block btn--lg" onclick="CpApp.consultWhatsApp()">💬 Discuss on WhatsApp</button>'+
     '</div>'+
   '</section>';
 

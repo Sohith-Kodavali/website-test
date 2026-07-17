@@ -452,18 +452,18 @@ var CpApp = (function() {
     var items = getSelectedItemNames();
     var target = overallBudgetTarget();
 
-    var msg = '*Craft My Plate · Confirmed Order*%0A%0A';
-    msg += '👥 Guests: ' + state.guests + ' (₹' + state.budgetPerPerson + '/person)%0A';
-    msg += '🎯 Target Budget: ₹' + target.toLocaleString('en-IN') + '%0A';
-    msg += '🍽️ Items (' + itemCount + '): ' + items.join(', ') + '%0A';
-    msg += '💰 Grand Total: ₹' + total.toLocaleString('en-IN') + '%0A';
-    msg += '📦 Type: ' + (state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery') + '%0A';
+    var msg = '*Craft My Plate • Confirmed Order*\n\n';
+    msg += 'Guests: ' + state.guests + ' (\u20B9' + state.budgetPerPerson + '/person)\n';
+    msg += 'Target Budget: \u20B9' + target.toLocaleString('en-IN') + '\n';
+    msg += 'Items (' + itemCount + '): ' + items.join(', ') + '\n';
+    msg += 'Grand Total: \u20B9' + total.toLocaleString('en-IN') + '\n';
+    msg += 'Type: ' + (state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery') + '\n';
     if (state.deliveryMode === 'delivery' && state.deliveryLocation) {
-      msg += '📍 Location: ' + state.deliveryLocation + '%0A';
+      msg += 'Location: ' + state.deliveryLocation + '\n';
     }
-    if (state.occasion) msg += '🎉 Occasion: ' + state.occasion + '%0A';
-    if (state.couponType !== '') msg += '🏷️ Applied: ' + state.couponType + (state.offerPercent > 0 ? ' (' + state.offerPercent + '% off)' : '') + '%0A';
-    if (state.freeDelivery) msg += '🚚 FREE DELIVERY %0A';
+    if (state.occasion) msg += 'Occasion: ' + state.occasion + '\n';
+    if (state.couponType !== '') msg += 'Applied: ' + state.couponType + (state.offerPercent > 0 ? ' (' + state.offerPercent + '% off)' : '') + '\n';
+    if (state.freeDelivery) msg += 'FREE DELIVERY\n';
 
     var orderData = {
       type: 'craft',
@@ -497,6 +497,51 @@ var CpApp = (function() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }, 1200);
+  }
+
+  function selectBuildMode(mode) {
+    var menuBtn = document.getElementById('cpOptionMenu');
+    var consultBtn = document.getElementById('cpOptionConsult');
+    var menuEl = document.getElementById('cpMenuBuilder');
+    var consultEl = document.getElementById('cpConsultSection');
+    var step5 = document.getElementById('step5');
+    var step6 = document.getElementById('step6');
+    if (menuBtn) menuBtn.classList.toggle('active', mode === 'menu');
+    if (consultBtn) consultBtn.classList.toggle('active', mode === 'consult');
+    if (menuEl) menuEl.style.display = (mode === 'menu') ? 'block' : 'none';
+    if (consultEl) consultEl.style.display = (mode === 'consult') ? 'block' : 'none';
+    if (step5) step5.style.display = 'none';
+    if (step6) step6.style.display = 'none';
+    if (typeof playHaptic === 'function') playHaptic('click');
+  }
+
+  function consultWhatsApp() {
+    var guests = state.guests;
+    var budget = state.budgetPerPerson;
+    var target = overallBudgetTarget();
+    var mode = state.deliveryMode;
+    var location = state.deliveryLocation || '';
+    var occasion = state.occasion || '';
+
+    var msg = '*Craft My Plate · Consultation Request*\n\n';
+    msg += '👥 *Guests:* ' + guests + '\n';
+    msg += '💰 *Budget:* ₹' + budget + '/person\n';
+    msg += '🎯 *Target:* ₹' + target.toLocaleString('en-IN') + '\n';
+    msg += '📦 *Type:* ' + (mode === 'takeaway' ? 'Takeaway' : 'Delivery') + '\n';
+    if (occasion) msg += '🎉 *Occasion:* ' + occasion + '\n';
+    if (location) msg += '📍 *Location:* ' + location + '\n';
+    msg += '\nHi! I\'d like to discuss a custom catering plan for my event. Please help me with the menu.';
+
+    if (typeof playHaptic === 'function') playHaptic('confirm');
+    showToast('✅ Opening WhatsApp...');
+
+    setTimeout(function() {
+      var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
+      var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
+      var a = document.createElement('a');
+      a.href = waUrl; a.target = '_blank'; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }, 1200);
   }
 
@@ -544,6 +589,7 @@ var CpApp = (function() {
     showConfirm: showConfirm, cancelOrder: cancelOrder, confirmOrder: confirmOrder, orderWhatsApp: orderWhatsApp,
     setDeliveryMode: setDeliveryMode,
     onLocationChange: onLocationChange, shareLiveLocation: shareLiveLocation,
+    selectBuildMode: selectBuildMode, consultWhatsApp: consultWhatsApp,
     getD: getD
   };
 })();

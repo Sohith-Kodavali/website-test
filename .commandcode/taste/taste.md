@@ -38,6 +38,7 @@ See [admin/taste.md](admin/taste.md)
 # architecture
 - Centralize the WhatsApp number in a single configuration source, designed to support admin portal management in the future. Confidence: 0.70
 - When modifying shared backend functions, create isolated targeted solutions rather than changing the generic helper — keep existing functionality untouched. Confidence: 0.65
+- The WhatsApp order redirect pattern (setTimeout + anchor click + target=_blank) should be identical across all ordering pages — Craft My Plate, Order Online/Menu, and Raw Chicken should use the same shared function rather than duplicated code with slight variations. Confidence: 0.70
 
 # debugging
 - When fixing a bug caused by a pattern (e.g., hardcoded value that should be dynamic), search the entire codebase for all other instances of the same root cause and fix them together. Confidence: 0.70

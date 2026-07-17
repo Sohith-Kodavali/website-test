@@ -553,24 +553,23 @@ function placeOrder() {
 
   saveCart([]);
   incrementOrderCount();
-  sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartGrandTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  showToast('✅ Order sent! Redirecting to WhatsApp...');
+  // Craft My Plate works because the redirect happens on a SEPARATE user click.
+  // So we do 2-step: first click processes the order, then shows a new button.
+  document.getElementById('checkoutTitle').textContent = '✅ Order Confirmed!';
+  document.getElementById('checkoutSummary').innerHTML = cart.reduce(function(s,i){return s+i.qty;},0)+' items · Total: ₹'+cartGrandTotal();
+  var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
+  var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
 
-  // Exact same pattern as Craft My Plate: setTimeout + anchor click + target=_blank
-  setTimeout(function() {
-    var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
-    var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
-    var a = document.createElement('a');
-    a.href = waUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }, 1200);
+  var form = document.getElementById('orderForm');
+  form.innerHTML =
+    '<div style="text-align:center;padding:16px 0">' +
+    '<p class="muted" style="margin-bottom:16px">Your order has been saved. Tap below to send it on WhatsApp.</p>' +
+    '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;text-decoration:none;margin-bottom:12px">💬 Open WhatsApp</a>' +
+    '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
+    '</div>';
 }
 
 function checkout() {
