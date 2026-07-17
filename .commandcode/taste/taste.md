@@ -30,6 +30,7 @@ See [admin/taste.md](admin/taste.md)
 - When the project is deployed to Vercel, suggest checking the live Vercel URL instead of opening local files for verification. Confidence: 0.90
 - When asked to verify changes (especially during migrations or risky operations), do a slow, strict, thorough verification — check every feature, mobile UI rendering, backend loading, and edge cases; prioritize completeness over speed and use as many tokens as needed. Confidence: 0.80
 - For the RRK project in OpenCode, the user is logged into a specific GitHub account that should be used for all RRK-related commits — if the terminal is logged into a different account for other projects, switch back before working on RRK. Confidence: 0.70
+- After each big change is completed, test it and trace all connected code paths to verify nothing is broken — do not just verify the changed code in isolation, check upstream and downstream dependencies too. Confidence: 0.85
 
 # architecture
 - Centralize the WhatsApp number in a single configuration source, designed to support admin portal management in the future. Confidence: 0.70

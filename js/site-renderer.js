@@ -7,6 +7,16 @@ function escHtml(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+function format12Hour(time) {
+  if (!time) return '';
+  var p = String(time).split(':');
+  var h = parseInt(p[0]) || 0;
+  var m = p[1] || '00';
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  var dh = h % 12 || 12;
+  return dh + ':' + m + ' ' + ampm;
+}
+
 // Bump this when SITE_DATA defaults change.
 // Old localStorage caches with a lower version are discarded.
 var DATA_VERSION = 7;
@@ -249,6 +259,13 @@ function loadFromFirestore(page) {
       // Merge footer
       if (settings.footer_copyright) data.footer.copyright = settings.footer_copyright;
       if (settings.brand_tagline) data.brand.tagline = settings.brand_tagline;
+      // Merge hero & QR images
+      if (settings.hero_image) data.hero.image = settings.hero_image;
+      if (settings.qr_image) data.qr_image = settings.qr_image;
+      // Merge contact hours from service hours if not explicitly set
+      if (!settings.contact_hours && data.serviceHours) {
+        data.contact.hours = format12Hour(data.serviceHours.openTime) + ' – ' + format12Hour(data.serviceHours.closeTime);
+      }
     }
     try { data._v = DATA_VERSION; localStorage.setItem('rrk_site_data', JSON.stringify(data)); } catch(e) {}
     renderWithData(page, data);
@@ -359,6 +376,9 @@ function renderIndex(D) {
 
   document.getElementById('render-contact').innerHTML = '<section class="section" id="contact"><div class="container split"><div class="reveal reveal-slide-left"><iframe class="map-embed" title="RRK Food Court Location" src="'+D.contact.mapsUrl+'" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><div class="contact-card reveal reveal-slide-right"><h3>Visit &amp; Order</h3><ul class="contact-list"><li><span>📞 Phone</span><b>'+D.contact.phone+'</b></li><li><span>💬 WhatsApp</span><b>'+D.contact.whatsapp+'</b></li><li><span>📍 Address</span><b>'+D.contact.address+'</b></li><li><span>🕒 Hours</span><b>'+D.contact.hours+'</b></li></ul><a href="https://wa.me/'+(D.contact.phoneRaw||D.whatsapp)+'" class="btn btn--wa btn--block" target="_blank" rel="noopener">Chat on WhatsApp</a></div></div></section>';
 
+  // Reserve Table section
+  document.getElementById('render-reserve-table').innerHTML = '<section class="section section--soft" id="reserve"><div class="container"><div class="section__head reveal"><span class="eyebrow">Book Ahead</span><h2>Reserve a Table</h2></div><div class="reveal" style="max-width:480px;margin:0 auto;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-card);padding:28px;box-shadow:var(--sh-card)"><form id="reserveForm" class="form" onsubmit="reserveTable(event)"><select id="reserveTable" class="cp-select" style="margin-bottom:12px" onfocus="playHaptic(\'click\')"><option value="">Select Table</option><option value="1">Table 1 (2-4 people)</option><option value="2">Table 2 (2-4 people)</option><option value="3">Table 3 (2-4 people)</option><option value="4">Table 4 (4-6 people)</option><option value="5">Table 5 (4-6 people)</option><option value="6">Table 6 (4-6 people)</option><option value="7">Table 7 (6-8 people)</option><option value="8">Table 8 (6-8 people)</option><option value="9">Table 9 (8-10 people)</option><option value="10">Table 10 (8-10 people)</option></select><input type="text" id="reserveName" placeholder="Your Name" required style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-family:inherit;margin-bottom:12px;background:var(--card-bg)" onfocus="playHaptic(\'click\')" /><input type="tel" id="reservePhone" placeholder="Phone Number" pattern="[0-9]{10}" required style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-family:inherit;margin-bottom:12px;background:var(--card-bg)" onfocus="playHaptic(\'click\')" /><input type="date" id="reserveDate" required style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-family:inherit;margin-bottom:12px;background:var(--card-bg)" onfocus="playHaptic(\'click\')" /><input type="time" id="reserveTime" required style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;font-family:inherit;margin-bottom:16px;background:var(--card-bg)" onfocus="playHaptic(\'click\')" /><button type="submit" class="btn btn--wa btn--block btn--lg">💬 Book Table on WhatsApp</button></form><p class="muted" style="text-align:center;margin-top:12px;font-size:12px">Or call us: <strong>'+D.contact.phone+'</strong></p></div></div></section>';
+
   document.getElementById('render-login-modal').innerHTML = '<div class="modal__backdrop" data-close></div><div class="modal__card glass"><button class="modal__x" data-close aria-label="Close">&times;</button><span class="eyebrow">'+D.loginModal.eyebrow+'</span><h3>'+D.loginModal.headline+'</h3><p class="muted">'+D.loginModal.desc+'</p><form id="loginForm" class="form"><input type="text" placeholder="Full Name" required /><input type="tel" placeholder="Phone Number" pattern="[0-9]{10}" required /><input type="text" id="loginDob" placeholder="Date of Birth (optional)" onfocus="this.type=\'date\'" /><button type="submit" class="btn btn--primary btn--block btn--lg">Continue</button></form><p class="login-benefits-label">Login & get exciting offers such as:</p><ul class="benefits">'+D.loginModal.benefits.map(function(b){return'<li>'+b+'</li>'}).join('')+'</ul><p class="tiny muted">'+D.loginModal.privacy+'</p></div>';
 }
 
@@ -378,14 +398,14 @@ function renderMenuPage(D) {
   var el = document.getElementById('render-menu'); if(!el)return;
   if (!isRestaurantOpen(D)) {
     var sh = D.serviceHours || {};
-    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Restaurant Closed</h3><p>'+getClosedMessage(D)+'</p><p class="muted" style="margin-top:8px;font-size:13px">Our hours: '+(sh.openTime||'11:00')+' – '+(sh.closeTime||'23:00')+' daily</p></div></div></section>';
+    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Restaurant Closed</h3><p>'+getClosedMessage(D)+'</p><p class="muted" style="margin-top:8px;font-size:13px">Our hours: '+format12Hour(sh.openTime)+' – '+format12Hour(sh.closeTime)+' daily</p></div></div></section>';
     return;
   }
   var allCats = getMenuCategories();
   var labels = {}; allCats.forEach(function(c){labels[c.key]=c.label;});
   labels['all'] = 'All';
   var catKeys = ['all'].concat(allCats.map(function(c){return c.key;}));
-  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderTodaysSpecialsRow(D)+renderSpecialsRow(D)+'<div class="cats cats--compact reveal cats--scrollable">'+catKeys.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box"></div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
+  el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.menu.eyebrow+'</span><h2>'+D.pageMeta.menu.headline+'</h2></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search menu..." oninput="searchMenu(this.value)" /></div>'+renderTodaysSpecialsRow(D)+renderSpecialsRow(D)+'<div class="cats cats--compact reveal cats--scrollable">'+catKeys.map(function(c,i){return'<button class="cat '+(i===0?'active':'')+'" onclick="filterCat(\''+c+'\',this)">'+labels[c]+'</button>'}).join('')+'</div><div class="menu-list">'+D.menu.map(function(m){var cat=m.category;return'<article class="menu-row reveal" data-cat="'+cat+'" data-search="'+m.name.toLowerCase()+' '+m.category.toLowerCase()+'"><div class="menu-row__img"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" />'+(m.special_tag?'<span class="menu-badge menu-badge--offer">'+m.special_tag+'</span>':'')+(m.category==='biryani'&&!m.special_tag?'<span class="menu-badge menu-badge--best">Best</span>':'')+'<span class="menu-badge menu-badge--diet '+(m.diet==='nonveg'?'':'diet-veg')+'">'+(m.diet==='veg'?'🟢Veg':'Non-Veg')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+m.name+'</h3></div><p class="menu-row__desc">'+(m.description||'')+'</p><div class="menu-row__bottom"><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="qr-card reveal-scale" style="margin-top:60px"><span class="eyebrow">Scan &amp; Order</span><h3>QR Menu</h3><div class="qr-box">' + (D.qr_image ? '<img src="'+D.qr_image+'" alt="QR Code" style="width:100%;max-width:200px;display:block;margin:0 auto" />' : '<div class="qr-placeholder" style="width:150px;height:150px;margin:0 auto;background:var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">QR Code</div>') + '</div><p class="muted">Scan to open this menu on your phone.</p></div></div></section>';
 }
 
 function renderCraftPage(D) {

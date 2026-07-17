@@ -930,15 +930,27 @@ function renderSettingsEditor() {
       <div class="admin-field"><label>Admin Password</label><input type="password" id="field-admin_pass" placeholder="Leave blank to keep current" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:Inter,sans-serif;font-size:14px;background:#fff" /></div>
       <button class="btn btn--primary" onclick="saveSettingsDoc()">Save Settings</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
+      <h3 style="margin-bottom:12px">Images</h3>
+      <div class="admin-field"><label>Hero Image (main page first photo)</label><input type="text" id="field-hero_image" value="${esc(s.hero_image||'')}" oninput="previewInlineImage('field-hero_image','preview-hero_image')" /><div id="preview-hero_image" style="margin-top:8px;max-width:300px;border-radius:10px;overflow:hidden;border:1px solid var(--border);display:${s.hero_image?'block':'none'}"><img src="${esc(s.hero_image||'')}" alt="Hero Preview" style="width:100%;display:block" onerror="this.parentElement.style.display='none'" /></div></div>
+      <div class="admin-field"><label>QR Code Image (ordering page)</label><input type="text" id="field-qr_image" value="${esc(s.qr_image||'')}" oninput="previewInlineImage('field-qr_image','preview-qr_image')" /><div id="preview-qr_image" style="margin-top:8px;max-width:200px;border-radius:10px;overflow:hidden;border:1px solid var(--border);display:${s.qr_image?'block':'none'}"><img src="${esc(s.qr_image||'')}" alt="QR Preview" style="width:100%;display:block" onerror="this.parentElement.style.display='none'" /></div></div>
+      <button class="btn btn--primary" onclick="saveImagesDoc()">Save Images</button>
+      <hr style="margin:28px 0;border-color:var(--border)" />
       <h3 style="margin-bottom:12px">Service Hours</h3>
       ${field('service_open_now','Restaurant Open Now (turn off to close)','toggle',s.service_open_now!=='0' && s.service_open_now!=='false' ? '1' : '0')}
-      ${field('service_open_time','Open Time (HH:MM)','text',s.service_open_time||'11:00')}
-      ${field('service_close_time','Close Time (HH:MM)','text',s.service_close_time||'23:00')}
+      ${field('service_open_time','Open Time (HH:MM, 12-hour)','text',s.service_open_time||'11:00')}
+      ${field('service_close_time','Close Time (HH:MM, 12-hour)','text',s.service_close_time||'23:00')}
       ${field('service_closed_msg','Closed Message','text',s.service_closed_msg||'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours.')}
       <button class="btn btn--gold-outline" onclick="saveServiceHoursDoc()">Save Service Hours</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
       <p class="muted" style="font-size:12px">Data is stored in Firebase Firestore. To reset, delete collections in Firebase Console.</p>`;
   });
+}
+
+function saveImagesDoc() {
+  adminHaptic('confirm');
+  var data = {};
+  ['hero_image','qr_image'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  rrkSettings.save(data).then(function() { alert('Images saved!'); });
 }
 
 function saveSettingsDoc() {
@@ -1096,5 +1108,19 @@ function previewImage(inputId, previewId) {
   } else {
     preview.style.display = 'none';
     img.src = '';
+  }
+}
+
+function previewInlineImage(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  var preview = document.getElementById(previewId);
+  if (!input || !preview) return;
+  var img = preview.querySelector('img');
+  var url = input.value.trim();
+  if (url) {
+    preview.style.display = 'block';
+    if (img) img.src = url;
+  } else {
+    preview.style.display = 'none';
   }
 }

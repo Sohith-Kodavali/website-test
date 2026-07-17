@@ -288,48 +288,6 @@ function initTestimonials() {
   goTo(0);
   startAuto();
 }
-
-// ============================================
-// ELEGANT CURSOR
-// ============================================
-function initElegantCursor() {
-  if (window.innerWidth <= 1199) return;
-  
-  const cursor = document.createElement('div');
-  cursor.classList.add('elegant-cursor');
-  cursor.innerHTML = '<div class="cursor-inner"></div><div class="cursor-ring"></div>';
-  document.body.appendChild(cursor);
-
-  let mouseX = 0, mouseY = 0;
-  let cursorX = 0, cursorY = 0;
-
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  var hoverSel = 'a, button, .food-card, .why-card, .chip, .cat, .ig-card, .btn, .wa-fab, .cart-fab, .modal__x, .mini-chip';
-  document.addEventListener('mouseover', function(e) {
-    if (e.target.closest(hoverSel)) cursor.classList.add('hover');
-  });
-  document.addEventListener('mouseout', function(e) {
-    if (e.target.closest(hoverSel)) cursor.classList.remove('hover');
-  });
-
-  function animate() {
-    var dx = mouseX - cursorX;
-    var dy = mouseY - cursorY;
-    if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
-      cursorX += dx * 0.12;
-      cursorY += dy * 0.12;
-      cursor.style.left = cursorX + 'px';
-      cursor.style.top = cursorY + 'px';
-    }
-    requestAnimationFrame(animate);
-  }
-  requestAnimationFrame(animate);
-}
-
 // ============================================
 // LOADING SCREEN
 // ============================================
@@ -431,7 +389,7 @@ function changeQty(name, delta) {
 }
 function removeItem(name) { saveCart(getCart().filter(i => i.name !== name)); playHaptic('remove'); }
 function cartTotal() { return getCart().reduce((s, i) => s + i.price * i.qty, 0); }
-function cartServiceCharge() { return Math.round(cartTotal() * 0.05); }
+function cartServiceCharge() { return (currentOrderMode === 'Delivery') ? Math.round(cartTotal() * 0.05) : 0; }
 function cartGrandTotal() { return cartTotal() + cartServiceCharge(); }
 function renderCart() {
   var wrap = document.getElementById('cartItems');
@@ -470,10 +428,13 @@ function renderCart() {
       return '<div class="cart-row"><div><b>' + safeName + '</b><span>&#8377;' + i.price + '</span></div><div class="qty"><button onclick="changeQty(\'' + jsSafe + '\',-1)" aria-label="Decrease quantity">&#8722;</button><span>' + i.qty + '</span><button onclick="changeQty(\'' + jsSafe + '\',1)" aria-label="Increase quantity">+</button><button class="del" onclick="removeItem(\'' + jsSafe + '\')" aria-label="Remove item">&#x1f5d1;&#xfe0f;</button></div></div>';
     }).join('');
   }
-  if (totalEl) totalEl.innerHTML =
-    '<div class="cart-total-row"><span>Subtotal</span><span>&#8377;' + cartTotal() + '</span></div>' +
-    '<div class="cart-total-row"><span>Service Charge (5%)</span><span>&#8377;' + cartServiceCharge() + '</span></div>' +
-    '<div class="cart-total-row cart-total-row--grand"><span>Total</span><span>&#8377;' + cartGrandTotal() + '</span></div>';
+  if (totalEl) {
+    var sc = cartServiceCharge();
+    totalEl.innerHTML =
+      '<div class="cart-total-row"><span>Subtotal</span><span>&#8377;' + cartTotal() + '</span></div>' +
+      (sc > 0 ? '<div class="cart-total-row"><span>Packaging &amp; Delivery</span><span>&#8377;' + sc + '</span></div>' : '') +
+      '<div class="cart-total-row cart-total-row--grand"><span>Total</span><span>&#8377;' + cartGrandTotal() + '</span></div>';
+  }
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
 }
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
@@ -490,6 +451,7 @@ function setOrderMode(mode, el) {
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.remove('active'); });
   if (el) el.classList.add('active');
   document.querySelectorAll('.cart-mode-btn[data-mode="' + mode + '"]').forEach(function(b) { b.classList.add('active'); });
+  renderCart();
   playHaptic('click');
 }
 
@@ -498,19 +460,28 @@ function openCheckout() {
   if (cart.length === 0) return;
   var modal = document.getElementById('orderModal');
   if (!modal) return;
-  document.getElementById('orderModalTitle').textContent = currentOrderMode === 'Delivery' ? 'Delivery Order' : 'Takeaway Order';
+  var titles = { 'Delivery': 'Delivery Order', 'Takeaway': 'Takeaway Order', 'Dine-in': 'Dine-in Order' };
+  document.getElementById('orderModalTitle').textContent = titles[currentOrderMode] || 'Place Order';
+  var sc = cartServiceCharge();
   var sub = document.getElementById('orderModalSub');
-  sub.innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · Subtotal: ₹' + cartTotal() + ' + 5% service charge · Total: ₹' + cartGrandTotal();
+  var chargeLabel = sc > 0 ? ' + Packaging & Delivery: ₹' + sc : (currentOrderMode === 'Delivery' ? '' : ' (no extra charges)');
+  sub.innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · Subtotal: ₹' + cartTotal() + chargeLabel + ' · Total: ₹' + cartGrandTotal();
+
   var addrGroup = document.getElementById('orderAddressGroup');
   var addrInput = document.getElementById('orderAddress');
+  var tableGroup = document.getElementById('orderTableGroup');
+
+  addrGroup.style.display = 'none';
+  if (addrInput) addrInput.removeAttribute('required');
+  if (tableGroup) tableGroup.style.display = 'none';
+
   if (currentOrderMode === 'Delivery') {
     addrGroup.style.display = 'block';
-    addrInput.setAttribute('required', '');
-  } else {
-    addrGroup.style.display = 'none';
-    addrInput.removeAttribute('required');
-    addrInput.value = '';
+    if (addrInput) addrInput.setAttribute('required', '');
+  } else if (currentOrderMode === 'Dine-in') {
+    if (tableGroup) tableGroup.style.display = 'block';
   }
+
   modal.classList.add('open');
   if (typeof playHaptic === 'function') playHaptic('open');
 }
@@ -552,12 +523,19 @@ function placeOrder(e) {
   var phone = document.getElementById('orderPhone').value.trim();
   var address = document.getElementById('orderAddress').value.trim();
   var mode = currentOrderMode;
+  var tableEl = document.getElementById('orderTable');
+  var table = (mode === 'Dine-in' && tableEl) ? tableEl.value : '';
+
+  if (mode === 'Dine-in' && !table) {
+    alert('Please select a table number.');
+    return;
+  }
 
   var msg = '*New RRK Food Court Order*\n(' + mode + ')\n\n';
   cart.forEach(function(i) { msg += i.qty + ' x ' + i.name + ' - \u20B9' + (i.price * i.qty) + '\n'; });
   var sc = cartServiceCharge();
   msg += '\n*Subtotal: \u20B9' + cartTotal() + '*';
-  if (sc > 0) msg += '\n*Service Charge (5%): \u20B9' + sc + '*';
+  if (sc > 0) msg += '\n*Packaging & Delivery: \u20B9' + sc + '*';
   msg += '\n*Grand Total: \u20B9' + cartGrandTotal() + '*';
   msg += '\n\n*Phone:* ' + phone;
   if (mode === 'Delivery') {
@@ -568,6 +546,9 @@ function placeOrder(e) {
       msg += '\n*Address:* ' + address;
     }
   }
+  if (mode === 'Dine-in') {
+    msg += '\n*Table:* ' + table;
+  }
 
   // Track for admin (localStorage + Firestore)
   var orderData = {
@@ -575,17 +556,17 @@ function placeOrder(e) {
     status: 'pending',
     items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '),
     subtotal: cartTotal(),
-    serviceCharge: cartServiceCharge(),
+    serviceCharge: sc,
     total: cartGrandTotal(),
     mode: mode,
     phone: phone,
-    address: address,
+    address: mode === 'Dine-in' ? ('Table ' + table) : address,
+    table: table,
     created_at: new Date().toISOString()
   };
   // Save to Firestore
   if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
     rrkOrders.save(orderData).then(function() {
-      // Order saved successfully
     }).catch(function(e) { console.warn('Order save failed', e); });
   }
 
@@ -597,20 +578,72 @@ function placeOrder(e) {
   closeOrderModal();
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
-  // Use a temporary anchor to avoid popup blockers
-  var waNumber = window.RRK_CONFIG ? window.RRK_CONFIG.whatsapp : '919866631761';
-  var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
-  var a = document.createElement('a');
-  a.href = waUrl;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+
+  // Get WhatsApp number from config — wait for it if needed
+  function doRedirect(waNum) {
+    var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
+    window.open(waUrl, '_blank', 'noopener');
+  }
+
+  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
+  if (waNumber) {
+    doRedirect(waNumber);
+  } else if (typeof rrkSettings !== 'undefined') {
+    rrkSettings.get().then(function(s) {
+      doRedirect(s.whatsapp || '919866631761');
+    }).catch(function() {
+      doRedirect('919866631761');
+    });
+  } else {
+    doRedirect('919866631761');
+  }
 }
 
 function checkout() {
   closeCart(); openCheckout();
+}
+
+// ============================================
+// RESERVE TABLE
+// ============================================
+function reserveTable(e) {
+  e.preventDefault();
+  var table = document.getElementById('reserveTable').value;
+  var name = document.getElementById('reserveName').value.trim();
+  var phone = document.getElementById('reservePhone').value.trim();
+  var date = document.getElementById('reserveDate').value;
+  var time = document.getElementById('reserveTime').value;
+
+  if (!table || !name || !phone || !date || !time) {
+    alert('Please fill all fields.');
+    return;
+  }
+
+  var msg = '*Table Reservation Request*\n\n';
+  msg += '👤 *Name:* ' + name + '\n';
+  msg += '📞 *Phone:* ' + phone + '\n';
+  msg += '🪑 *Table:* ' + table + '\n';
+  msg += '📅 *Date:* ' + date + '\n';
+  msg += '🕒 *Time:* ' + time;
+
+  if (typeof playHaptic === 'function') playHaptic('confirm');
+
+  function doRedirect(waNum) {
+    window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  }
+
+  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
+  if (waNumber) {
+    doRedirect(waNumber);
+  } else if (typeof rrkSettings !== 'undefined') {
+    rrkSettings.get().then(function(s) {
+      doRedirect(s.whatsapp || '919866631761');
+    }).catch(function() {
+      doRedirect('919866631761');
+    });
+  } else {
+    doRedirect('919866631761');
+  }
 }
 
 // ============================================
@@ -830,7 +863,6 @@ function searchRawItems(query) {
 // Init non-render-dependent things on ready
 document.addEventListener('DOMContentLoaded', function() {
   renderCart();
-  initElegantCursor();
   initShareButton();
   initPushNotifications();
   initLoader();
