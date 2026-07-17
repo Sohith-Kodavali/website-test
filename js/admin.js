@@ -583,6 +583,7 @@ function loadOrdersPage() {
     if (!ordersLastDoc) window.__adminOrders = [];
     window.__adminOrders = (window.__adminOrders || []).concat(result.items);
     ordersLastDoc = result.lastDoc;
+    lastOrderCount = (window.__adminOrders || []).length;
     renderAdminOrdersList(window.__adminOrders, adminActiveOrderType, result.hasMore);
   }).catch(function() {
     document.getElementById('orders-list').innerHTML = '<p class="muted">Failed to load orders.</p>';
