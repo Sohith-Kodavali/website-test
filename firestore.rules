@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Anyone can read: menu, raw, categories, settings, occasions
+    match /menu/{doc}       { allow read: true; write: true; }
+    match /raw/{doc}        { allow read: true; write: true; }
+    match /categories/{doc} { allow read: true; write: true; }
+    match /occasions/{doc}  { allow read: true; write: true; }
+    match /settings/{doc}   { allow read: true; write: true; }
+
+    // Orders, reservations, customers — read + create allowed
+    match /orders/{doc}       { allow read, create: true; }
+    match /reservations/{doc} { allow read, create: true; }
+    match /customers/{doc}    { allow read, create: true; }
+
+    // Fallback: allow everything
+    match /{document=**} {
+      allow read, write: true;
+    }
+  }
+}
