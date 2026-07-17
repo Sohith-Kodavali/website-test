@@ -579,29 +579,24 @@ function placeOrder(e) {
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  // Use temporary anchor for WhatsApp redirect — avoids mobile popup blockers
-  function doRedirect(waNum) {
+  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
+  function redirectToWhatsApp(waNum) {
     var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
-    var a = document.createElement('a');
-    a.href = waUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    setTimeout(function() {
+      window.location.href = waUrl;
+    }, 300);
   }
 
-  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
   if (waNumber) {
-    doRedirect(waNumber);
+    redirectToWhatsApp(waNumber);
   } else if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      doRedirect(s.whatsapp || '919866631761');
+      redirectToWhatsApp(s.whatsapp || '919866631761');
     }).catch(function() {
-      doRedirect('919866631761');
+      redirectToWhatsApp('919866631761');
     });
   } else {
-    doRedirect('919866631761');
+    redirectToWhatsApp('919866631761');
   }
 }
 
@@ -640,22 +635,24 @@ function reserveTable(e) {
 
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  function doRedirect(waNum) {
+  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
+  function redirectToWa(waNum) {
     var waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg);
-    var a = document.createElement('a');
-    a.href = waUrl;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    setTimeout(function() {
+      window.location.href = waUrl;
+    }, 300);
   }
 
-  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
   if (waNumber) {
-    doRedirect(waNumber);
+    redirectToWa(waNumber);
+  } else if (typeof rrkSettings !== 'undefined') {
+    rrkSettings.get().then(function(s) {
+      redirectToWa(s.whatsapp || '919866631761');
+    }).catch(function() {
+      redirectToWa('919866631761');
+    });
   } else {
-    doRedirect('919866631761');
+    redirectToWa('919866631761');
   }
 }
 
