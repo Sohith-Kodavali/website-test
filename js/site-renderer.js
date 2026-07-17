@@ -341,30 +341,8 @@ function renderIndex(D) {
 
   document.getElementById('render-about').innerHTML = '<section class="section section--soft" id="about"><div class="container split"><div class="split__media reveal reveal-slide-left"><div class="img-ph img-ph--tall"><img src="'+D.about.image+'" alt="Our kitchen" loading="lazy" /></div></div><div class="split__copy reveal reveal-slide-right"><span class="eyebrow">'+D.about.eyebrow+'</span><h2>'+D.about.headlineL1+'<br/>'+D.about.headlineL2+'</h2><p>'+D.about.body+'</p><div class="gold-divider"></div><a href="#contact" class="btn btn--gold-outline">'+D.about.buttonText+'</a></div></div></section>';
 
-  // Chef's Picks section (special items on home)
-  var specialItems = D.menu.filter(function(m){return m.special=='1' || m.special===true;}).slice(0,4);
-  if (specialItems.length > 0) {
-    document.getElementById('render-specials').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Chef\'s Picks</span><h2>★ Chef\'s Picks</h2></div><div class="grid grid--2">'+specialItems.map(function(m){return'<article class="food-card special-zoom"><div class="img-ph"><img src="'+m.image+'" alt="'+m.name+'" loading="lazy" /></div><span class="tag tag--best">Chef\'s Choice</span><div class="food-card__body"><h3>'+m.name+'</h3><div class="price">₹'+m.price+'</div><button class="btn btn--primary btn--block" onclick="addToCartAndGoToMenu(\''+(m.name||'').replace(/'/g,"\\'")+'\','+m.price+')">Order Now</button></div></article>'}).join('')+'</div></div></section>';
-  } else {
-    document.getElementById('render-specials').innerHTML = '';
-  }
-
-  // Occasions section
-  if (D.occasions && D.occasions.length > 0) {
-    document.getElementById('render-occasions').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">Celebrate With Us</span><h2>Perfect For Any Occasion</h2></div><div class="grid grid--5">'+D.occasions.map(function(o,i){return'<div class="why-card reveal delay-'+(i+1)+'"><div class="why-ic">'+(o.emoji||'🎉')+'</div><h4>'+o.label+'</h4><p>Catering available</p></div>'}).join('')+'</div></div></section>';
-  } else {
-    document.getElementById('render-occasions').innerHTML = '';
-  }
-
-  // Raw chicken items on home (show_home items) — replaces static CTA
-  var homeRawItems = D.raw.filter(function(r){return r.show_home=='1' || r.show_home===true;});
-  if (homeRawItems.length > 0) {
-    document.getElementById('render-raw-home').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Fresh Today</span><h2>Raw Chicken</h2></div><div class="menu-list">'+homeRawItems.map(function(r){return'<article class="menu-row reveal"><div class="menu-row__img"><img src="'+r.image+'" alt="'+r.name+'" loading="lazy" /><span class="menu-badge menu-badge--best" style="background:var(--success);font-size:8px">'+(r.tag||'Fresh')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+r.name+'</h3></div><p class="menu-row__desc">'+r.weight+'</p><div class="menu-row__bottom"><div class="price">₹'+r.price+' <small>/kg</small></div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(r.name||'').replace(/'/g,"\\'")+'\','+r.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div style="text-align:center;margin-top:24px"><a href="raw-chicken.html" class="btn btn--gold-outline">🥩 View All Raw Chicken →</a></div></div></section>';
-    document.getElementById('render-raw-preview').innerHTML = '';
-  } else {
-    document.getElementById('render-raw-home').innerHTML = '';
-    document.getElementById('render-raw-preview').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Fresh Today</span><h2>Raw Chicken</h2></div><div class="raw-cta reveal" style="text-align:center; padding: 48px 24px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);"><p style="font-size: 1.1rem; margin-bottom: 24px; color: var(--text-secondary);">Order fresh, hygienically packed raw chicken delivered to your doorstep.</p><a href="raw-chicken.html" class="btn btn--primary btn--lg">🥩 Book Raw Chicken Online</a></div></div></section>';
-  }
+  // Raw chicken CTA on home
+  document.getElementById('render-raw-preview').innerHTML = '<section class="section section--soft"><div class="container"><div class="section__head reveal"><span class="eyebrow">Fresh Today</span><h2>Raw Chicken</h2></div><div class="raw-cta reveal" style="text-align:center; padding: 48px 24px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);"><p style="font-size: 1.1rem; margin-bottom: 24px; color: var(--text-secondary);">Order fresh, hygienically packed raw chicken delivered to your doorstep.</p><a href="raw-chicken.html" class="btn btn--primary btn--lg">🥩 Book Raw Chicken Online</a></div></div></section>';
 
   document.getElementById('render-why-cards').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.whySection.eyebrow+'</span><h2>'+D.whySection.headline+'</h2></div><div class="grid grid--5">'+D.whyCards.map(function(w,i){return'<div class="why-card reveal delay-'+(i+1)+'"><div class="why-ic">'+w.icon+'</div><h4>'+w.title+'</h4><p>'+w.desc+'</p></div>'}).join('')+'</div></div></section>';
 

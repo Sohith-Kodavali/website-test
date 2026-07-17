@@ -25,6 +25,9 @@ See [admin/taste.md](admin/taste.md)
 # naming
 - Use "Order Online" instead of "Menu" for the menu page and navigation links. Confidence: 0.60
 
+# scope
+- When asked to add specific elements to a page, only add exactly what was requested — do not make any other unrelated changes to that page. Keep everything else as it was. Confidence: 0.80
+
 # workflow
 - Push changes to the repository after making them, without needing to be asked. Confidence: 0.90
 - When the project is deployed to Vercel, suggest checking the live Vercel URL instead of opening local files for verification. Confidence: 0.90
