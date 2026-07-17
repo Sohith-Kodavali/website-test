@@ -28,7 +28,7 @@ See [admin/taste.md](admin/taste.md)
 # workflow
 - Push changes to the repository after making them, without needing to be asked. Confidence: 0.90
 - When the project is deployed to Vercel, suggest checking the live Vercel URL instead of opening local files for verification. Confidence: 0.90
-- When asked to verify changes (especially during migrations or risky operations), do a slow, strict, thorough verification — check every feature, mobile UI rendering, backend loading, and edge cases; prioritize completeness over speed and use as many tokens as needed. Confidence: 0.75
+- When asked to verify changes (especially during migrations or risky operations), do a slow, strict, thorough verification — check every feature, mobile UI rendering, backend loading, and edge cases; prioritize completeness over speed and use as many tokens as needed. Confidence: 0.80
 - For the RRK project in OpenCode, the user is logged into a specific GitHub account that should be used for all RRK-related commits — if the terminal is logged into a different account for other projects, switch back before working on RRK. Confidence: 0.70
 
 # architecture
