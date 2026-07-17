@@ -609,15 +609,33 @@ function checkout() {
 // ============================================
 function reserveTable(e) {
   e.preventDefault();
+  var form = document.getElementById('reserveForm');
+  var openTime = form ? form.dataset.open || '11:00' : '11:00';
+  var closeTime = form ? form.dataset.close || '23:00' : '23:00';
   var name = document.getElementById('reserveName').value.trim();
   var phone = document.getElementById('reservePhone').value.trim();
   var date = document.getElementById('reserveDate').value;
   var time = document.getElementById('reserveTime').value;
+  var errEl = document.getElementById('reserveTimeError');
 
   if (!name || !phone || !date || !time) {
     alert('Please fill all fields.');
     return;
   }
+
+  // Validate date is not in the past
+  var today = new Date().toISOString().substring(0, 10);
+  if (date < today) {
+    alert('Please select today or a future date.');
+    return;
+  }
+
+  // Validate time is within operating hours
+  if (time < openTime || time > closeTime) {
+    if (errEl) errEl.style.display = 'block';
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
 
   var msg = '*Table Reservation Request*\n\n';
   msg += '👤 *Name:* ' + name + '\n';
