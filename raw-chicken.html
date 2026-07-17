@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0" />
 <title>Raw Chicken · RRK Food Court</title><meta name="theme-color" content="#C1121F" /><link rel="manifest" href="manifest.json" /><link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css?ts=1784308313615" />
+<link rel="stylesheet" href="css/style.css?ts=1784308616418" />
 <script>(function(){try{var d=JSON.parse(localStorage.getItem('rrk_site_data')||'{}');if(!d._v||d._v<7){localStorage.removeItem('rrk_site_data');}}catch(e){}})();</script>
 </head>
 <body class="menu-page">
@@ -29,12 +29,12 @@
     <div class="container"><div class="reveal" style="max-width:520px;margin:0 auto;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-card);padding:28px;box-shadow:var(--sh-card)">
       <h3 id="checkoutTitle" style="font-size:22px;margin-bottom:4px">Confirm Your Order</h3>
       <p class="muted" id="checkoutSummary" style="margin-bottom:20px"></p>
-      <form id="orderForm" class="form" onsubmit="placeOrder(event)">
+      <div id="orderForm">
         <div class="admin-field"><label>Phone Number</label><input type="tel" id="orderPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg)" /></div>
         <div class="admin-field" id="orderTableField" style="display:none"><label>Table Number</label><select id="orderTable" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg)"><option value="">Select Table</option><option value="1">Table 1</option><option value="2">Table 2</option><option value="3">Table 3</option><option value="4">Table 4</option><option value="5">Table 5</option><option value="6">Table 6</option><option value="7">Table 7</option><option value="8">Table 8</option><option value="9">Table 9</option><option value="10">Table 10</option></select></div>
         <div class="admin-field" id="orderAddrField" style="display:none"><label>Delivery Address</label><textarea id="orderAddress" placeholder="Full delivery address..." rows="2" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg);resize:vertical"></textarea><button type="button" class="btn btn--gold-outline" style="font-size:12px;padding:8px 14px;margin-top:8px" onclick="useCurrentLocation()">📍 Use Current Location</button></div>
-        <button type="submit" class="btn btn--wa btn--block btn--lg">💬 Send Order on WhatsApp</button>
-      </form>
+        <button type="button" class="btn btn--wa btn--block btn--lg" onclick="placeOrder()">💬 Send Order on WhatsApp</button>
+      </div>
     </div></div>
   </section>
 </main>
@@ -80,10 +80,10 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?ts=1784308313615"></script>
-<script src="js/firebase.js?ts=1784308313615"></script>
-<script src="js/config.js?ts=1784308313615"></script>
-<script src="js/site-renderer.js?ts=1784308313615"></script>
-<script src="js/main.js?ts=1784308313615"></script>
+<script src="js/firebase-config.js?ts=1784308616418"></script>
+<script src="js/firebase.js?ts=1784308616418"></script>
+<script src="js/config.js?ts=1784308616418"></script>
+<script src="js/site-renderer.js?ts=1784308616418"></script>
+<script src="js/main.js?ts=1784308616418"></script>
 <script>renderForPage('raw');initSocialProof();</script>
 </body></html>

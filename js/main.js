@@ -513,8 +513,7 @@ function useCurrentLocation() {
   });
 }
 
-function placeOrder(e) {
-  e.preventDefault();
+function placeOrder() {
   var cart = getCart();
   if (cart.length === 0) return;
 
@@ -558,17 +557,20 @@ function placeOrder(e) {
   if (typeof initSocialProof === 'function') initSocialProof();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  // Swap form to confirmation with tappable WhatsApp link
-  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : '919866631761';
-  var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
-  var form = document.getElementById('orderForm');
-  form.innerHTML =
-    '<div style="text-align:center;padding:16px 0">' +
-    '<h3 style="color:var(--success);margin-bottom:8px">✅ Order Placed!</h3>' +
-    '<p class="muted" style="margin-bottom:16px">Tap below to confirm your order on WhatsApp.</p>' +
-    '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;text-decoration:none">💬 Open WhatsApp</a>' +
-    '<p class="muted" style="margin-top:12px;font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
-    '</div>';
+  showToast('✅ Order sent! Redirecting to WhatsApp...');
+
+  // Exact same pattern as Craft My Plate: setTimeout + anchor click + target=_blank
+  setTimeout(function() {
+    var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
+    var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
+    var a = document.createElement('a');
+    a.href = waUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, 1200);
 }
 
 function checkout() {
