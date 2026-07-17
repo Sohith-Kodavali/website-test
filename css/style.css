@@ -22,29 +22,7 @@
 }
 img[src=""], img[src=""] { display: none; }
 
-/* Dark Mode */
-.dark-mode{
-  color-scheme: dark;
-  --red:#E63946; --gold:#F4D03F; --gold-light:#F9E79F;
-  --bg:#0F0F0F; --border:#2A2A2A; --ink:#F0F0F0; --muted:#999;
-  --sh-card:0 4px 20px rgba(0,0,0,.3);
-  --sh-float:0 12px 40px rgba(0,0,0,.5);
-  --grad-soft:linear-gradient(180deg,#1A1A1A 0%,#0F0F0F 100%);
-  --card-bg:#1A1A1A;
-  --surface-bg:#1A1A1A;
-  --bg-pattern:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4d03f' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-.dark-mode .food-card,.dark-mode .why-card,.dark-mode .contact-card,.dark-mode .testimonial-card,.dark-mode .glass,.dark-mode .step,.dark-mode .qr-card,.dark-mode .suggest-card,.dark-mode .modal__card,.dark-mode .pricing-table,.dark-mode .chip,.dark-mode .cat,.dark-mode .cms-panel,.dark-mode .cms-item,.dark-mode .admin-field input,.dark-mode .admin-field textarea,.dark-mode .admin-toggle{background:var(--card-bg);color:var(--ink)}
-.dark-mode .nav{background:rgba(15,15,15,.85);border-color:var(--border)}
-.dark-mode .section--soft{background:var(--grad-soft)}
-.dark-mode .btn--gold-outline{color:var(--ink)}
-
-/* Dark mode toggle (in nav) */
-.dark-toggle{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gold);background:var(--card-bg);cursor:pointer;font-size:16px;box-shadow:var(--sh-card);transition:transform .3s;flex-shrink:0}
-.dark-toggle:hover{transform:scale(1.1)}
-
-/* ============ MENU PAGE HIDE ============ */
-.menu-page .wa-fab,.menu-page .share-btn,.menu-page .dark-toggle{display:none}
+.menu-page .wa-fab,.menu-page .share-btn{display:none}
 .craft-page .wa-fab,.craft-page .share-btn{display:none}
 .craft-hide-wa{display:none}
 
@@ -364,9 +342,6 @@ img{max-width:100%;display:block}
   background:#fff;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;
   cursor:pointer;color:#1A1A1A;flex:1;text-align:center;transition:.2s
 }
-.dark-mode .cart-mode--drawer .cart-mode-btn{
-  background:#1A1A1A;color:#F0F0F0;border-color:var(--border)
-}
 .cart-mode--drawer .cart-mode-btn.active{
   border-color:var(--red);color:#fff;background:var(--grad-red);box-shadow:var(--sh-btn)
 }
@@ -611,7 +586,6 @@ body{cursor:auto}
 .cp-panel {display:none;flex-direction:column;gap:8px}
 .cp-panel.active {display:flex}
 .cp-item {display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(0,0,0,.02);border-radius:14px;border:1.5px solid transparent;transition:border-color .2s,background-color .2s,opacity .2s}
-.dark-mode .cp-item {background:rgba(255,255,255,.04)}
 .cp-item:hover {border-color:var(--border)}
 .cp-item.checked {border-color:var(--gold);background:rgba(212,175,55,.06)}
 .cp-item.cp-item-overbudget {opacity:.35;pointer-events:none;position:relative}
@@ -678,7 +652,6 @@ body{cursor:auto}
 
 /* ---- Step 5: Confirm / Review ---- */
 .cp-confirm-box {background:rgba(0,0,0,.02);border-radius:16px;padding:20px;margin-bottom:20px}
-.dark-mode .cp-confirm-box {background:rgba(255,255,255,.04)}
 .cp-review-row {display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:15px}
 .cp-review-row:last-of-type {border-bottom:none}
 .cp-review-row strong {color:var(--muted);font-weight:500}
@@ -827,4 +800,5 @@ body{cursor:auto}
   .section{padding:100px 0}
   .testimonial-card{max-width:100%;padding:48px 44px}
   .split{gap:60px}
+}0px}
 }

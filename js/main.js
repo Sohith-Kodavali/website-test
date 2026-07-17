@@ -687,52 +687,6 @@ function showToast(msg) {
 }
 
 // ============================================
-// DARK MODE TOGGLE
-// ============================================
-function initDarkMode() {
-  var saved = localStorage.getItem('rrk_dark');
-  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  // User explicitly chose: respect that. Otherwise, follow system preference.
-  if (saved === '1' || (saved === null && prefersDark)) {
-    document.body.classList.add('dark-mode');
-    document.documentElement.style.colorScheme = 'dark';
-  } else {
-    document.documentElement.style.colorScheme = 'light';
-  }
-
-  var navRight = document.querySelector('.nav__right');
-  if (!navRight) return;
-  var toggle = document.createElement('button');
-  toggle.className = 'dark-toggle';
-  toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-  toggle.title = 'Toggle dark mode';
-  toggle.addEventListener('click', function() {
-    var isDark = document.body.classList.toggle('dark-mode');
-    toggle.innerHTML = isDark ? '☀️' : '🌙';
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-    localStorage.setItem('rrk_dark', isDark ? '1' : '0');
-    playHaptic('click');
-  });
-  navRight.insertBefore(toggle, navRight.firstChild);
-
-  // Listen for system preference changes (e.g. auto dark mode at sunset on iOS)
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-    if (localStorage.getItem('rrk_dark') === null) {
-      if (e.matches) {
-        document.body.classList.add('dark-mode');
-        document.documentElement.style.colorScheme = 'dark';
-        toggle.innerHTML = '☀️';
-      } else {
-        document.body.classList.remove('dark-mode');
-        document.documentElement.style.colorScheme = 'light';
-        toggle.innerHTML = '🌙';
-      }
-    }
-  });
-}
-
-// ============================================
 // SHARE BUTTON
 // ============================================
 function initShareButton() {
@@ -877,7 +831,6 @@ function searchRawItems(query) {
 document.addEventListener('DOMContentLoaded', function() {
   renderCart();
   initElegantCursor();
-  initDarkMode();
   initShareButton();
   initPushNotifications();
   initLoader();

@@ -19,8 +19,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css?v=7" />
 <script>
-// Prevent flash of wrong theme — apply dark-mode before paint
-(function(){try{var d=localStorage.getItem('rrk_dark');if(d==='1'||(d===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark-mode');}}catch(e){}})();
 // Emergency cache purge — nuke stale localStorage from old deploys
 (function(){try{var d=JSON.parse(localStorage.getItem('rrk_site_data')||'{}');if(!d._v||d._v<7){localStorage.removeItem('rrk_site_data');}}catch(e){}})();
 </script>
