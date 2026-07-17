@@ -618,6 +618,32 @@ function checkout() {
 }
 
 // ============================================
+// SUBMIT REVIEW
+// ============================================
+function setReviewStars(n) {
+  var stars = document.querySelectorAll('#starRating span');
+  stars.forEach(function(s, i) {
+    s.style.color = (i < n) ? '#D4AF37' : 'var(--border)';
+  });
+  var hidden = document.getElementById('reviewStars');
+  if (hidden) hidden.value = n;
+}
+
+function submitReview(e) {
+  e.preventDefault();
+  var name = document.getElementById('reviewName').value.trim();
+  var stars = document.getElementById('reviewStars').value;
+  var text = document.getElementById('reviewText').value.trim();
+  if (!name || !text) { alert('Please fill all fields.'); return; }
+
+  var msg = '*New Review*\n\n⭐ *Rating:* ' + stars + '/5\n👤 *Name:* ' + name + '\n💬 *Review:* ' + text;
+  if (typeof playHaptic === 'function') playHaptic('confirm');
+
+  var form = document.getElementById('reviewForm');
+  form.innerHTML = '<div style="text-align:center;padding:16px 0"><h3 style="color:var(--success);margin-bottom:8px">✅ Thank You!</h3><p class="muted">Your review has been sent to the restaurant.</p></div>';
+}
+
+// ============================================
 // RESERVE TABLE
 // ============================================
 function reserveTable(e) {
