@@ -488,7 +488,7 @@ var CpApp = (function() {
     if (typeof heavyVibe === 'function') heavyVibe();
 
     setTimeout(function() {
-      var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : (D.whatsapp || '919866631761');
+      var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
       var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
       var a = document.createElement('a');
       a.href = waUrl;
