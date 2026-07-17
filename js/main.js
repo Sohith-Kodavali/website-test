@@ -528,12 +528,16 @@ function placeOrder() {
     return;
   }
 
+  var ct = cartTotal();
+  var sc = cartServiceCharge();
+  var gt = cartGrandTotal();
+  var itemCount = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+
   var msg = '*New RRK Food Court Order*\n(' + mode + ')\n\n';
   cart.forEach(function(i) { msg += i.qty + ' x ' + i.name + ' - \u20B9' + (i.price * i.qty) + '\n'; });
-  var sc = cartServiceCharge();
-  msg += '\n*Subtotal: \u20B9' + cartTotal() + '*';
+  msg += '\n*Subtotal: \u20B9' + ct + '*';
   if (sc > 0) msg += '\n*Packaging & Delivery: \u20B9' + sc + '*';
-  msg += '\n*Grand Total: \u20B9' + cartGrandTotal() + '*';
+  msg += '\n*Grand Total: \u20B9' + gt + '*';
   msg += '\n\n*Phone:* ' + phone;
   if (mode === 'Delivery' && address) msg += '\n*Address:* ' + address;
   if (mode === 'Dine-in') msg += '\n*Table:* ' + table;
@@ -542,7 +546,7 @@ function placeOrder() {
     type: CART_PAGE === 'raw' ? 'raw' : 'online',
     status: 'pending',
     items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '),
-    subtotal: cartTotal(), serviceCharge: sc, total: cartGrandTotal(),
+    subtotal: ct, serviceCharge: sc, total: gt,
     mode: mode, phone: phone,
     address: mode === 'Dine-in' ? ('Table ' + table) : address,
     table: table, created_at: new Date().toISOString()
@@ -552,23 +556,22 @@ function placeOrder() {
   }
 
   saveCart([]);
+  renderCart();
   incrementOrderCount();
   if (typeof initSocialProof === 'function') initSocialProof();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  // Craft My Plate works because the redirect happens on a SEPARATE user click.
-  // So we do 2-step: first click processes the order, then shows a new button.
-  document.getElementById('checkoutTitle').textContent = '✅ Order Confirmed!';
-  document.getElementById('checkoutSummary').innerHTML = cart.reduce(function(s,i){return s+i.qty;},0)+' items · Total: ₹'+cartGrandTotal();
+  document.getElementById('checkoutTitle').textContent = 'Confirm on WhatsApp';
+  document.getElementById('checkoutSummary').innerHTML = itemCount + ' items · Total: ₹' + gt + ' — Tap below to send your order.';
   var wa = (window.RRK_CONFIG && window.RRK_CONFIG.whatsapp) ? window.RRK_CONFIG.whatsapp : '919866631761';
   var waUrl = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(msg);
 
   var form = document.getElementById('orderForm');
   form.innerHTML =
     '<div style="text-align:center;padding:16px 0">' +
-    '<p class="muted" style="margin-bottom:16px">Your order has been saved. Tap below to send it on WhatsApp.</p>' +
-    '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;text-decoration:none;margin-bottom:12px">💬 Open WhatsApp</a>' +
-    '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
+    '<p class="muted" style="margin-bottom:16px">Your order will be confirmed once the restaurant receives it.</p>' +
+    '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;text-decoration:none;margin-bottom:12px">💬 Send Order on WhatsApp</a>' +
+    '<p class="muted" style="font-size:12px">If WhatsApp doesn\'t open, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
     '</div>';
 }
 
