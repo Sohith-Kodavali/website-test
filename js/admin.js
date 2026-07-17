@@ -928,6 +928,7 @@ function renderContactEditor() {
       ${field('contact_phone','Phone','text',s.contact_phone||'')}${field('contact_whatsapp','WhatsApp','text',s.contact_whatsapp||'')}
       ${field('contact_address','Address','text',s.contact_address||'')}${field('contact_hours','Hours','text',s.contact_hours||'')}
       ${field('contact_maps','Google Maps URL','text',s.contact_maps||'')}
+      ${field('wa_community','WhatsApp Community Link','text',s.wa_community||'')}
       <button class="btn btn--primary" onclick="saveContactDoc()">Save</button>`;
   });
 }
@@ -935,7 +936,7 @@ function renderContactEditor() {
 function saveContactDoc() {
   adminHaptic('confirm');
   var data = {};
-  var keys = {contact_phone:'contact_phone',contact_whatsapp:'contact_whatsapp',contact_address:'contact_address',contact_hours:'contact_hours',contact_maps:'contact_maps'};
+  var keys = {contact_phone:'contact_phone',contact_whatsapp:'contact_whatsapp',contact_address:'contact_address',contact_hours:'contact_hours',contact_maps:'contact_maps',wa_community:'wa_community'};
   Object.keys(keys).forEach(function(k) {
     var v = g(k);
     if (v !== '') data[k] = v;
