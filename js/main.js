@@ -458,37 +458,35 @@ function setOrderMode(mode, el) {
 function openCheckout() {
   var cart = getCart();
   if (cart.length === 0) return;
-  var modal = document.getElementById('orderModal');
-  if (!modal) return;
+  closeCart();
+
+  var section = document.getElementById('checkoutSection');
+  if (!section) return;
+
   var titles = { 'Delivery': 'Delivery Order', 'Takeaway': 'Takeaway Order', 'Dine-in': 'Dine-in Order' };
-  document.getElementById('orderModalTitle').textContent = titles[currentOrderMode] || 'Place Order';
+  document.getElementById('checkoutTitle').textContent = titles[currentOrderMode] || 'Place Order';
   var sc = cartServiceCharge();
-  var sub = document.getElementById('orderModalSub');
   var chargeLabel = sc > 0 ? ' + Packaging & Delivery: ₹' + sc : (currentOrderMode === 'Delivery' ? '' : ' (no extra charges)');
-  sub.innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · Subtotal: ₹' + cartTotal() + chargeLabel + ' · Total: ₹' + cartGrandTotal();
+  document.getElementById('checkoutSummary').innerHTML = cart.reduce(function(s, i) { return s + i.qty; }, 0) + ' items · Subtotal: ₹' + cartTotal() + chargeLabel + ' · Total: ₹' + cartGrandTotal();
 
-  var addrGroup = document.getElementById('orderAddressGroup');
+  var addrField = document.getElementById('orderAddrField');
+  var tableField = document.getElementById('orderTableField');
   var addrInput = document.getElementById('orderAddress');
-  var tableGroup = document.getElementById('orderTableGroup');
 
-  addrGroup.style.display = 'none';
+  addrField.style.display = 'none';
   if (addrInput) addrInput.removeAttribute('required');
-  if (tableGroup) tableGroup.style.display = 'none';
+  tableField.style.display = 'none';
 
   if (currentOrderMode === 'Delivery') {
-    addrGroup.style.display = 'block';
+    addrField.style.display = 'block';
     if (addrInput) addrInput.setAttribute('required', '');
   } else if (currentOrderMode === 'Dine-in') {
-    if (tableGroup) tableGroup.style.display = 'block';
+    tableField.style.display = 'block';
   }
 
-  modal.classList.add('open');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   if (typeof playHaptic === 'function') playHaptic('open');
-}
-
-function closeOrderModal() {
-  var modal = document.getElementById('orderModal');
-  if (modal) { modal.classList.remove('open'); if (typeof playHaptic === 'function') playHaptic('close'); }
 }
 
 var currentLocation = null;
@@ -538,79 +536,39 @@ function placeOrder(e) {
   if (sc > 0) msg += '\n*Packaging & Delivery: \u20B9' + sc + '*';
   msg += '\n*Grand Total: \u20B9' + cartGrandTotal() + '*';
   msg += '\n\n*Phone:* ' + phone;
-  if (mode === 'Delivery') {
-    if (currentLocation) {
-      msg += '\n*Maps:* https://maps.google.com/?q=' + currentLocation.lat + ',' + currentLocation.lng;
-    }
-    if (address) {
-      msg += '\n*Address:* ' + address;
-    }
-  }
-  if (mode === 'Dine-in') {
-    msg += '\n*Table:* ' + table;
-  }
+  if (mode === 'Delivery' && address) msg += '\n*Address:* ' + address;
+  if (mode === 'Dine-in') msg += '\n*Table:* ' + table;
 
-  // Track for admin (localStorage + Firestore)
   var orderData = {
     type: CART_PAGE === 'raw' ? 'raw' : 'online',
     status: 'pending',
     items: cart.map(function(i) { return i.qty + 'x ' + i.name; }).join(', '),
-    subtotal: cartTotal(),
-    serviceCharge: sc,
-    total: cartGrandTotal(),
-    mode: mode,
-    phone: phone,
+    subtotal: cartTotal(), serviceCharge: sc, total: cartGrandTotal(),
+    mode: mode, phone: phone,
     address: mode === 'Dine-in' ? ('Table ' + table) : address,
-    table: table,
-    created_at: new Date().toISOString()
+    table: table, created_at: new Date().toISOString()
   };
-  // Save to Firestore
   if (typeof rrkOrders !== 'undefined' && rrkOrders.save) {
-    rrkOrders.save(orderData).then(function() {
-    }).catch(function(e) { console.warn('Order save failed', e); });
+    rrkOrders.save(orderData).catch(function(e) { console.warn('Order save failed', e); });
   }
 
   saveCart([]);
   incrementOrderCount();
   sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartGrandTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
-
-  tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
-  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
-
-  function buildWaUrl(num) {
-    return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
-  }
-
-  // Swap form to confirmation screen — keep modal open to avoid close/re-open race
-  function showConfirmScreen(waUrl) {
-    var title = document.getElementById('orderModalTitle');
-    var sub = document.getElementById('orderModalSub');
-    var form = document.getElementById('orderForm');
-    if (title) title.textContent = 'Order Placed!';
-    if (sub) sub.innerHTML = 'Tap the button below to confirm on WhatsApp.';
-    if (form) {
-      form.onsubmit = function(e) { e.preventDefault(); };
-      form.innerHTML = '<div style="text-align:center;padding:8px 0">' +
-        '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;margin-bottom:12px;text-decoration:none">💬 Open WhatsApp</a>' +
-        '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
-        '</div>';
-    }
-  }
-
-  if (waNumber) {
-    showConfirmScreen(buildWaUrl(waNumber));
-  } else if (typeof rrkSettings !== 'undefined') {
-    rrkSettings.get().then(function(s) {
-      showConfirmScreen(buildWaUrl(s.whatsapp || '919866631761'));
-    }).catch(function() {
-      showConfirmScreen(buildWaUrl('919866631761'));
-    });
-  } else {
-    showConfirmScreen(buildWaUrl('919866631761'));
-  }
+  // Swap form to confirmation with tappable WhatsApp link
+  var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : '919866631761';
+  var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
+  var form = document.getElementById('orderForm');
+  form.innerHTML =
+    '<div style="text-align:center;padding:16px 0">' +
+    '<h3 style="color:var(--success);margin-bottom:8px">✅ Order Placed!</h3>' +
+    '<p class="muted" style="margin-bottom:16px">Tap below to confirm your order on WhatsApp.</p>' +
+    '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;text-decoration:none">💬 Open WhatsApp</a>' +
+    '<p class="muted" style="margin-top:12px;font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
+    '</div>';
 }
 
 function checkout() {

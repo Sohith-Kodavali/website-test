@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css?ts=1784308105130" />
+<link rel="stylesheet" href="css/style.css?ts=1784308313615" />
 <script>(function(){try{var d=JSON.parse(localStorage.getItem('rrk_site_data')||'{}');if(!d._v||d._v<7){localStorage.removeItem('rrk_site_data');}}catch(e){}})();</script>
 </head>
 <body class="menu-page">
@@ -32,7 +32,21 @@
 
 <main id="main-content">
   <div id="socialProof" class="social-proof reveal" style="margin:16px auto"></div>
-  <div id="render-menu"></div></main>
+  <div id="render-menu"></div>
+  <!-- STATIC CHECKOUT SECTION (not a modal — works on mobile) -->
+  <section class="section" id="checkoutSection" style="display:none">
+    <div class="container"><div class="reveal" style="max-width:520px;margin:0 auto;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-card);padding:28px;box-shadow:var(--sh-card)">
+      <h3 id="checkoutTitle" style="font-size:22px;margin-bottom:4px">Confirm Your Order</h3>
+      <p class="muted" id="checkoutSummary" style="margin-bottom:20px"></p>
+      <form id="orderForm" class="form" onsubmit="placeOrder(event)">
+        <div class="admin-field"><label>Phone Number</label><input type="tel" id="orderPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg)" /></div>
+        <div class="admin-field" id="orderTableField" style="display:none"><label>Table Number</label><select id="orderTable" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg)"><option value="">Select Table</option><option value="1">Table 1</option><option value="2">Table 2</option><option value="3">Table 3</option><option value="4">Table 4</option><option value="5">Table 5</option><option value="6">Table 6</option><option value="7">Table 7</option><option value="8">Table 8</option><option value="9">Table 9</option><option value="10">Table 10</option></select></div>
+        <div class="admin-field" id="orderAddrField" style="display:none"><label>Delivery Address</label><textarea id="orderAddress" placeholder="Full delivery address..." rows="2" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg);resize:vertical"></textarea><button type="button" class="btn btn--gold-outline" style="font-size:12px;padding:8px 14px;margin-top:8px" onclick="useCurrentLocation()">📍 Use Current Location</button></div>
+        <button type="submit" class="btn btn--wa btn--block btn--lg">💬 Send Order on WhatsApp</button>
+      </form>
+    </div></div>
+  </section>
+</main>
 
 <footer class="footer" role="contentinfo">
   <div class="container footer__inner">
@@ -82,38 +96,12 @@
   </div>
 </div>
 
-<!-- Order Form Modal -->
-<div class="modal" id="orderModal" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="modal__backdrop" onclick="closeOrderModal()"></div>
-  <div class="modal__card glass">
-    <button class="modal__x" onclick="closeOrderModal()" aria-label="Close">&times;</button>
-    <span class="eyebrow">Almost done</span>
-    <h3 id="orderModalTitle">Place Order</h3>
-    <p class="muted" id="orderModalSub"></p>
-    <form id="orderForm" class="form" onsubmit="placeOrder(event)">
-      <input type="tel" id="orderPhone" placeholder="Phone Number" pattern="[0-9]{10}" required />
-      <div id="orderTableGroup" style="display:none">
-        <select id="orderTable" style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r-inp);font-size:15px;font-family:inherit;background:#fff;margin-bottom:8px">
-          <option value="">Select Table</option>
-          <option value="1">Table 1</option><option value="2">Table 2</option><option value="3">Table 3</option><option value="4">Table 4</option><option value="5">Table 5</option>
-          <option value="6">Table 6</option><option value="7">Table 7</option><option value="8">Table 8</option><option value="9">Table 9</option><option value="10">Table 10</option>
-        </select>
-      </div>
-      <div id="orderAddressGroup" style="display:none">
-        <textarea id="orderAddress" placeholder="Delivery address..." rows="2" style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--r-inp);font-size:15px;font-family:inherit;background:#fff;margin-bottom:8px;resize:vertical"></textarea>
-        <button type="button" class="btn btn--gold-outline btn--block" style="font-size:12px;padding:10px" onclick="useCurrentLocation()">📍 Use Current Location</button>
-      </div>
-      <button type="submit" class="btn btn--wa btn--block btn--lg">Send Order on WhatsApp</button>
-    </form>
-  </div>
-</div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?ts=1784308105130"></script>
-<script src="js/firebase.js?ts=1784308105130"></script>
-<script src="js/config.js?ts=1784308105130"></script>
-<script src="js/site-renderer.js?ts=1784308105130"></script>
-<script src="js/main.js?ts=1784308105130"></script>
+<script src="js/firebase-config.js?ts=1784308313615"></script>
+<script src="js/firebase.js?ts=1784308313615"></script>
+<script src="js/config.js?ts=1784308313615"></script>
+<script src="js/site-renderer.js?ts=1784308313615"></script>
+<script src="js/main.js?ts=1784308313615"></script>
 <script>renderForPage('menu');initSocialProof();</script>
 </body></html>
