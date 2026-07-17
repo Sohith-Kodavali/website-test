@@ -588,36 +588,35 @@ function placeOrder(e) {
     return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
   }
 
-  // Wait a tick so browser finishes DOM update, then show confirmation with real tappable button
-  function showConfirmScreen(waUrl) {
-    setTimeout(function() {
-      var modal = document.getElementById('orderModal');
-      if (!modal) {
-        window.location.href = waUrl;
-        return;
-      }
-      document.getElementById('orderModalTitle').textContent = 'Order Placed!';
-      document.getElementById('orderModalSub').innerHTML = 'Tap below to confirm on WhatsApp.';
-      var form = document.getElementById('orderForm');
-      form.innerHTML = '<div style="text-align:center;padding:8px 0">' +
-        '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;margin-bottom:12px">💬 Open WhatsApp</a>' +
-        '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
-        '</div>';
-      modal.classList.add('open');
-    }, 200);
+  // Decouple redirect from form submit stack using a polling flag.
+  // Mobile browsers block any navigation (even setTimeout) from onsubmit.
+  // Instead, the interval poller runs independently outside the form handler.
+  function scheduleRedirect(waUrl) {
+    window.__waRedirectUrl = waUrl;
   }
 
   if (waNumber) {
-    showConfirmScreen(buildWaUrl(waNumber));
+    scheduleRedirect(buildWaUrl(waNumber));
   } else if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      showConfirmScreen(buildWaUrl(s.whatsapp || '919866631761'));
+      scheduleRedirect(buildWaUrl(s.whatsapp || '919866631761'));
     }).catch(function() {
-      showConfirmScreen(buildWaUrl('919866631761'));
+      scheduleRedirect(buildWaUrl('919866631761'));
     });
   } else {
-    showConfirmScreen(buildWaUrl('919866631761'));
+    scheduleRedirect(buildWaUrl('919866631761'));
   }
+}
+
+// Polling-based redirect — completely independent of form submit
+if (!window.__waRedirectInterval) {
+  window.__waRedirectInterval = setInterval(function() {
+    if (window.__waRedirectUrl) {
+      var url = window.__waRedirectUrl;
+      window.__waRedirectUrl = null;
+      window.location.href = url;
+    }
+  }, 150);
 }
 
 function checkout() {
