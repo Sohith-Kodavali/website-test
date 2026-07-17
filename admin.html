@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0" />
 <title>Admin CMS · RRK Food Court</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/style.css?ts=1784310577372" />
+<link rel="stylesheet" href="css/style.css?ts=1784311770726" />
 
 <style>
   .cms-body{min-height:100vh;background:var(--bg)}
@@ -92,47 +92,55 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js?ts=1784310577372"></script>
-<script src="js/firebase.js?ts=1784310577372"></script>
-<script src="js/site-renderer.js?ts=1784310577372"></script>
-<script src="js/admin.js?ts=1784310577372"></script>
+<script src="js/firebase-config.js?ts=1784311770726"></script>
+<script src="js/firebase.js?ts=1784311770726"></script>
+<script src="js/site-renderer.js?ts=1784311770726"></script>
+<script src="js/admin.js?ts=1784311770726"></script>
 <script>
 function handleAdminLogin(e) {
   e.preventDefault();
   adminHaptic('click');
   var p = document.getElementById('adminPass').value.trim();
-  var defaultPass = 'admin1234';
+  var err = document.getElementById('adminLoginError');
   var expectedPass = null;
+
   function checkLogin() {
-    var err = document.getElementById('adminLoginError');
-    // Try hashed comparison first, fall back to plaintext for legacy passwords
     hashPassword(p).then(function(hashed) {
-      if (hashed === expectedPass || p === expectedPass || (!expectedPass && p === defaultPass)) {
-        // Auto-migrate: if password is still plaintext (<64 chars), hash and save it
-        if (expectedPass && expectedPass.length < 60 && typeof rrkSettings !== 'undefined') {
-          hashPassword(expectedPass).then(function(h) {
-            rrkSettings.save({ admin_pass: h }).catch(function(){});
-          });
+      if (expectedPass) {
+        // Compare against hashed password in Firestore
+        if (hashed === expectedPass) {
+          sessionStorage.setItem(ADMIN_KEY, '1');
+          showAdminDashboard();
+        } else {
+          err.style.display = 'block';
         }
-        sessionStorage.setItem(ADMIN_KEY, '1');
-        showAdminDashboard();
       } else {
-        err.style.display = 'block';
+        // No password stored yet — first-time setup. Save this password.
+        if (typeof rrkSettings !== 'undefined') {
+          rrkSettings.save({ admin_pass: hashed }).then(function() {
+            sessionStorage.setItem(ADMIN_KEY, '1');
+            showAdminDashboard();
+          }).catch(function() {
+            err.textContent = 'Could not save password. Try again.';
+            err.style.display = 'block';
+          });
+        } else {
+          err.textContent = 'Firestore not connected. Check your connection.';
+          err.style.display = 'block';
+        }
       }
     }).catch(function() {
-      // If hashing fails, fall back to plaintext
-      if (p === expectedPass || (!expectedPass && p === defaultPass)) {
-        sessionStorage.setItem(ADMIN_KEY, '1');
-        showAdminDashboard();
-      } else {
-        err.style.display = 'block';
-      }
+      err.textContent = 'Password hashing failed. Try a different browser.';
+      err.style.display = 'block';
     });
   }
+
   if (typeof rrkSettings === 'undefined') {
-    checkLogin();
+    err.textContent = 'Firestore not connected. Check your connection.';
+    err.style.display = 'block';
     return;
   }
+
   rrkSettings.get().then(function(s) {
     if (s.admin_pass) expectedPass = s.admin_pass;
     checkLogin();
@@ -150,6 +158,8 @@ function hashPassword(pw) {
 }
 
 function showAdminDashboard() {
+  var now = Date.now();
+  sessionStorage.setItem(ADMIN_KEY, now.toString());
   document.getElementById('adminLoginPage').style.display = 'none';
   document.getElementById('adminDashboard').style.display = 'block';
   loadAdminApp();
@@ -162,9 +172,11 @@ function logoutAdmin() {
   location.reload();
 }
 
-if (sessionStorage.getItem(ADMIN_KEY)) {
-  showAdminDashboard();
-}
+// Auto-login only if session is fresh (<8 hours)
+(function() {
+  var ts = sessionStorage.getItem(ADMIN_KEY);
+  if (ts && (Date.now() - parseInt(ts)) < 28800000) showAdminDashboard();
+})();
 
 function exportFirestoreData() {
   adminHaptic('click');

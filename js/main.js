@@ -437,6 +437,17 @@ function renderCart() {
   }
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
 }
+
+// Set active mode buttons on page load
+(function() {
+  setTimeout(function() {
+    var mode = localStorage.getItem('rrk_order_mode') || 'Takeaway';
+    document.querySelectorAll('.cart-mode-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+    });
+  }, 100);
+})();
+
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
 function closeCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.remove('open'); playHaptic('close'); } }
 

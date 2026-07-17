@@ -51,6 +51,7 @@ See [admin/taste.md](admin/taste.md)
 # firestore
 - Firestore requires a composite index for `orderBy` queries — when using `orderBy('created_at', 'desc')`, Firebase logs an index creation link in the browser console on first query; click it to create the index instantly. Confidence: 0.70
 - Avoid client-side caching of Firestore data — do not add in-memory promise caches, localStorage wrappers, or any caching layer between Firestore and the UI. All data should come fresh from the backend on every load. Client-side caching has caused persistent issues in this project. Confidence: 0.75
+- Firestore security rules require `if` conditions on `allow` statements — use `allow read, write: if true;` not `allow read, write: true;`. Confidence: 0.70
 
 # ux
 - Add haptic feedback (vibration) and sound effects to every interactive action across the site — not just cart and order placement. Confidence: 0.80
