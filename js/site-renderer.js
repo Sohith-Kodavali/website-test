@@ -505,7 +505,8 @@ function renderCraftPage(D) {
     '</div>'+
     '</div>'+
     '<div id="cpConsultSection" style="display:none;text-align:center;padding:24px 0">'+
-      '<p style="font-size:16px;margin-bottom:20px">Your preferences will be sent to the owner for a personalized consultation.</p>'+
+      '<p style="font-size:16px;margin-bottom:8px"><strong>Personalized Catering</strong></p>'+
+      '<p class="muted" style="margin-bottom:20px">Skip the menu — share your requirements and the owner will create a custom plan for you.</p>'+
       '<button class="btn btn--wa btn--block btn--lg" onclick="CpApp.consultWhatsApp()">💬 Discuss on WhatsApp</button>'+
     '</div>'+
   '</section>';
