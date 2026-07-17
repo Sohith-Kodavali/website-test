@@ -575,36 +575,48 @@ function placeOrder(e) {
   sendPush('Order Confirmed! \uD83C\uDF89', 'Your order of ₹' + cartGrandTotal() + ' has been placed. We\'ll prepare it shortly.');
   if (typeof initSocialProof === 'function') initSocialProof();
 
-  closeOrderModal();
+  // Close the order form modal
+  var orderModal = document.getElementById('orderModal');
+  if (orderModal) orderModal.classList.remove('open');
+
   tapVibe();
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
   var waNumber = (window.RRK_CONFIG && window.RRK_CONFIG.loaded) ? window.RRK_CONFIG.whatsapp : null;
-  var waUrl = '';
-  function showOrderConfirmation() {
-    var modal = document.getElementById('orderModal');
-    if (!modal) return;
-    document.getElementById('orderModalTitle').textContent = 'Order Placed! 🎉';
-    document.getElementById('orderModalSub').innerHTML = 'Your order has been sent. Tap below to confirm on WhatsApp.';
-    var form = document.getElementById('orderForm');
-    form.innerHTML = '<div style="text-align:center;padding:8px 0"><a href="' + waUrl + '" class="btn btn--wa btn--block btn--lg" style="font-size:16px">💬 Open WhatsApp</a><p class="muted" style="margin-top:16px;font-size:12px">If WhatsApp doesn\'t open, <a href="' + waUrl + '" style="color:var(--red);font-weight:700">tap here</a></p></div>';
-    modal.classList.add('open');
+
+  function buildWaUrl(num) {
+    return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
+  }
+
+  // Wait a tick so browser finishes DOM update, then show confirmation with real tappable button
+  function showConfirmScreen(waUrl) {
+    setTimeout(function() {
+      var modal = document.getElementById('orderModal');
+      if (!modal) {
+        window.location.href = waUrl;
+        return;
+      }
+      document.getElementById('orderModalTitle').textContent = 'Order Placed!';
+      document.getElementById('orderModalSub').innerHTML = 'Tap below to confirm on WhatsApp.';
+      var form = document.getElementById('orderForm');
+      form.innerHTML = '<div style="text-align:center;padding:8px 0">' +
+        '<a href="' + waUrl + '" target="_blank" class="btn btn--wa btn--block btn--lg" style="font-size:16px;margin-bottom:12px">💬 Open WhatsApp</a>' +
+        '<p class="muted" style="font-size:12px">If nothing happens, <a href="' + waUrl + '" target="_blank" style="color:var(--red);font-weight:700;text-decoration:underline">tap here</a></p>' +
+        '</div>';
+      modal.classList.add('open');
+    }, 200);
   }
 
   if (waNumber) {
-    waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
-    showOrderConfirmation();
+    showConfirmScreen(buildWaUrl(waNumber));
   } else if (typeof rrkSettings !== 'undefined') {
     rrkSettings.get().then(function(s) {
-      waUrl = 'https://wa.me/' + (s.whatsapp || '919866631761') + '?text=' + encodeURIComponent(msg);
-      showOrderConfirmation();
+      showConfirmScreen(buildWaUrl(s.whatsapp || '919866631761'));
     }).catch(function() {
-      waUrl = 'https://wa.me/919866631761?text=' + encodeURIComponent(msg);
-      showOrderConfirmation();
+      showConfirmScreen(buildWaUrl('919866631761'));
     });
   } else {
-    waUrl = 'https://wa.me/919866631761?text=' + encodeURIComponent(msg);
-    showOrderConfirmation();
+    showConfirmScreen(buildWaUrl('919866631761'));
   }
 }
 
