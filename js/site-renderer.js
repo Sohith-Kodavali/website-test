@@ -162,12 +162,7 @@ const SITE_DATA = {
   about: {eyebrow:'Our Story',headlineL1:'Rooted in flavour,',headlineL2:'refined for you',body:'RRK Food Court started in the heart of Eluru with one belief: premium chicken should be fresh, hygienic and honestly priced.',image:'6.jpeg',buttonText:'Visit Us'},
   whyCards: [{icon:'🐔',title:'Fresh Chicken',desc:'Sourced & cut daily.'},{icon:'👑',title:'Premium Quality',desc:'Only grade-A cuts.'},{icon:'✨',title:'Hygienic Kitchen',desc:'Spotless & safe.'},{icon:'⚡',title:'Fast Delivery',desc:'Hot in 30 mins.'},{icon:'💰',title:'Affordable',desc:'Great value always.'}],
   whySection: {eyebrow:'Why RRK',headline:'Why RRK Food Court'},
-  testimonials: [
-    {avatar:'👨',stars:5,quote:'Best chicken I\'ve had in Eluru.',author:'Ravi Kumar',subtitle:'Regular Customer'},
-    {avatar:'👩',stars:5,quote:'Ordered the Family Feast Pack for a get-together. Everyone loved it.',author:'Priya Sharma',subtitle:'Verified Order'},
-    {avatar:'👨‍🦱',stars:5,quote:'Craft My Plate is genius. Saved money and got exactly what I needed.',author:'Sandeep Reddy',subtitle:'First-time Customer'},
-    {avatar:'👩‍🦰',stars:5,quote:'Fresh raw chicken in 30 minutes. Clean cuts, proper packaging.',author:'Lakshmi Devi',subtitle:'Weekly Regular'}
-  ],
+  testimonials: [],
   instagram: [
     {image:'10.jpeg',caption:'Grilled to perfection'},{image:'11.jpeg',caption:'Weekend biryani'},
     {image:'12.jpeg',caption:'Fresh cuts daily'},{image:'13.jpeg',caption:'Family feast'},
@@ -353,7 +348,46 @@ function renderIndex(D) {
 
   document.getElementById('render-why-cards').innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.whySection.eyebrow+'</span><h2>'+D.whySection.headline+'</h2></div><div class="grid grid--5">'+D.whyCards.map(function(w,i){return'<div class="why-card reveal delay-'+(i+1)+'"><div class="why-ic">'+w.icon+'</div><h4>'+w.title+'</h4><p>'+w.desc+'</p></div>'}).join('')+'</div></div></section>';
 
-  document.getElementById('render-testimonials').innerHTML = '<section class="section section--soft testimonial-section"><div class="container"><div class="section__head reveal"><span class="eyebrow">What They Say</span><h2>Customer Love</h2></div><div class="testimonial-viewport" style="overflow:hidden;border-radius:32px"><div class="testimonial-track">'+D.testimonials.map(function(t){return'<div class="testimonial-card"><div class="testimonial-avatar">'+t.avatar+'</div><div class="stars">'+getStars(t.stars)+'</div><p class="quote">"'+t.quote+'"</p><div class="author">'+t.author+'<span>'+t.subtitle+'</span></div></div>'}).join('')+'</div></div><div class="testimonial-dots">'+D.testimonials.map(function(_,i){return'<button class="'+(i===0?'active':'')+'" aria-label="Testimonial '+(i+1)+'"></button>'}).join('')+'</div><div class="testimonial-arrows"><button class="testimonial-prev" aria-label="Previous">←</button><button class="testimonial-next" aria-label="Next">→</button></div></div></section>';
+  document.getElementById('render-testimonials').innerHTML = '<section class="section section--soft testimonial-section"><div class="container"><div class="section__head reveal"><span class="eyebrow">What They Say</span><h2>Customer Love</h2></div><div id="testimonialsContainer"><p style="text-align:center;padding:40px;color:var(--muted)">Loading reviews...</p></div></div></section>';
+  // Fetch real reviews from Firestore and inject into testimonials section
+  if (typeof rrkReviews !== 'undefined' && rrkReviews.list) {
+    setTimeout(function() {
+      rrkReviews.list().then(function(reviews) {
+        reviews = reviews || [];
+        var container = document.getElementById('testimonialsContainer');
+        if (!container) return;
+        if (reviews.length === 0) {
+          container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--muted)">No reviews yet. Be the first to share your experience!</p>';
+          return;
+        }
+        var testimonialData = reviews.map(function(r) {
+          return {
+            avatar: '👤',
+            stars: parseInt(r.stars) || 5,
+            quote: r.text || '',
+            author: r.name || '',
+            subtitle: (r.created_at || '').substring(0, 10)
+          };
+        });
+        container.innerHTML =
+          '<div class="testimonial-viewport" style="overflow:hidden;border-radius:32px">' +
+          '<div class="testimonial-track">' +
+          testimonialData.map(function(t) {
+            return '<div class="testimonial-card"><div class="testimonial-avatar">' + t.avatar + '</div><div class="stars">' + getStars(t.stars) + '</div><p class="quote">"' + t.quote + '"</p><div class="author">' + t.author + '<span>' + t.subtitle + '</span></div></div>';
+          }).join('') +
+          '</div></div>' +
+          '<div class="testimonial-dots">' +
+          testimonialData.map(function(_, i) { return '<button class="' + (i === 0 ? 'active' : '') + '" aria-label="Testimonial ' + (i + 1) + '"></button>'; }).join('') +
+          '</div>' +
+          '<div class="testimonial-arrows"><button class="testimonial-prev" aria-label="Previous">←</button><button class="testimonial-next" aria-label="Next">→</button></div>';
+        // Re-initialize carousel with new cards
+        if (typeof initTestimonials === 'function') initTestimonials();
+      }).catch(function() {
+        var container = document.getElementById('testimonialsContainer');
+        if (container) container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--muted)">Could not load reviews. Check back later!</p>';
+      });
+    }, 300);
+  }
 
   document.getElementById('render-craft-preview').innerHTML = '<section class="section craft-section"><div class="container"><div class="craft-hero reveal"><div class="craft-hero__content reveal-slide-left"><span class="eyebrow">'+D.craftPreview.eyebrow+'</span><h2>'+D.craftPreview.headline+'</h2><p>'+D.craftPreview.desc+'</p><div class="craft-flow"><div class="craft-flow-item"><span class="craft-flow-num">1</span><span>Pick Your Menu</span></div><div class="craft-flow-arrow">→</div><div class="craft-flow-item"><span class="craft-flow-num">2</span><span>Set Guests &amp; Budget</span></div><div class="craft-flow-arrow">→</div><div class="craft-flow-item"><span class="craft-flow-num">3</span><span>We Deliver Hot &amp; Fresh</span></div></div><div class="craft-perks"><span><span class="craft-perk-icon">✓</span>10+ Guests</span><span><span class="craft-perk-icon">✓</span>Live Pricing</span><span><span class="craft-perk-icon">✓</span>Custom Combos</span></div><a href="craft-my-plate.html" class="btn btn--primary btn--lg craft-hero-btn">'+D.craftPreview.buttonText+' →</a></div><div class="craft-hero__visual reveal-slide-right"><div class="craft-img-card"><img src="5.jpeg" alt="Craft My Plate" loading="lazy" /><div class="craft-badge-pulse">Starting at <strong>₹150</strong> /person</div></div></div></div></div></section>';
 
