@@ -6,7 +6,7 @@ REM ==========================================
 
 echo Building RRK deployment package...
 
-if exist rrk-deploy.zip del rrk-deploy.zip
+if exist rrk-final.zip del rrk-final.zip
 
 if exist rrk-deploy rmdir /s /q rrk-deploy
 mkdir rrk-deploy
@@ -16,13 +16,14 @@ xcopy *.jpeg rrk-deploy\ /Y /Q
 xcopy *.svg rrk-deploy\ /Y /Q
 xcopy manifest.json rrk-deploy\ /Y /Q
 xcopy .htaccess rrk-deploy\ /Y /Q
+xcopy sw.js rrk-deploy\ /Y /Q
 
 mkdir rrk-deploy\css
 xcopy css\* rrk-deploy\css\ /Y /Q
 
 mkdir rrk-deploy\js
 xcopy js\*.js rrk-deploy\js\ /Y /Q
-del rrk-deploy\js\firebase-config.template.js 2>nul
+del rrk-deploy\js\core.js 2>nul
 
 :: Strip out non-production files
 del rrk-deploy\vercel.json 2>nul
@@ -34,8 +35,8 @@ del rrk-deploy\commit_msg.txt 2>nul
 
 echo Zipping...
 
-powershell -Command "Compress-Archive -Path 'rrk-deploy\*' -DestinationPath 'rrk-deploy.zip' -Force"
+powershell -Command "Compress-Archive -Path 'rrk-deploy\*' -DestinationPath 'rrk-final.zip' -Force"
 
 rmdir /s /q rrk-deploy
 
-echo Done! rrk-deploy.zip is ready.
+echo Done! rrk-final.zip is ready.

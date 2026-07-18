@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>RRK Clear Cache</title></head>
+<body style="text-align:center;padding:40px;font-family:Arial,sans-serif">
+<h1>✅ Cache Cleared</h1>
+<p>Close this tab and open <a href="admin.html">Admin Panel</a></p>
+<script>
+// Clear ALL caches for this domain
+if ('caches' in window) {
+  caches.keys().then(function(names) {
+    names.forEach(function(name) { caches.delete(name); });
+  });
+}
+sessionStorage.clear();
+localStorage.removeItem('rrk_site_data');
+// Force unregister any service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.unregister(); });
+  });
+}
+// Redirect to admin
+setTimeout(function() {
+  window.location.href = 'admin.html?v=' + Date.now();
+}, 1000);
+</script>
+</body></html>

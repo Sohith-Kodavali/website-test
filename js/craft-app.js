@@ -269,6 +269,10 @@ var CpApp = (function() {
     state.offerPercent = 0;
 
     var occasion = (D.craftOccasions || []).find(function(o) { return o.name === state.occasion; });
+    // Highlight the matching offer chip
+    document.querySelectorAll('.cp-offer-chip').forEach(function(c) {
+      c.classList.toggle('active', c.getAttribute('data-occasion') === state.occasion);
+    });
     if (occasion) {
       couponEl.style.display = 'block';
       couponEl.className = 'cp-coupon ' + (occasion.couponType || 'default');
@@ -302,7 +306,7 @@ var CpApp = (function() {
     if (!bar) return;
     var itemCount = sandboxItemCount();
 
-    if (state.guestsValid && itemCount >= 1) {
+    if (state.guestsValid && itemCount >= 3) {
       bar.style.display = 'block';
       bar.classList.add('visible');
     } else {
@@ -319,7 +323,7 @@ var CpApp = (function() {
     if (coItems) coItems.textContent = itemCount || '—';
     var grandTotal = calcGrandTotal();
     if (coTotal) coTotal.textContent = '₹' + grandTotal.toLocaleString('en-IN');
-    if (coBtn) coBtn.disabled = !(state.guestsValid && itemCount >= 1);
+    if (coBtn) coBtn.disabled = !(state.guestsValid && itemCount >= 3);
   }
 
   // ========== CONFIRM / CANCEL ==========

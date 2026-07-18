@@ -80,6 +80,15 @@ window.rrkCustomers = {
 // ============ ORDERS ============
 window.rrkOrders = {
   list: () => getCollection('orders'),
+  listRecent: (sinceTime) => {
+    return initFirebase().then(() => {
+      return db.collection('orders').where('created_at', '>', sinceTime).orderBy('created_at', 'desc').get().then(snapshot => {
+        var items = [];
+        snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+        return items;
+      });
+    });
+  },
   listPaginated: (lastDoc, limit) => {
     limit = limit || 50;
     return initFirebase().then(function() {
@@ -99,6 +108,13 @@ window.rrkOrders = {
   save: (data) => addDoc('orders', { ...data, created_at: new Date().toISOString() }),
   remove: (id) => deleteDoc('orders', id),
   updateStatus: (id, status) => updateDoc('orders', id, { status, updated_at: new Date().toISOString() })
+};
+
+// ============ REVIEWS ============
+window.rrkReviews = {
+  list: () => getCollection('reviews'),
+  save: (data) => addDoc('reviews', { ...data, created_at: new Date().toISOString() }),
+  remove: (id) => deleteDoc('reviews', id)
 };
 
 // ============ RESERVATIONS ============

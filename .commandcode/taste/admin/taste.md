@@ -1,6 +1,8 @@
 # admin
 - Admin dashboard CMS should show only three tabs: Menu, Raw Chicken, and Occasions. Combos have been removed entirely. Exclude everything else (hero, badge, stats, testimonials, instagram, about, why cards, contact, social, settings). Confidence: 0.90
 - Admin authentication should use password-only login (no username field) — there is only a single admin user. Confidence: 0.85
+- Admin login uses MySQL-backed password from the `settings` table with `admin123` as a hardcoded fallback — check MySQL first, fall back to hardcoded check if the database is unreachable. Confidence: 0.35
+- No hardcoded admin passwords — all authentication must go through Firestore only. Do not add any hardcoded fallback passwords in the login flow. Confidence: 0.85
 - Keep the "Add Category" section inline within the Menu tab, not as a separate section. Confidence: 0.70
 - Craft My Plate items should mirror Menu items — they share the same items AND the same pricing. No separate pricing for craft. No "add item" option for craft (only disable/enable existing items). Confidence: 0.85
 - When a new menu category is added via the inline category manager, it must immediately appear as a filter tab in the Menu panel (the category filter buttons like chicken, biryani, etc.). Adding the category to Firestore is not enough — the filter tabs must refresh to include the new category. Confidence: 0.70

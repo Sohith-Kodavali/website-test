@@ -437,17 +437,6 @@ function renderCart() {
   }
   document.querySelectorAll('.cart-mode-btn').forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-mode') === currentOrderMode); });
 }
-
-// Set active mode buttons on page load
-(function() {
-  setTimeout(function() {
-    var mode = localStorage.getItem('rrk_order_mode') || 'Takeaway';
-    document.querySelectorAll('.cart-mode-btn').forEach(function(b) {
-      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
-    });
-  }, 100);
-})();
-
 function openCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.add('open'); playHaptic('open'); } }
 function closeCart() { var d = document.getElementById('cartDrawer'); if (d) { d.classList.remove('open'); playHaptic('close'); } }
 
@@ -609,7 +598,13 @@ function submitReview(e) {
   var text = document.getElementById('reviewText').value.trim();
   if (!name || !text) { alert('Please fill all fields.'); return; }
 
-  var msg = '*New Review*\n\n⭐ *Rating:* ' + stars + '/5\n👤 *Name:* ' + name + '\n💬 *Review:* ' + text;
+  // Save to Firestore for admin Reviews tab
+  if (typeof rrkReviews !== 'undefined' && rrkReviews.save) {
+    rrkReviews.save({ name: name, stars: parseInt(stars) || 5, text: text }).catch(function(e) {
+      console.warn('Review save failed:', e);
+    });
+  }
+
   if (typeof playHaptic === 'function') playHaptic('confirm');
 
   var form = document.getElementById('reviewForm');

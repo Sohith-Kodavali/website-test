@@ -21,8 +21,8 @@ function format12Hour(time) {
 // Old localStorage caches with a lower version are discarded.
 var DATA_VERSION = 7;
 
-function isRestaurantOpen(D) {
-  var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
+function isRestaurantOpen(D, hoursOverride) {
+  var sh = hoursOverride || ((D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours);
   var openNow = sh.openNow;
   if (typeof openNow === 'string') openNow = openNow !== '0' && openNow !== 'false';
   if (openNow === false) return false;
@@ -35,8 +35,8 @@ function isRestaurantOpen(D) {
   return mins >= open || mins < close;
 }
 
-function getClosedMessage(D) {
-  var sh = (D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours;
+function getClosedMessage(D, hoursOverride) {
+  var sh = hoursOverride || ((D && D.serviceHours) ? D.serviceHours : SITE_DATA.serviceHours);
   return sh.closedMessage || 'Restaurant Closed';
 }
 
@@ -245,6 +245,12 @@ function loadFromFirestore(page) {
         openTime: settings.service_open_time || SITE_DATA.serviceHours.openTime,
         closeTime: settings.service_close_time || SITE_DATA.serviceHours.closeTime,
         closedMessage: settings.service_closed_msg || SITE_DATA.serviceHours.closedMessage
+      };
+      data.rawServiceHours = {
+        openNow: settings.raw_open_now !== '0' && settings.raw_open_now !== 'false',
+        openTime: settings.raw_open_time || SITE_DATA.rawServiceHours.openTime,
+        closeTime: settings.raw_close_time || SITE_DATA.rawServiceHours.closeTime,
+        closedMessage: settings.raw_closed_msg || SITE_DATA.rawServiceHours.closedMessage
       };
       // Merge contact info
       if (settings.contact_phone) { data.contact.phone = settings.contact_phone; data.contact.phoneRaw = settings.contact_phone.replace(/[\s+]/g, ''); }
@@ -558,8 +564,9 @@ function renderCraftPage(D) {
 
 function renderRawPage(D) {
   var el = document.getElementById('render-raw'); if(!el)return;
-  if (!isRestaurantOpen(D)) {
-    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Restaurant Closed</h3><p>'+getClosedMessage(D)+'</p></div></div></section>';
+  var rawHours = (D && D.rawServiceHours) ? D.rawServiceHours : null;
+  if (!isRestaurantOpen(D, rawHours)) {
+    el.innerHTML = '<section class="section"><div class="container"><div class="closed-banner"><h3>🚫 Raw Chicken Closed</h3><p>'+getClosedMessage(D, rawHours)+'</p></div></div></section>';
     return;
   }
   el.innerHTML = '<section class="section"><div class="container"><div class="section__head reveal"><span class="eyebrow">'+D.pageMeta.raw.eyebrow+'</span><h2>'+D.pageMeta.raw.headline+'</h2><p class="muted">'+D.pageMeta.raw.subhead+'</p></div><div class="menu-search reveal"><input type="text" class="menu-search__input" placeholder="Search raw chicken..." oninput="searchRawItems(this.value)" /></div><div class="menu-list">'+D.raw.map(function(r,i){return'<article class="menu-row reveal" data-raw-search="'+r.name.toLowerCase()+'"><div class="menu-row__img"><img src="'+r.image+'" alt="'+r.name+'" loading="lazy" /><span class="menu-badge menu-badge--best" style="background:var(--success);font-size:8px">'+(r.tag||'Fresh')+'</span></div><div class="menu-row__info"><div class="menu-row__top"><h3>'+r.name+'</h3></div><p class="menu-row__desc">'+r.weight+'</p><div class="menu-row__bottom"><div class="price">₹'+r.price+' <small>/kg</small></div><button class="btn btn--primary btn--sm" onclick="addToCart(\''+(r.name||'').replace(/'/g,"\\'")+'\','+r.price+')">+ Add</button></div></div></article>'}).join('')+'</div><div class="section-foil-divider" aria-hidden="true"></div><div class="reveal" style="margin-top:56px"><table class="pricing-table"><thead><tr><th>Item</th><th>Weight</th><th>Price</th><th>Availability</th></tr></thead><tbody>'+D.raw.map(function(r){return'<tr><td>'+r.name+'</td><td>'+r.weight+'</td><td>₹'+r.price+'</td><td>✅ '+(r.tag||'Fresh Today')+'</td></tr>'}).join('')+'</tbody></table></div></div></section>';

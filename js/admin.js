@@ -106,7 +106,7 @@ function loadAdminApp() {
   renderOrdersEditor();
   renderOccasionEditor();
   renderCustomersEditor();
-  renderContactEditor();
+  renderReviewsEditor();
   renderSocialEditor();
   renderSettingsEditor();
   // Sync categories to localStorage so public pages use them
@@ -501,26 +501,28 @@ function renderOrdersEditor() {
 
 function startOrdersPolling() {
   if (ordersPollingInterval) clearInterval(ordersPollingInterval);
-  ordersPollingInterval = setInterval(pollForNewOrders, 10000);
+  ordersPollingInterval = setInterval(pollForNewOrders, 60000);
 }
 
 function stopOrdersPolling() {
   if (ordersPollingInterval) { clearInterval(ordersPollingInterval); ordersPollingInterval = null; }
 }
 
+var lastPollTime = new Date().toISOString();
+
 function pollForNewOrders() {
   if (typeof rrkOrders === 'undefined') return;
   var statusEl = document.getElementById('orders-status');
   if (statusEl) statusEl.textContent = '🔄 Checking...';
-  rrkOrders.list().then(function(data) {
-    var orders = data || [];
+  var since = lastPollTime;
+  lastPollTime = new Date().toISOString();
+  rrkOrders.listRecent(since).then(function(orders) {
     if (statusEl) statusEl.textContent = '🔄 Live';
-    if (orders.length > lastOrderCount) {
-      var newCount = orders.length - lastOrderCount;
-      lastOrderCount = orders.length;
-      window.__adminOrders = orders;
+    if (orders.length > 0) {
+      window.__adminOrders = orders.concat(window.__adminOrders || []);
+      lastOrderCount = (window.__adminOrders || []).length;
       var wasCraft = orders[0] && orders[0].type === 'craft';
-      playNewOrderAlert(newCount, wasCraft);
+      playNewOrderAlert(orders.length, wasCraft);
       renderAdminOrdersList(window.__adminOrders, adminActiveOrderType);
     }
   }).catch(function() {
@@ -919,29 +921,28 @@ function deleteCustomerDoc(id) {
   rrkCustomers.remove(id).then(() => renderCustomersEditor());
 }
 
-// ============ CONTACT ============
-function renderContactEditor() {
-  const el = document.getElementById('cms-contact'); if (!el) return;
-  el.innerHTML = '<h3 style="margin-bottom:16px">Contact Info</h3><p class="muted">Loading...</p>';
-  rrkSettings.get().then(s => {
-    el.innerHTML = `<h3 style="margin-bottom:16px">Contact Info</h3>
-      ${field('contact_phone','Phone','text',s.contact_phone||'')}${field('contact_whatsapp','WhatsApp','text',s.contact_whatsapp||'')}
-      ${field('contact_address','Address','text',s.contact_address||'')}${field('contact_hours','Hours','text',s.contact_hours||'')}
-      ${field('contact_maps','Google Maps URL','text',s.contact_maps||'')}
-      ${field('wa_community','WhatsApp Community Link','text',s.wa_community||'')}
-      <button class="btn btn--primary" onclick="saveContactDoc()">Save</button>`;
+// ============ REVIEWS ============
+function renderReviewsEditor() {
+  var el = document.getElementById('cms-reviews'); if (!el) return;
+  el.innerHTML = '<h3 style="margin-bottom:20px">Customer Reviews</h3><p class="muted">Loading...</p>';
+  if (typeof rrkReviews === 'undefined') { el.innerHTML = '<p class="muted">Reviews not available</p>'; return; }
+  rrkReviews.list().then(function(items) {
+    items = items || [];
+    el.innerHTML = '<h3 style="margin-bottom:20px">Customer Reviews ('+items.length+')</h3>' +
+      '<div class="cms-list">' +
+      items.map(function(r) {
+        return '<div class="cms-item"><div><b>'+r.name+'</b> <span style="color:#D4AF37">'+('★'.repeat(parseInt(r.stars)||5))+'</span><br><span>'+r.text+'</span><br><small style="color:#6B6B6B">'+((r.created_at||'').substring(0,10))+'</small></div>'+
+          '<button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteReviewDoc(\''+r.id+'\')">Hide</button></div>';
+      }).join('') +
+      (items.length === 0 ? '<p class="muted">No reviews yet. Customer reviews from the website will appear here.</p>' : '') +
+      '</div>';
   });
 }
 
-function saveContactDoc() {
-  adminHaptic('confirm');
-  var data = {};
-  var keys = {contact_phone:'contact_phone',contact_whatsapp:'contact_whatsapp',contact_address:'contact_address',contact_hours:'contact_hours',contact_maps:'contact_maps',wa_community:'wa_community'};
-  Object.keys(keys).forEach(function(k) {
-    var v = g(k);
-    if (v !== '') data[k] = v;
-  });
-  rrkSettings.save(data).then(() => alert('Saved!'));
+function deleteReviewDoc(id) {
+  adminHaptic('remove');
+  if (!confirm('Hide this review?')) return;
+  rrkReviews.remove(id).then(function() { renderReviewsEditor(); });
 }
 
 // ============ SOCIAL / FOOTER ============
@@ -989,12 +990,23 @@ function renderSettingsEditor() {
       <div class="admin-field"><label>QR Code Image (ordering page)</label><input type="text" id="field-qr_image" value="${esc(s.qr_image||'')}" oninput="previewInlineImage('field-qr_image','preview-qr_image')" /><div id="preview-qr_image" style="margin-top:8px;max-width:200px;border-radius:10px;overflow:hidden;border:1px solid var(--border);display:${s.qr_image?'block':'none'}"><img src="${esc(s.qr_image||'')}" alt="QR Preview" style="width:100%;display:block" onerror="this.parentElement.style.display='none'" /></div></div>
       <button class="btn btn--primary" onclick="saveImagesDoc()">Save Images</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
-      <h3 style="margin-bottom:12px">Service Hours</h3>
-      ${field('service_open_now','Restaurant Open Now (turn off to close)','toggle',s.service_open_now!=='0' && s.service_open_now!=='false' ? '1' : '0')}
-      ${field('service_open_time','Open Time (HH:MM, 12-hour)','text',s.service_open_time||'11:00')}
-      ${field('service_close_time','Close Time (HH:MM, 12-hour)','text',s.service_close_time||'23:00')}
-      ${field('service_closed_msg','Closed Message','text',s.service_closed_msg||'Restaurant Closed · We are currently not accepting orders. Please visit us during our hours.')}
-      <button class="btn btn--gold-outline" onclick="saveServiceHoursDoc()">Save Service Hours</button>
+      <h3 style="margin-bottom:12px">Food Service Hours</h3>
+      ${field('service_open_now','Open Now','toggle',s.service_open_now!=='0' && s.service_open_now!=='false' ? '1' : '0')}
+      ${field('service_open_time','Open Time (HH:MM, 24-hour)','text',s.service_open_time||'11:00')}
+      ${field('service_close_time','Close Time (HH:MM, 24-hour)','text',s.service_close_time||'23:00')}
+      ${field('service_closed_msg','Closed Message','text',s.service_closed_msg||'Restaurant Closed · We are currently not accepting orders.')}
+      <button class="btn btn--gold-outline" onclick="saveServiceHoursDoc()">Save Food Hours</button>
+      <hr style="margin:28px 0;border-color:var(--border)" />
+      <h3 style="margin-bottom:12px">Raw Chicken Hours (opens earlier)</h3>
+      ${field('raw_open_now','Open Now','toggle',s.raw_open_now!=='0' && s.raw_open_now!=='false' ? '1' : '0')}
+      ${field('raw_open_time','Open Time (HH:MM, 24-hour)','text',s.raw_open_time||'07:00')}
+      ${field('raw_close_time','Close Time (HH:MM, 24-hour)','text',s.raw_close_time||'23:00')}
+      ${field('raw_closed_msg','Closed Message','text',s.raw_closed_msg||'Raw Chicken orders are currently closed. We open at 7:00 AM daily.')}
+      <button class="btn btn--gold-outline" onclick="saveRawHoursDoc()">Save Raw Hours</button>
+      <hr style="margin:28px 0;border-color:var(--border)" />
+      <h3 style="margin-bottom:12px">Community</h3>
+      ${field('wa_community','WhatsApp Community Link','text',s.wa_community||'')}
+      <button class="btn btn--primary" onclick="saveCommunityDoc()">Save Community Link</button>
       <hr style="margin:28px 0;border-color:var(--border)" />
       <p class="muted" style="font-size:12px">Data is stored in Firebase Firestore. To reset, delete collections in Firebase Console.</p>`;
   });
@@ -1035,7 +1047,23 @@ function saveServiceHoursDoc() {
   if (openNow !== '0' && openNow !== '1') openNow = '1';
   ['service_open_now','service_open_time','service_close_time','service_closed_msg'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
   data.service_open_now = openNow;
-  rrkSettings.save(data).then(() => alert('Service hours saved!'));
+  rrkSettings.save(data).then(() => alert('Food hours saved!'));
+}
+
+function saveRawHoursDoc() {
+  adminHaptic('confirm');
+  var data = {};
+  var rawOpenNow = g('raw_open_now');
+  if (rawOpenNow !== '0' && rawOpenNow !== '1') rawOpenNow = '1';
+  ['raw_open_now','raw_open_time','raw_close_time','raw_closed_msg'].forEach(function(k){ var v=g(k); if(v!=='') data[k]=v; });
+  data.raw_open_now = rawOpenNow;
+  rrkSettings.save(data).then(() => alert('Raw chicken hours saved!'));
+}
+
+function saveCommunityDoc() {
+  adminHaptic('confirm');
+  var v = g('wa_community');
+  if (v !== '') rrkSettings.save({ wa_community: v }).then(() => alert('Community link saved!'));
 }
 
 // ============ HELPERS ============
@@ -1148,6 +1176,35 @@ function showItemEditor(title, fields, onSave) {
     modal.remove(); onSave(vals);
   };
   modal.querySelector('#am-cancel').onclick = () => { adminHaptic('close'); modal.remove(); };
+}
+
+function previewImage(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  var preview = document.getElementById(previewId);
+  var img = document.getElementById('preview-img-'+inputId.replace('field-',''));
+  if (!input || !preview || !img) return;
+  var url = input.value.trim();
+  if (url) {
+    preview.style.display = 'block';
+    img.src = url;
+  } else {
+    preview.style.display = 'none';
+    img.src = '';
+  }
+}
+
+function previewInlineImage(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  var preview = document.getElementById(previewId);
+  if (!input || !preview) return;
+  var img = preview.querySelector('img');
+  var url = input.value.trim();
+  if (url) {
+    preview.style.display = 'block';
+    if (img) img.src = url;
+  } else {
+    preview.style.display = 'none';
+  }
 }
 
 function previewImage(inputId, previewId) {
