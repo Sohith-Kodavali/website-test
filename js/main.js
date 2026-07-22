@@ -523,6 +523,18 @@ function placeOrder() {
   var tableEl = document.getElementById('orderTable');
   var table = (mode === 'Dine-in' && tableEl) ? tableEl.value : '';
 
+  var phoneRegex = /^[6-9]\d{9}$/;
+  if (!phone) {
+    alert('Please enter your phone number so the restaurant can contact you about your order.');
+    document.getElementById('orderPhone').focus();
+    return;
+  }
+  if (!phoneRegex.test(phone)) {
+    alert('Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).');
+    document.getElementById('orderPhone').focus();
+    return;
+  }
+
   if (mode === 'Dine-in' && !table) {
     alert('Please select a table number.');
     return;

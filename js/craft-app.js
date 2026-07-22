@@ -375,6 +375,9 @@ var CpApp = (function() {
       '<div class="cp-review-row"><strong>Items:</strong> <span>'+itemCount+' selected</span></div>'+
       itemWarning+
       '<div class="cp-review-items">'+items.map(function(n){return'<span class="cp-review-chip">'+n+'</span>';}).join('')+'</div>'+
+      '<div class="cp-review-row cp-review-location" style="margin-top:12px"><strong>📞 Phone Number</strong>  <span style="color:var(--red);font-size:11px">*Required</span></div>'+
+      '<input type="tel" id="cpPhoneInput" placeholder="10-digit mobile number" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card-bg);margin-bottom:8px" />'+
+      '<p class="muted" style="font-size:11px;margin-top:0">The restaurant needs your number to confirm the order.</p>'+
       locationHTML+
       (state.occasion ? '<div class="cp-review-row"><strong>Occasion:</strong> <span>'+state.occasion+'</span></div>' : '')+
       (couponText ? '<div class="cp-review-coupon">'+couponText+'</div>' : '')+
@@ -430,6 +433,21 @@ var CpApp = (function() {
     var waBox = document.getElementById('cpWaBox');
     if (!step6 || !waBox) return;
 
+    var phoneEl = document.getElementById('cpPhoneInput');
+    var phone = phoneEl ? phoneEl.value.trim() : '';
+    var phoneRegex = /^[6-9]\d{9}$/;
+    if (!phone) {
+      alert('Please enter your phone number so the restaurant can contact you.');
+      if (phoneEl) phoneEl.focus();
+      return;
+    }
+    if (!phoneRegex.test(phone)) {
+      alert('Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).');
+      if (phoneEl) phoneEl.focus();
+      return;
+    }
+    state.phone = phone;
+
     var total = calcGrandTotal();
     var itemCount = sandboxItemCount();
     var items = getSelectedItemNames();
@@ -468,6 +486,7 @@ var CpApp = (function() {
     if (state.occasion) msg += 'Occasion: ' + state.occasion + '\n';
     if (state.couponType !== '') msg += 'Applied: ' + state.couponType + (state.offerPercent > 0 ? ' (' + state.offerPercent + '% off)' : '') + '\n';
     if (state.freeDelivery) msg += 'FREE DELIVERY\n';
+    msg += 'Phone: ' + (state.phone || '') + '\n';
 
     var orderData = {
       type: 'craft',
@@ -478,6 +497,7 @@ var CpApp = (function() {
       total: total,
       overallBudget: sandboxTotal(),
       mode: state.deliveryMode === 'takeaway' ? 'Takeaway' : 'Delivery',
+      phone: state.phone || '',
       location: state.deliveryLocation || '',
       occasion: state.occasion || '',
       coupon: state.couponType || '',
