@@ -643,7 +643,8 @@ function reserveTable(e) {
   }
 
   // Validate date is not in the past
-  var today = new Date().toISOString().substring(0, 10);
+  var d = new Date();
+  var today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   if (date < today) {
     alert('Please select today or a future date.');
     return;

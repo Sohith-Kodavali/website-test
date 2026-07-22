@@ -90,6 +90,14 @@ function adminHaptic(type) {
     }
   } catch(e) {}
 }
+function toIST(isoStr) {
+  if (!isoStr) return { date: '', time: '', datetime: '' };
+  var d = new Date(isoStr);
+  var parts = d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).split(', ');
+  var dt = parts[0].split('/');
+  return { date: dt[2] + '-' + dt[1] + '-' + dt[0], time: parts[1] || '', datetime: dt[2] + '-' + dt[1] + '-' + dt[0] + ' ' + (parts[1] || '') };
+}
+
 const ADMIN_KEY = 'rrk_admin_session';
 
 function adminError(elId, msg) {
@@ -426,7 +434,7 @@ function renderRawEditor() {
   rrkRaw.list().then(items => {
     el.innerHTML = `<h3 style="margin-bottom:20px">Raw Chicken Items (${items.length})</h3>
       <div class="cms-list">${items.map(r =>`
-        <div class="cms-item"><div class="cms-item-info"><img src="${r.image||''}" alt="${r.name}" class="cms-item-img" /><div><b>${r.name}</b><span>₹${r.price||0}/kg · ${r.weight||''} · ${r.tag||''}</span></div></div>
+        <div class="cms-item"><div class="cms-item-info"><img src="${r.image||''}" alt="${r.name}" class="cms-item-img" /><div><b>${r.name}</b><span>₹${r.price||0} · ${r.weight||''} · ${r.tag||''}</span></div></div>
         <div class="cms-item-actions"><button class="btn btn--gold-outline" style="padding:6px 14px;font-size:12px;margin-right:6px" onclick="editRawDoc('${r.id}')">Edit</button><button class="btn" style="padding:6px 14px;font-size:12px;background:#C1121F;color:#fff;border:none" onclick="deleteRawDoc('${r.id}')">Delete</button></div></div>`
       ).join('')}</div><button class="btn btn--primary" style="margin-top:16px" onclick="addRawDoc()">+ Add Item</button>`;
   });
@@ -435,7 +443,7 @@ function renderRawEditor() {
 function rawFields(item) {
   return [
     { key: 'name', label: 'Name', type: 'text', val: item.name||'' },
-    { key: 'price', label: 'Price (₹/kg)', type: 'number', val: item.price||0 },
+    { key: 'price', label: 'Price (₹)', type: 'number', val: item.price||0 },
     { key: 'weight', label: 'Weight', type: 'text', val: item.weight||'1 kg' },
     { key: 'image', label: 'Image URL', type: 'text', val: item.image||'', preview: true },
     { key: 'tag', label: 'Tag', type: 'text', val: item.tag||'Fresh Today' },
@@ -465,7 +473,7 @@ function deleteRawDoc(id) {
 // ============ ORDERS ============
 var adminActiveOrderType = 'all';
 var ordersLastDoc = null;
-var ordersPageLimit = 50;
+var ordersPageLimit = 10;
 var ordersPollingInterval = null;
 var lastOrderCount = 0;
 
@@ -537,37 +545,39 @@ function playNewOrderAlert(count, isCraft) {
   try {
     var ctx = getAdminAudioCtx();
     if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    var now = ctx.currentTime;
-    var duration = 3.0; // 3 seconds
+    var resumePromise = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
+    resumePromise.then(function() {
+      var now = ctx.currentTime;
+      var duration = 3.0; // 3 seconds
 
-    // Layer 1: Deep alarm tone
-    var o1 = ctx.createOscillator();
-    var g1 = ctx.createGain();
-    o1.type = 'sawtooth';
-    o1.frequency.setValueAtTime(440, now);
-    o1.frequency.setValueAtTime(660, now + 0.15);
-    o1.frequency.setValueAtTime(440, now + 0.30);
-    o1.frequency.setValueAtTime(660, now + 0.45);
-    o1.frequency.setValueAtTime(550, now + 1.5);
-    g1.gain.setValueAtTime(0.6, now);
-    g1.gain.exponentialRampToValueAtTime(0.3, now + 2.5);
-    g1.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    o1.connect(g1); g1.connect(ctx.destination);
-    o1.start(now); o1.stop(now + duration);
+      // Layer 1: Deep alarm tone
+      var o1 = ctx.createOscillator();
+      var g1 = ctx.createGain();
+      o1.type = 'sawtooth';
+      o1.frequency.setValueAtTime(440, now);
+      o1.frequency.setValueAtTime(660, now + 0.15);
+      o1.frequency.setValueAtTime(440, now + 0.30);
+      o1.frequency.setValueAtTime(660, now + 0.45);
+      o1.frequency.setValueAtTime(550, now + 1.5);
+      g1.gain.setValueAtTime(0.6, now);
+      g1.gain.exponentialRampToValueAtTime(0.3, now + 2.5);
+      g1.gain.exponentialRampToValueAtTime(0.001, now + duration);
+      o1.connect(g1); g1.connect(ctx.destination);
+      o1.start(now); o1.stop(now + duration);
 
-    // Layer 2: High-pitched alert beeps
-    var o2 = ctx.createOscillator();
-    var g2 = ctx.createGain();
-    o2.type = 'square';
-    for (var i = 0; i < 6; i++) {
-      var t = now + i * 0.5;
-      o2.frequency.setValueAtTime(880, t);
-      g2.gain.setValueAtTime(0.4, t);
-      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-    }
-    o2.connect(g2); g2.connect(ctx.destination);
-    o2.start(now); o2.stop(now + duration);
+      // Layer 2: High-pitched alert beeps
+      var o2 = ctx.createOscillator();
+      var g2 = ctx.createGain();
+      o2.type = 'square';
+      for (var i = 0; i < 6; i++) {
+        var t = now + i * 0.5;
+        o2.frequency.setValueAtTime(880, t);
+        g2.gain.setValueAtTime(0.4, t);
+        g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      }
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.start(now); o2.stop(now + duration);
+    });
   } catch(e) {}
 
   // Browser notification
@@ -605,8 +615,9 @@ function renderAdminOrdersList(orders, type, hasMore) {
   };
   list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Type</th><th>Phone</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
     filtered.map(function(o) {
-      var date = (o.created_at||'').substring(0,10);
-      var time = (o.created_at||'').substring(11,16);
+      var ist = toIST(o.created_at);
+      var date = ist.date;
+      var time = ist.time;
       var typeLabel = {online:'🍗 Online',craft:'🍽️ Craft',raw:'🥩 Raw'}[o.type||'online']||'Online';
       var extra = o.type==='craft' ? ' · '+o.guests+' guests' : (o.phone ? ' · '+o.phone : '');
       var actions = '';
@@ -662,7 +673,7 @@ function loadReservations() {
     }
     list.innerHTML = '<div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Booking Date</th><th>Time</th><th>Actions</th></tr></thead><tbody>'+
       reservations.map(function(r) {
-        var created = (r.created_at||'').substring(0,10);
+        var created = toIST(r.created_at).date;
         return '<tr><td>'+created+'</td><td><b>'+(r.name||'')+'</b></td><td>'+(r.phone||'')+'</td><td>'+(r.date||'')+'</td><td>'+(r.time||'')+'</td>'+
         '<td><button class="btn" style="padding:3px 8px;font-size:11px;background:#25D366;color:#fff;border:none;margin-right:4px" onclick="notifyReservationCustomer(\''+r.id+'\')">💬</button>'+
         '<button class="btn" style="padding:3px 8px;font-size:11px;background:#555;color:#fff;border:none" onclick="deleteReservationDoc(\''+r.id+'\')">🗑</button></td></tr>';
@@ -901,7 +912,7 @@ function renderAdminCustomersList(customers, query) {
         bdayCell = '<span class="muted" style="font-size:11px">Outside window</span>';
       }
       bdayCell += claimHistory;
-      return '<tr><td><b>'+(c.name||'')+'</b></td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'—')+'</td><td>'+(c.created_at||'').substring(0,10)+'</td><td style="min-width:160px">'+bdayCell+'</td>'+
+      return '<tr><td><b>'+(c.name||'')+'</b></td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'—')+'</td><td>'+toIST(c.created_at).date+'</td><td style="min-width:160px">'+bdayCell+'</td>'+
       '<td><button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteCustomerDoc(\''+c.id+'\')">Delete</button></td></tr>';
     }).join('') + '</tbody></table></div>';
 }
@@ -931,7 +942,7 @@ function renderReviewsEditor() {
     el.innerHTML = '<h3 style="margin-bottom:20px">Customer Reviews ('+items.length+')</h3>' +
       '<div class="cms-list">' +
       items.map(function(r) {
-        return '<div class="cms-item"><div><b>'+r.name+'</b> <span style="color:#D4AF37">'+('★'.repeat(parseInt(r.stars)||5))+'</span><br><span>'+r.text+'</span><br><small style="color:#6B6B6B">'+((r.created_at||'').substring(0,10))+'</small></div>'+
+        return '<div class="cms-item"><div><b>'+r.name+'</b> <span style="color:#D4AF37">'+('★'.repeat(parseInt(r.stars)||5))+'</span><br><span>'+r.text+'</span><br><small style="color:#6B6B6B">'+toIST(r.created_at).date+'</small></div>'+
           '<button class="btn" style="padding:4px 10px;font-size:11px;background:#C1121F;color:#fff;border:none" onclick="deleteReviewDoc(\''+r.id+'\')">Hide</button></div>';
       }).join('') +
       (items.length === 0 ? '<p class="muted">No reviews yet. Customer reviews from the website will appear here.</p>' : '') +
@@ -1104,11 +1115,11 @@ function downloadOrdersPDF() {
     '<table><thead><tr><th>Date</th><th>Type</th><th>Phone</th><th>Items</th><th>Total</th><th>Mode</th><th>Status</th></tr></thead><tbody>'+
     orders.map(function(o){
       var typeLabel = {online:'Online',craft:'Craft',raw:'Raw'}[o.type||'online']||'Online';
-      return '<tr><td>'+((o.created_at||'').substring(0,10))+'</td><td>'+typeLabel+'</td><td>'+((o.phone||'').replace(/</g,''))+'</td><td>'+(o.items||'')+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td><span class="status-'+(o.status||'pending')+'">'+(o.status||'pending')+'</span></td></tr>';
+      return '<tr><td>'+toIST(o.created_at).date+'</td><td>'+typeLabel+'</td><td>'+((o.phone||'').replace(/</g,''))+'</td><td>'+(o.items||'')+'</td><td>₹'+(o.total||0)+'</td><td>'+(o.mode||'')+'</td><td><span class="status-'+(o.status||'pending')+'">'+(o.status||'pending')+'</span></td></tr>';
     }).join('')+
     '</tbody></table></body></html>';
   var blob = new Blob([html], {type:'text/html'});
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-orders-' + new Date().toISOString().substring(0,10) + '.html';
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-orders-' + toIST(new Date().toISOString()).date + '.html';
   a.click(); URL.revokeObjectURL(a.href);
 }
 
@@ -1129,11 +1140,11 @@ function downloadCustomersPDF() {
         } else {
           claimsText = 'None';
         }
-        return '<tr><td>'+(i+1)+'</td><td>'+(c.name||'').replace(/</g,'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'')+'</td><td>'+claimsText+'</td><td>'+((c.created_at||'').substring(0,10))+'</td></tr>';
+        return '<tr><td>'+(i+1)+'</td><td>'+(c.name||'').replace(/</g,'')+'</td><td>'+(c.phone||'')+'</td><td>'+(c.dob||'')+'</td><td>'+claimsText+'</td><td>'+toIST(c.created_at).date+'</td></tr>';
       }).join('')+
       '</tbody></table></body></html>';
     var blob = new Blob([html], {type:'text/html'});
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-customers-' + new Date().toISOString().substring(0,10) + '.html';
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'rrk-customers-' + toIST(new Date().toISOString()).date + '.html';
     a.click(); URL.revokeObjectURL(a.href);
   }).catch(function(){ alert('Failed to load customers.'); });
 }
